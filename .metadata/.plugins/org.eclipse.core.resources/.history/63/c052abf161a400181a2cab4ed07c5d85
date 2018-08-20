@@ -1,0 +1,43 @@
+package de.tub.qds.rm.controller;
+
+import java.sql.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import de.tub.qds.rm.models.consts.FileStore;
+import de.tub.qds.rm.models.consts.Measurement;
+import de.tub.qds.rm.models.consts.repos.FileStoreRepo;
+import de.tub.qds.rm.models.consts.repos.MeasurementRepo;
+
+@RestController
+public class MeasurementController {
+	
+	@Autowired
+	MeasurementRepo repo;
+
+	@RequestMapping(method = RequestMethod.GET, path = "/measurement", produces = "application/json")
+	public List<Measurement> getMeasurements() {
+		return repo.findAll();
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}", produces = "application/json")
+	public Measurement getMeasurementById(@PathVariable("measurementId") long measurementId) {
+		return repo.existsById(measurementId) ? repo.findById(measurementId).get() : null;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurementIp", produces = "application/json")
+	public String getMeasurementByIdMeasurementIp(@PathVariable("measurementId") long measurementId) {
+		return repo.existsById(measurementId) ? repo.findById(measurementId).get().getMeasurementIp() : null;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurementStartDate", produces = "application/json")
+	public Date getMeasurementByIdStartDate(@PathVariable("measurementId") long measurementId) {
+		return repo.existsById(measurementId) ? repo.findById(measurementId).get().getMeasurementStartDate() : null;
+	}
+
+}

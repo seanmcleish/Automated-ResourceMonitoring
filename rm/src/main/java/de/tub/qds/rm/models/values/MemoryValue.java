@@ -7,7 +7,6 @@ import javax.persistence.Entity;
 
 import de.tub.qds.rm.models.values.pks.MemoryValuePK;
 
-
 @Entity
 public class MemoryValue implements Serializable {
 
@@ -20,8 +19,9 @@ public class MemoryValue implements Serializable {
 	long memoryValueAvailable;
 	long memoryValueSwapTotal;
 	long memoryValueSwapUsed;
-	
-	public MemoryValue(){}
+
+	public MemoryValue() {
+	}
 
 	public MemoryValue(MemoryValuePK id, long available, long swapTotal, long swapUsed) {
 		super();
@@ -31,32 +31,41 @@ public class MemoryValue implements Serializable {
 		this.memoryValueSwapUsed = swapUsed;
 	}
 
+	
+	public MemoryValuePK getMemoryValueId() {
+		return memoryValueId;
+	}
+
+	public void setMemoryValueId(MemoryValuePK memoryValueId) {
+		this.memoryValueId = memoryValueId;
+	}
+
 	public long getMemoryValueAvailable() {
 		return memoryValueAvailable;
 	}
 
-	public void setMemoryValueAvailable(long available) {
-		this.memoryValueAvailable = available;
+	public void setMemoryValueAvailable(long memoryValueAvailable) {
+		this.memoryValueAvailable = memoryValueAvailable;
 	}
 
 	public long getMemoryValueSwapTotal() {
 		return memoryValueSwapTotal;
 	}
 
-	public void setMemoryValueSwapTotal(long swapTotal) {
-		this.memoryValueSwapTotal = swapTotal;
+	public void setMemoryValueSwapTotal(long memoryValueSwapTotal) {
+		this.memoryValueSwapTotal = memoryValueSwapTotal;
 	}
 
 	public long getMemoryValueSwapUsed() {
 		return memoryValueSwapUsed;
 	}
 
-	public void setMemoryValueSwapUsed(long swapUsed) {
-		this.memoryValueSwapUsed = swapUsed;
+	public void setMemoryValueSwapUsed(long memoryValueSwapUsed) {
+		this.memoryValueSwapUsed = memoryValueSwapUsed;
 	}
 
-	public MemoryValuePK getMemoryValueId() {
-		return memoryValueId;
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

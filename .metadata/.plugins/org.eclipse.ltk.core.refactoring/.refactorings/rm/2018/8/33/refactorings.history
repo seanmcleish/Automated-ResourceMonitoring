@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;baseboardSerialNumber&apos; in &apos;de.tub.qds.rm.controller.DiskController.getDiskById(...)&apos; to &apos;diskSerialNumber&apos;&#x0D;&#x0A;- Original project: &apos;rm&apos;&#x0D;&#x0A;- Original element: &apos;de.tub.qds.rm.controller.DiskController.getDiskById(String).baseboardSerialNumber&apos;&#x0D;&#x0A;- Renamed element: &apos;baseboardSerialNumber&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;baseboardSerialNumber&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src\/main\/java&lt;de.tub.qds.rm.controller{DiskController.java[DiskController~getDiskById~QString;@baseboardSerialNumber!857!918!898!918!QString;!0!true" name="diskSerialNumber" references="true" stamp="1534418939995" version="1.0"/>
+</session>

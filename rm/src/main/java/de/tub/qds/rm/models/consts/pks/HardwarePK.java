@@ -1,11 +1,12 @@
 package de.tub.qds.rm.models.consts.pks;
 
-
 import java.io.Serializable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.ManyToOne;
 
 import de.tub.qds.rm.models.consts.Baseboard;
@@ -21,58 +22,42 @@ public class HardwarePK implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE) int hardwareIdentifier;
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	SystemModel hardwareSystemModel;
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Baseboard hardwareBaseboard;
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Firmware hardwareFirmware;
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Processor hardwareProcessor;
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Memory hardwareMemory;
-	
-	public HardwarePK(){}
 
-	public HardwarePK(Firmware firmware, Processor processor, Memory memory, Baseboard baseboard, SystemModel systemModel) {
+	public HardwarePK() {
+	}
+
+	public HardwarePK(Firmware firmware, Processor processor, Memory memory, Baseboard baseboard,
+			SystemModel systemModel) {
 		super();
 		this.hardwareFirmware = firmware;
 		this.hardwareProcessor = processor;
 		this.hardwareMemory = memory;
 		this.hardwareBaseboard = baseboard;
 		this.hardwareSystemModel = systemModel;
-		/*this.hardwareNetworks = new HashSet<Network>();
-		this.hardwareMemory = memory;
-		this.hardwareDisks = new HashSet<Disk>();*/
+		/*
+		 * this.hardwareNetworks = new HashSet<Network>(); this.hardwareMemory =
+		 * memory; this.hardwareDisks = new HashSet<Disk>();
+		 */
+	}
+	
+	public int getHardwareIdentifier() {
+		return hardwareIdentifier;
 	}
 
-
-	public Firmware getHardwareFirmware() {
-		return hardwareFirmware;
+	public void setHardwareIdentifier(int hardwareIdentifier) {
+		this.hardwareIdentifier = hardwareIdentifier;
 	}
-
-	public Processor getHardwareProcessor() {
-		return hardwareProcessor;
-	}
-/*
-	public Set<Network> getHardwareNetworks() {
-		return hardwareNetworks;
-	}
-	public void addHardwareNetwork(Network network){
-		this.hardwareNetworks.add(network);
-	}*/
-/*
-	public Memory getHardwareMemory() {
-		return hardwareMemory;
-	}
-
-	public Set<Disk> getHardwareDisks() {
-		return hardwareDisks;
-	}
-	public void addHardwareDisk(Disk disk){
-		this.hardwareDisks.add(disk);
-	}
-*/
 
 	public SystemModel getHardwareSystemModel() {
 		return hardwareSystemModel;
@@ -90,9 +75,16 @@ public class HardwarePK implements Serializable {
 		this.hardwareBaseboard = hardwareBaseboard;
 	}
 
+	public Firmware getHardwareFirmware() {
+		return hardwareFirmware;
+	}
 
 	public void setHardwareFirmware(Firmware hardwareFirmware) {
 		this.hardwareFirmware = hardwareFirmware;
+	}
+
+	public Processor getHardwareProcessor() {
+		return hardwareProcessor;
 	}
 
 	public void setHardwareProcessor(Processor hardwareProcessor) {
@@ -110,6 +102,5 @@ public class HardwarePK implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-
 
 }

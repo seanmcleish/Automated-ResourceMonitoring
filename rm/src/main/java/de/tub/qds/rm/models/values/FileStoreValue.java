@@ -1,7 +1,5 @@
 package de.tub.qds.rm.models.values;
 
-
-
 import java.io.Serializable;
 
 import javax.persistence.EmbeddedId;
@@ -20,7 +18,8 @@ public class FileStoreValue implements Serializable {
 	FileStoreValuePK fileStoreValueId;
 	long fileStoreValueUsableSpace;
 
-	public FileStoreValue(){}
+	public FileStoreValue() {
+	}
 
 	public FileStoreValue(FileStoreValuePK id, long usableSpace) {
 		super();
@@ -28,19 +27,25 @@ public class FileStoreValue implements Serializable {
 		this.fileStoreValueUsableSpace = usableSpace;
 	}
 
+	
 	public FileStoreValuePK getFileStoreValueId() {
 		return fileStoreValueId;
 	}
-	public void setFileStoreValueId (FileStoreValuePK id){
-		this.fileStoreValueId = id;
+
+	public void setFileStoreValueId(FileStoreValuePK fileStoreValueId) {
+		this.fileStoreValueId = fileStoreValueId;
 	}
 
 	public long getFileStoreValueUsableSpace() {
 		return fileStoreValueUsableSpace;
 	}
 
-	public void setFileStoreValueUsableSpace(long usableSpace) {
-		this.fileStoreValueUsableSpace = usableSpace;
+	public void setFileStoreValueUsableSpace(long fileStoreValueUsableSpace) {
+		this.fileStoreValueUsableSpace = fileStoreValueUsableSpace;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

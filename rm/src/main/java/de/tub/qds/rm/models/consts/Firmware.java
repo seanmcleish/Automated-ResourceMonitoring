@@ -1,7 +1,5 @@
 package de.tub.qds.rm.models.consts;
 
-
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +9,8 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.consts.pks.FirmwarePK;
 
@@ -25,8 +25,9 @@ public class Firmware implements Serializable {
 	FirmwarePK firmwareId;
 	@OneToMany(mappedBy = "hardwareId.hardwareFirmware", targetEntity = Hardware.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Hardware> hardware;
-	
-	public Firmware(){}
+
+	public Firmware() {
+	}
 
 	public Firmware(FirmwarePK id) {
 		super();
@@ -34,23 +35,15 @@ public class Firmware implements Serializable {
 		this.hardware = new HashSet<Hardware>();
 	}
 
-	
-	public FirmwarePK getId() {
+	public FirmwarePK getFirmwareId() {
 		return firmwareId;
 	}
 
-	public void setFirmwareId(FirmwarePK id) {
-		this.firmwareId = id;
+	public void setFirmwareId(FirmwarePK firmwareId) {
+		this.firmwareId = firmwareId;
 	}
 
-	public Set<Hardware> getFirmwareHardware() {
-		return hardware;
-	}
-
-	public void addFirmwareHardware(Hardware hardware) {
-		this.hardware.add(hardware);
-	}
-
+	@JsonIgnore
 	public Set<Hardware> getHardware() {
 		return hardware;
 	}
@@ -61,10 +54,6 @@ public class Firmware implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-
-	public FirmwarePK getFirmwareId() {
-		return firmwareId;
 	}
 
 }

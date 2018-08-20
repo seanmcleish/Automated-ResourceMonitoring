@@ -6,37 +6,38 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import de.tub.qds.rm.models.consts.pks.HardwarePK;
-
 @Entity
 public class HardwareDisk implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	@Id@GeneratedValue int id;
-	HardwarePK hardwareId;
+	@Id
+	@GeneratedValue
+	long hardwareDiskId;
+	long hardwareIdentifier;
 	String diskSerialNumber;
-	
-	public HardwareDisk(){}
-	
-	public HardwareDisk(HardwarePK hardwareId, String diskSerialNumber){
-		this.hardwareId = hardwareId;
+
+	public HardwareDisk() {
+	}
+
+	public HardwareDisk(long hardwareIdentifier, String diskSerialNumber) {
+		this.hardwareIdentifier = hardwareIdentifier;
 		this.diskSerialNumber = diskSerialNumber;
 	}
 
-	public int getId() {
-		return id;
+	public long getHardwareDiskId() {
+		return hardwareDiskId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setHardwareDiskId(long hardwareDiskId) {
+		this.hardwareDiskId = hardwareDiskId;
 	}
 
-	public HardwarePK getHardwareId() {
-		return hardwareId;
+	public long getHardwareIdentifier() {
+		return hardwareIdentifier;
 	}
 
-	public void setHardwareId(HardwarePK hardwareId) {
-		this.hardwareId = hardwareId;
+	public void setHardwareIdentifier(long hardwareIdentifier) {
+		this.hardwareIdentifier = hardwareIdentifier;
 	}
 
 	public String getDiskSerialNumber() {
@@ -50,6 +51,5 @@ public class HardwareDisk implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
+
 }

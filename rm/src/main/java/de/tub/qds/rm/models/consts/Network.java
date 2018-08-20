@@ -1,6 +1,5 @@
 package de.tub.qds.rm.models.consts;
 
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.values.NetworkValue;
 
@@ -31,7 +32,8 @@ public class Network implements Serializable {
 	@OneToMany(mappedBy = "networkValueId.networkValueNetwork", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<NetworkValue> networkValues;
 
-	public Network(){}
+	public Network() {
+	}
 
 	public Network(String mac, String name, String displayName, String ipv4, String ipv6, Long mtu, Long speed) {
 		super();
@@ -44,77 +46,74 @@ public class Network implements Serializable {
 		this.networkSpeed = speed;
 		this.networkValues = new HashSet<NetworkValue>();
 	}
-	
+
 	public String getNetworkMac() {
 		return networkMac;
-	}
-
-	public String getNetworkName() {
-		return networkName;
-	}
-
-	public void setNetworkName(String name) {
-		this.networkName = name;
-	}
-
-	public String getNetworkDisplayName() {
-		return networkDisplayName;
-	}
-
-	public void setNetworkDisplayName(String displayName) {
-		this.networkDisplayName = displayName;
-	}
-
-	public String getNetworkIpv4() {
-		return networkIpv4;
-	}
-
-	public void setNetworkIpv4(String ipv4) {
-		this.networkIpv4 = ipv4;
-	}
-
-	public String getNetworkIpv6() {
-		return networkIpv6;
-	}
-
-	public void setNetworkIpv6(String ipv6) {
-		this.networkIpv6 = ipv6;
-	}
-
-	public Long getNetworkMtu() {
-		return networkMtu;
-	}
-
-	public void setNetworkMtu(Long mtu) {
-		this.networkMtu = mtu;
-	}
-
-	public Long getNetworkSpeed() {
-		return networkSpeed;
-	}
-
-	public void setNetworkSpeed(Long speed) {
-		this.networkSpeed = speed;
-	}
-
-	public Set<NetworkValue> getNetworkValues() {
-		return networkValues;
-	}
-
-	public void addNetworkValue(NetworkValue value) {
-		networkValues.add(value);
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 	public void setNetworkMac(String networkMac) {
 		this.networkMac = networkMac;
 	}
 
+	public String getNetworkName() {
+		return networkName;
+	}
+
+	public void setNetworkName(String networkName) {
+		this.networkName = networkName;
+	}
+
+	public String getNetworkDisplayName() {
+		return networkDisplayName;
+	}
+
+	public void setNetworkDisplayName(String networkDisplayName) {
+		this.networkDisplayName = networkDisplayName;
+	}
+
+	public String getNetworkIpv4() {
+		return networkIpv4;
+	}
+
+	public void setNetworkIpv4(String networkIpv4) {
+		this.networkIpv4 = networkIpv4;
+	}
+
+	public String getNetworkIpv6() {
+		return networkIpv6;
+	}
+
+	public void setNetworkIpv6(String networkIpv6) {
+		this.networkIpv6 = networkIpv6;
+	}
+
+	public Long getNetworkMtu() {
+		return networkMtu;
+	}
+
+	public void setNetworkMtu(Long networkMtu) {
+		this.networkMtu = networkMtu;
+	}
+
+	public Long getNetworkSpeed() {
+		return networkSpeed;
+	}
+
+	public void setNetworkSpeed(Long networkSpeed) {
+		this.networkSpeed = networkSpeed;
+	}
+
+	@JsonIgnore
+	public Set<NetworkValue> getNetworkValues() {
+		return networkValues;
+	}
+
 	public void setNetworkValues(Set<NetworkValue> networkValues) {
 		this.networkValues = networkValues;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

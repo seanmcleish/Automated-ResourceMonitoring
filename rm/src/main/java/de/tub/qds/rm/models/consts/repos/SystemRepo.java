@@ -6,5 +6,8 @@ import de.tub.qds.rm.models.consts.System;
 import de.tub.qds.rm.models.consts.pks.SystemPK;;
 
 public interface SystemRepo extends JpaRepository<System, SystemPK> {
+	
+	public System findBySystemIdSystemIdentifier(long systemIdentifier);
+	public boolean existsBySystemIdSystemIdentifier(long systemIdentifier);
 
 }

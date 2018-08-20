@@ -1,0 +1,30 @@
+package de.tub.qds.rm.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import de.tub.qds.rm.models.consts.FileStore;
+import de.tub.qds.rm.models.consts.repos.FileStoreRepo;
+
+@RestController
+public class FileStoreController {
+
+	@Autowired
+	FileStoreRepo repo;
+
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore", produces = "application/json")
+	public List<FileStore> getFileStores() {
+		return repo.findAll();
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}", produces = "application/json")
+	public FileStore getDiskById(@PathVariable("fileStorUuid") String fileStoreUuid) {
+		return repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get() : null;
+	}
+	
+}

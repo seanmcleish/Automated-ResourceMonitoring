@@ -6,38 +6,39 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import de.tub.qds.rm.models.consts.pks.HardwarePK;
-
 @Entity
 public class HardwareNetwork implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Id@GeneratedValue int id;
-	HardwarePK hardwareId;
+	@Id
+	@GeneratedValue
+	long hardwareNetworkId;
+	long hardwareIdentifier;
 	String networkMac;
-	
-	public HardwareNetwork(){}
-	
-	public HardwareNetwork(HardwarePK hardwareId, String networkMac){
-		this.hardwareId = hardwareId;
+
+	public HardwareNetwork() {
+	}
+
+	public HardwareNetwork(long hardwareIdentifier, String networkMac) {
+		this.hardwareIdentifier = hardwareIdentifier;
 		this.networkMac = networkMac;
 	}
 
-	public int getId() {
-		return id;
+	public long getHardwareNetworkId() {
+		return hardwareNetworkId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setHardwareNetworkId(long hardwareNetworkId) {
+		this.hardwareNetworkId = hardwareNetworkId;
 	}
 
-	public HardwarePK getHardwareId() {
-		return hardwareId;
+	public long getHardwareIdentifier() {
+		return hardwareIdentifier;
 	}
 
-	public void setHardwareId(HardwarePK hardwareId) {
-		this.hardwareId = hardwareId;
+	public void setHardwareIdentifier(long hardwareIdentifier) {
+		this.hardwareIdentifier = hardwareIdentifier;
 	}
 
 	public String getNetworkMac() {
@@ -51,4 +52,5 @@ public class HardwareNetwork implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
 }

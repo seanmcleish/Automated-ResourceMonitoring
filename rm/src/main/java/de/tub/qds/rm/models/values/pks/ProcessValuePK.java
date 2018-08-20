@@ -1,14 +1,14 @@
 package de.tub.qds.rm.models.values.pks;
 
-
 import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
 
-import de.tub.qds.rm.models.consts.Process;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import de.tub.qds.rm.models.consts.Process;
 
 @Embeddable
 public class ProcessValuePK implements Serializable {
@@ -22,7 +22,8 @@ public class ProcessValuePK implements Serializable {
 	@ManyToOne
 	Process processValueProcess;
 
-	public ProcessValuePK(){}
+	public ProcessValuePK() {
+	}
 
 	public ProcessValuePK(int measurement, Date timestamp, Process process) {
 		super();
@@ -31,16 +32,33 @@ public class ProcessValuePK implements Serializable {
 		this.processValueProcess = process;
 	}
 
-	public int getMeasurement() {
+	public int getProcessValueMeasurementId() {
 		return processValueMeasurementId;
 	}
 
-	public Date getTimestamp() {
+	public void setProcessValueMeasurementId(int processValueMeasurementId) {
+		this.processValueMeasurementId = processValueMeasurementId;
+	}
+
+	public Date getProcessValueTimestamp() {
 		return processValueTimestamp;
 	}
 
-	public Process getProcess() {
+	public void setProcessValueTimestamp(Date processValueTimestamp) {
+		this.processValueTimestamp = processValueTimestamp;
+	}
+
+	@JsonIgnore
+	public Process getProcessValueProcess() {
 		return processValueProcess;
+	}
+
+	public void setProcessValueProcess(Process processValueProcess) {
+		this.processValueProcess = processValueProcess;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

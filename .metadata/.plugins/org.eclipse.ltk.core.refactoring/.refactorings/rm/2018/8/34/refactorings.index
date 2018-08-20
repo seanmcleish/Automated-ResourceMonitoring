@@ -1,0 +1,15 @@
+1534753836420	Rename field 'fileStores'
+1534756772061	Rename type 'TestController'
+1534760299266	Rename field 'measurementIsRunning'
+1534772365309	Rename field 'opratingSystemManufacturer'
+1534773761880	Rename field 'operatingSystemfamily'
+1534775448488	Rename field 'processorIsCpu64bit'
+1534777723140	Rename field 'id'
+1534777732937	Rename field 'fileSystemid'
+1534781153260	Rename field 'fileSystemfileStores'
+1534787771317	Delete element
+1534787776755	Delete element
+1534787797987	Delete element
+1534787807819	Delete element
+1534787893007	Delete element
+1534807769900	Copy compilation unit

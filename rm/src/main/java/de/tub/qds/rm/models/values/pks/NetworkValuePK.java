@@ -1,11 +1,12 @@
 package de.tub.qds.rm.models.values.pks;
 
-
 import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.consts.Network;
 
@@ -21,7 +22,8 @@ public class NetworkValuePK implements Serializable {
 	@ManyToOne
 	Network networkValueNetwork;
 
-	public NetworkValuePK(){}
+	public NetworkValuePK() {
+	}
 
 	public NetworkValuePK(int measurement, Date timestamp, Network network) {
 		super();
@@ -30,16 +32,33 @@ public class NetworkValuePK implements Serializable {
 		this.networkValueNetwork = network;
 	}
 
-	public int getMeasurement() {
+	public int getNetworkValueMeasurementId() {
 		return networkValueMeasurementId;
 	}
 
-	public Date getTimestamp() {
+	public void setNetworkValueMeasurementId(int networkValueMeasurementId) {
+		this.networkValueMeasurementId = networkValueMeasurementId;
+	}
+
+	public Date getNetworkValueTimestamp() {
 		return networkValueTimestamp;
 	}
 
-	public Network getNetwork() {
+	public void setNetworkValueTimestamp(Date networkValueTimestamp) {
+		this.networkValueTimestamp = networkValueTimestamp;
+	}
+
+	@JsonIgnore
+	public Network getNetworkValueNetwork() {
 		return networkValueNetwork;
+	}
+
+	public void setNetworkValueNetwork(Network networkValueNetwork) {
+		this.networkValueNetwork = networkValueNetwork;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

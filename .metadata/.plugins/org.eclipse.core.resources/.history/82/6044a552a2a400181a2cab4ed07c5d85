@@ -1,0 +1,61 @@
+package de.tub.qds.rm.models.values;
+
+import java.io.Serializable;
+
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+
+import de.tub.qds.rm.models.values.pks.FileSystemValuePK;
+
+@Entity
+public class FileSystemValue implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@EmbeddedId
+	FileSystemValuePK fileSystemValueId;
+	long fileSystemValueOpenFileDescriptors;
+	long fileSystemValueMaxFileDescriptors;
+
+	public FileSystemValue() {
+	}
+
+	public FileSystemValue(FileSystemValuePK id, long openFileDescriptors, long maxFileDescriptors) {
+		super();
+		this.fileSystemValueId = id;
+		this.fileSystemValueOpenFileDescriptors = openFileDescriptors;
+		this.fileSystemValueMaxFileDescriptors = maxFileDescriptors;
+	}
+
+	
+	public FileSystemValuePK getFileSystemValueId() {
+		return fileSystemValueId;
+	}
+
+	public void setFileSystemValueId(FileSystemValuePK fileSystemValueId) {
+		this.fileSystemValueId = fileSystemValueId;
+	}
+
+	public long getFileSystemValueOpenFileDescriptors() {
+		return fileSystemValueOpenFileDescriptors;
+	}
+
+	public void setFileSystemValueOpenFileDescriptors(long fileSystemValueOpenFileDescriptors) {
+		this.fileSystemValueOpenFileDescriptors = fileSystemValueOpenFileDescriptors;
+	}
+
+	public long getFileSystemValueMaxFileDescriptors() {
+		return fileSystemValueMaxFileDescriptors;
+	}
+
+	public void setFileSystemValueMaxFileDescriptors(long fileSystemValueMaxFileDescriptors) {
+		this.fileSystemValueMaxFileDescriptors = fileSystemValueMaxFileDescriptors;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+}

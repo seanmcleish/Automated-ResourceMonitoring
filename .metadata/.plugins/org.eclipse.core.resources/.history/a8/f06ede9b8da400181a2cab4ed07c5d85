@@ -1,0 +1,83 @@
+package de.tub.qds.rm.models.consts;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import de.tub.qds.rm.models.values.FileSystemValue;
+
+@Entity
+public class FileSystem implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue
+	long fileSystemId;
+	@OneToOne(mappedBy = "diskFileSystem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	Disk fileSystemDisk;
+	@OneToMany(mappedBy = "fileStoreFileSystem", targetEntity = FileStore.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	Set<FileStore> fileSystemfileStores;
+	@OneToMany(mappedBy = "fileSystemValueId.fileSystemValueFileSystem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	Set<FileSystemValue> fileSystemValues;
+
+	public FileSystem() {
+	}
+
+	public FileSystem(Disk disk) {
+		super();
+		this.fileSystemDisk = disk;
+		fileSystemfileStores = new HashSet<FileStore>();
+		fileSystemValues = new HashSet<FileSystemValue>();
+	}
+
+	public long getFileSystemId() {
+		return fileSystemId;
+	}
+
+	public void setFileSystemId(long id) {
+		this.fileSystemId = id;
+	}
+
+	public Disk getFileSystemDisk() {
+		return fileSystemDisk;
+	}
+
+	public void setFileSystemDisk(Disk fileSystemDisk) {
+		this.fileSystemDisk = fileSystemDisk;
+	}
+
+	public Set<FileStore> getFileSystemFileStores() {
+		return fileSystemfileStores;
+	}
+
+	public void setFileSystemFileStores(Set<FileStore> fileSystemFileStores) {
+		this.fileSystemfileStores = fileSystemFileStores;
+	}
+
+	@JsonIgnore
+	public Set<FileSystemValue> getFileSystemValues() {
+		return fileSystemValues;
+	}
+
+	public void setFileSystemValues(Set<FileSystemValue> fileSystemValues) {
+		this.fileSystemValues = fileSystemValues;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+}

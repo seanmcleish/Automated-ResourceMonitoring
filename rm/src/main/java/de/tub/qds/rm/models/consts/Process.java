@@ -1,6 +1,5 @@
 package de.tub.qds.rm.models.consts;
 
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +9,8 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.consts.pks.ProcessPK;
 import de.tub.qds.rm.models.values.ProcessValue;
@@ -24,10 +25,11 @@ public class Process implements Serializable {
 	@EmbeddedId
 	ProcessPK processId;
 	boolean processIsParentProcess;
-	@OneToMany(mappedBy="processValueId.processValueProcess", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "processValueId.processValueProcess", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<ProcessValue> processValues;
 
-	public Process(){}
+	public Process() {
+	}
 
 	public Process(ProcessPK id, boolean isParentProcess) {
 		super();
@@ -36,32 +38,25 @@ public class Process implements Serializable {
 		this.processValues = new HashSet<ProcessValue>();
 	}
 
-	public boolean getProcessIsParentProcess() {
-		return processIsParentProcess;
-	}
-
-	public void setProcessParentProcess(boolean isParentProcess) {
-		this.processIsParentProcess = isParentProcess;
-	}
-	
 	public ProcessPK getProcessId() {
 		return processId;
-	}
-
-	public Set<ProcessValue> getProcessValues() {
-		return processValues;
-	}
-
-	public void addValue(ProcessValue value) {
-		processValues.add(value);
 	}
 
 	public void setProcessId(ProcessPK processId) {
 		this.processId = processId;
 	}
 
+	public boolean isProcessIsParentProcess() {
+		return processIsParentProcess;
+	}
+
 	public void setProcessIsParentProcess(boolean processIsParentProcess) {
 		this.processIsParentProcess = processIsParentProcess;
+	}
+
+	@JsonIgnore
+	public Set<ProcessValue> getProcessValues() {
+		return processValues;
 	}
 
 	public void setProcessValues(Set<ProcessValue> processValues) {
@@ -71,6 +66,5 @@ public class Process implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-
 
 }

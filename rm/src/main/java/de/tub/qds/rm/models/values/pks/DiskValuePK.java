@@ -1,13 +1,12 @@
 package de.tub.qds.rm.models.values.pks;
 
-
-
-
 import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.consts.Disk;
 
@@ -23,7 +22,8 @@ public class DiskValuePK implements Serializable {
 	int diskValueMeasurementId;
 	Date diskValueTimestamp;
 
-	public DiskValuePK(){}
+	public DiskValuePK() {
+	}
 
 	public DiskValuePK(int measurement, Date timestamp) {
 		super();
@@ -31,15 +31,33 @@ public class DiskValuePK implements Serializable {
 		this.diskValueTimestamp = timestamp;
 	}
 
+	@JsonIgnore
 	public Disk getDiskValueDisk() {
 		return diskValueDisk;
 	}
 
-	public int getDiskValueMeasurement() {
+	public void setDiskValueDisk(Disk diskValueDisk) {
+		this.diskValueDisk = diskValueDisk;
+	}
+
+	public int getDiskValueMeasurementId() {
 		return diskValueMeasurementId;
+	}
+
+	public void setDiskValueMeasurementId(int diskValueMeasurementId) {
+		this.diskValueMeasurementId = diskValueMeasurementId;
 	}
 
 	public Date getDiskValueTimestamp() {
 		return diskValueTimestamp;
 	}
+
+	public void setDiskValueTimestamp(Date diskValueTimestamp) {
+		this.diskValueTimestamp = diskValueTimestamp;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 }

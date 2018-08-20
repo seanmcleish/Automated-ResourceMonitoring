@@ -1,15 +1,14 @@
 package de.tub.qds.rm.models.values.pks;
 
-
-
 import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
 
-import de.tub.qds.rm.models.consts.FileStore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import de.tub.qds.rm.models.consts.FileStore;
 
 @Embeddable
 public class FileStoreValuePK implements Serializable {
@@ -23,7 +22,8 @@ public class FileStoreValuePK implements Serializable {
 	int fileStoreValueMeasurementId;
 	Date fileStoreValueTimestamp;
 
-	public FileStoreValuePK(){}
+	public FileStoreValuePK() {
+	}
 
 	public FileStoreValuePK(int measurement, Date timestamp) {
 		super();
@@ -31,16 +31,33 @@ public class FileStoreValuePK implements Serializable {
 		this.fileStoreValueTimestamp = timestamp;
 	}
 
-	public FileStore getFileStore() {
+	@JsonIgnore
+	public FileStore getFileStoreValueFileStore() {
 		return fileStoreValueFileStore;
 	}
 
-	public int getMeasurement() {
+	public void setFileStoreValueFileStore(FileStore fileStoreValueFileStore) {
+		this.fileStoreValueFileStore = fileStoreValueFileStore;
+	}
+
+	public int getFileStoreValueMeasurementId() {
 		return fileStoreValueMeasurementId;
 	}
 
-	public Date getTimestamp() {
+	public void setFileStoreValueMeasurementId(int fileStoreValueMeasurementId) {
+		this.fileStoreValueMeasurementId = fileStoreValueMeasurementId;
+	}
+
+	public Date getFileStoreValueTimestamp() {
 		return fileStoreValueTimestamp;
+	}
+
+	public void setFileStoreValueTimestamp(Date fileStoreValueTimestamp) {
+		this.fileStoreValueTimestamp = fileStoreValueTimestamp;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

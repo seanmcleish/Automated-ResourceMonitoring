@@ -1,6 +1,5 @@
 package de.tub.qds.rm.models.consts;
 
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Baseboard implements Serializable {
@@ -24,10 +24,11 @@ public class Baseboard implements Serializable {
 	String baseboardManufacturer;
 	String baseboardModel;
 	String baseboardVersion;
-	@OneToMany (mappedBy = "hardwareId.hardwareBaseboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "hardwareId.hardwareBaseboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Hardware> baseboardHardware;
 
-	public Baseboard(){}
+	public Baseboard() {
+	}
 
 	public Baseboard(String serialNumber, String manufacturer, String model, String version) {
 		super();
@@ -36,43 +37,6 @@ public class Baseboard implements Serializable {
 		this.baseboardModel = model;
 		this.baseboardVersion = version;
 		this.baseboardHardware = new HashSet<Hardware>();
-	}
-
-	
-	public String getSerialNumber() {
-		return baseboardSerialNumber;
-	}
-
-	public void setSerialNumber(String serialNumber) {
-		this.baseboardSerialNumber = serialNumber;
-	}
-
-	public String getManufacturer() {
-		return baseboardManufacturer;
-	}
-
-	public void setManufacturer(String manufacturer) {
-		this.baseboardManufacturer = manufacturer;
-	}
-
-	public String getModel() {
-		return baseboardModel;
-	}
-
-	public void setModel(String model) {
-		this.baseboardModel = model;
-	}
-
-	public String getVersion() {
-		return baseboardVersion;
-	}
-
-	public void setVersion(String version) {
-		this.baseboardVersion = version;
-	}
-
-	public Set<Hardware> getHardware() {
-		return baseboardHardware;
 	}
 
 	public String getBaseboardSerialNumber() {
@@ -107,6 +71,7 @@ public class Baseboard implements Serializable {
 		this.baseboardVersion = baseboardVersion;
 	}
 
+	@JsonIgnore
 	public Set<Hardware> getBaseboardHardware() {
 		return baseboardHardware;
 	}

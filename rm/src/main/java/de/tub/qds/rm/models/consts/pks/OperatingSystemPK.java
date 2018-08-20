@@ -1,10 +1,10 @@
 package de.tub.qds.rm.models.consts.pks;
 
-
 import java.io.Serializable;
 
 import javax.persistence.Embeddable;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 
 @Embeddable
 public class OperatingSystemPK implements Serializable {
@@ -13,82 +13,75 @@ public class OperatingSystemPK implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	String opratingSystemManufacturer;
-	String operatingSystemfamily;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE) long operatingSystemIdentifier;
+	String operatingSystemManufacturer;
+	String operatingSystemFamily;
 	String operatingSystemVersion;
 	String operatingSystemCodeName;
 	String operatingSystemBuild;
 
-	 @GeneratedValue int id;
-	public OperatingSystemPK(){}
+	public OperatingSystemPK() {
+	}
 
 	public OperatingSystemPK(String manufacturer, String family, String version, String codeName, String build) {
 		super();
-		this.opratingSystemManufacturer = manufacturer;
-		this.operatingSystemfamily = family;
+		this.operatingSystemManufacturer = manufacturer;
+		this.operatingSystemFamily = family;
 		this.operatingSystemVersion = version;
 		this.operatingSystemCodeName = codeName;
 		this.operatingSystemBuild = build;
 	}
+	
+	public long getOperatingSystemIdentifier() {
+		return operatingSystemIdentifier;
+	}
+
+	public void setOperatingSystemIdentifier(long operatingSystemIdentifier) {
+		this.operatingSystemIdentifier = operatingSystemIdentifier;
+	}
 
 	public String getOperatingSystemManufacturer() {
-		return opratingSystemManufacturer;
+		return operatingSystemManufacturer;
+	}
+
+	public void setOperatingSystemManufacturer(String opratingSystemManufacturer) {
+		this.operatingSystemManufacturer = opratingSystemManufacturer;
 	}
 
 	public String getOperatingSystemFamily() {
-		return operatingSystemfamily;
+		return operatingSystemFamily;
+	}
+
+	public void setOperatingSystemFamily(String operatingSystemFamily) {
+		this.operatingSystemFamily = operatingSystemFamily;
 	}
 
 	public String getOperatingSystemVersion() {
 		return operatingSystemVersion;
 	}
 
-	public String getOperatingSystemCodeName() {
-		return operatingSystemCodeName;
-	}
-
-	public String getOperatingSystemBuild() {
-		return operatingSystemBuild;
-	}
-
-	public String getOpratingSystemManufacturer() {
-		return opratingSystemManufacturer;
-	}
-
-	public void setOpratingSystemManufacturer(String opratingSystemManufacturer) {
-		this.opratingSystemManufacturer = opratingSystemManufacturer;
-	}
-
-	public String getOperatingSystemfamily() {
-		return operatingSystemfamily;
-	}
-
-	public void setOperatingSystemfamily(String operatingSystemfamily) {
-		this.operatingSystemfamily = operatingSystemfamily;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 	public void setOperatingSystemVersion(String operatingSystemVersion) {
 		this.operatingSystemVersion = operatingSystemVersion;
+	}
+
+	public String getOperatingSystemCodeName() {
+		return operatingSystemCodeName;
 	}
 
 	public void setOperatingSystemCodeName(String operatingSystemCodeName) {
 		this.operatingSystemCodeName = operatingSystemCodeName;
 	}
 
+	public String getOperatingSystemBuild() {
+		return operatingSystemBuild;
+	}
+
 	public void setOperatingSystemBuild(String operatingSystemBuild) {
 		this.operatingSystemBuild = operatingSystemBuild;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

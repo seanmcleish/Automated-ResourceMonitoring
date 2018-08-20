@@ -1,11 +1,12 @@
 package de.tub.qds.rm.models.values.pks;
 
-
 import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.consts.Processor;
 
@@ -21,7 +22,8 @@ public class ProcessorValuePK implements Serializable {
 	@ManyToOne
 	Processor processorValueProcessor;
 
-	public ProcessorValuePK(){}
+	public ProcessorValuePK() {
+	}
 
 	public ProcessorValuePK(int measurement, Date timestamp, Processor processor) {
 		super();
@@ -30,16 +32,33 @@ public class ProcessorValuePK implements Serializable {
 		this.processorValueProcessor = processor;
 	}
 
-	public int getMeasurement() {
+	public int getProcessorValueMeasurementId() {
 		return processorValueMeasurementId;
 	}
 
-	public Date getTimestamp() {
+	public void setProcessorValueMeasurementId(int processorValueMeasurementId) {
+		this.processorValueMeasurementId = processorValueMeasurementId;
+	}
+
+	public Date getProcessorValueTimestamp() {
 		return processorValueTimestamp;
 	}
 
-	public Processor getProcessor() {
+	public void setProcessorValueTimestamp(Date processorValueTimestamp) {
+		this.processorValueTimestamp = processorValueTimestamp;
+	}
+
+	@JsonIgnore
+	public Processor getProcessorValueProcessor() {
 		return processorValueProcessor;
 	}
 
+	public void setProcessorValueProcessor(Processor processorValueProcessor) {
+		this.processorValueProcessor = processorValueProcessor;
 	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+}

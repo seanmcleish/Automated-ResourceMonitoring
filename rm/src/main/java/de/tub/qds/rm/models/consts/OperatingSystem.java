@@ -1,6 +1,5 @@
 package de.tub.qds.rm.models.consts;
 
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +9,8 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.tub.qds.rm.models.consts.pks.OperatingSystemPK;
 
@@ -25,8 +26,8 @@ public class OperatingSystem implements Serializable {
 	@OneToMany(mappedBy = "systemId.systemOperatingSystem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<System> operatingSytemSystems;
 
-	public OperatingSystem(){}
-	
+	public OperatingSystem() {
+	}
 
 	public OperatingSystem(OperatingSystemPK id) {
 		super();
@@ -34,36 +35,25 @@ public class OperatingSystem implements Serializable {
 		this.operatingSytemSystems = new HashSet<System>();
 	}
 
-	
 	public OperatingSystemPK getOperatingSystemId() {
 		return operatingSystemId;
 	}
 
-	public Set<System> getOperatingSystemSystems() {
-		return operatingSytemSystems;
-	}
-	public void addOperatingSystemSystem (System system){
-		this.operatingSytemSystems.add(system);
+	public void setOperatingSystemId(OperatingSystemPK operatingSystemId) {
+		this.operatingSystemId = operatingSystemId;
 	}
 
-
+	@JsonIgnore
 	public Set<System> getOperatingSytemSystems() {
 		return operatingSytemSystems;
 	}
-
 
 	public void setOperatingSytemSystems(Set<System> operatingSytemSystems) {
 		this.operatingSytemSystems = operatingSytemSystems;
 	}
 
-
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-
-
-	public void setOperatingSystemId(OperatingSystemPK operatingSystemId) {
-		this.operatingSystemId = operatingSystemId;
 	}
 
 }

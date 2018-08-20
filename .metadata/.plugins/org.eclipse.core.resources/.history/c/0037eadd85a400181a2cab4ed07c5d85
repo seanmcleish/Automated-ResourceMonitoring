@@ -1,0 +1,30 @@
+package de.tub.qds.rm.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import de.tub.qds.rm.models.consts.Processor;
+import de.tub.qds.rm.models.consts.repos.ProcessorRepo;
+
+@RestController
+public class ProcessorController {
+	
+	@Autowired
+	ProcessorRepo repo;
+
+	@RequestMapping(method = RequestMethod.GET, path = "/processor", produces = "application/json")
+	public List<Processor> getProcessors() {
+		return repo.findAll();
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/processor/{processorId}", produces = "application/json")
+	public Processor getProcessorById(@PathVariable("processorId") String processorId) {
+		return repo.existsById(processorId) ? repo.findById(processorId).get() : null;
+	}
+
+}

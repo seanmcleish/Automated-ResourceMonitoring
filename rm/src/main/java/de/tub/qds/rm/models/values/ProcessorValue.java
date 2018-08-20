@@ -1,6 +1,5 @@
 package de.tub.qds.rm.models.values;
 
-
 import java.io.Serializable;
 
 import javax.persistence.EmbeddedId;
@@ -27,7 +26,8 @@ public class ProcessorValue implements Serializable {
 	long processorValueContextSwitches;
 	long processorValueInterrupts;
 
-	public ProcessorValue(){}
+	public ProcessorValue() {
+	}
 
 	public ProcessorValue(ProcessorValuePK id, double systemCpuLoadBetweenTicks, int[] systemCpuLoadTicks,
 			double systemCpuLoad, int[] systemLoadAverages, double[] processorCpuLoadBetweenTicks,
@@ -45,80 +45,89 @@ public class ProcessorValue implements Serializable {
 		this.processorValueInterrupts = interrupts;
 	}
 
-	public double getSystemCpuLoadBetweenTicks() {
+	
+	public ProcessorValuePK getProcessorValueId() {
+		return processorValueId;
+	}
+
+	public void setProcessorValueId(ProcessorValuePK processorValueId) {
+		this.processorValueId = processorValueId;
+	}
+
+	public double getProcessorValueSystemCpuLoadBetweenTicks() {
 		return processorValueSystemCpuLoadBetweenTicks;
 	}
 
-	public void setSystemCpuLoadBetweenTicks(double systemCpuLoadBetweenTicks) {
-		this.processorValueSystemCpuLoadBetweenTicks = systemCpuLoadBetweenTicks;
+	public void setProcessorValueSystemCpuLoadBetweenTicks(double processorValueSystemCpuLoadBetweenTicks) {
+		this.processorValueSystemCpuLoadBetweenTicks = processorValueSystemCpuLoadBetweenTicks;
 	}
 
-	public int[] getSystemCpuLoadTicks() {
+	public int[] getProcessorValueSystemCpuLoadTicks() {
 		return processorValueSystemCpuLoadTicks;
 	}
 
-	public void setSystemCpuLoadTicks(int[] systemCpuLoadTicks) {
-		this.processorValueSystemCpuLoadTicks = systemCpuLoadTicks;
+	public void setProcessorValueSystemCpuLoadTicks(int[] processorValueSystemCpuLoadTicks) {
+		this.processorValueSystemCpuLoadTicks = processorValueSystemCpuLoadTicks;
 	}
 
-	public double getSystemCpuLoad() {
+	public double getProcessorValueSystemCpuLoad() {
 		return processorValueSystemCpuLoad;
 	}
 
-	public void setSystemCpuLoad(double systemCpuLoad) {
-		this.processorValueSystemCpuLoad = systemCpuLoad;
+	public void setProcessorValueSystemCpuLoad(double processorValueSystemCpuLoad) {
+		this.processorValueSystemCpuLoad = processorValueSystemCpuLoad;
 	}
 
-	public int[] getSystemLoadAverages() {
+	public int[] getProcessorValueSystemLoadAverages() {
 		return processorValueSystemLoadAverages;
 	}
 
-	public void setSystemLoadAverages(int[] systemLoadAverages) {
-		this.processorValueSystemLoadAverages = systemLoadAverages;
+	public void setProcessorValueSystemLoadAverages(int[] processorValueSystemLoadAverages) {
+		this.processorValueSystemLoadAverages = processorValueSystemLoadAverages;
 	}
 
-	public double[] getProcessorCpuLoadBetweenTicks() {
+	public double[] getProcessorValueProcessorCpuLoadBetweenTicks() {
 		return processorValueProcessorCpuLoadBetweenTicks;
 	}
 
-	public void setProcessorCpuLoadBetweenTicks(double[] processorCpuLoadBetweenTicks) {
-		this.processorValueProcessorCpuLoadBetweenTicks = processorCpuLoadBetweenTicks;
+	public void setProcessorValueProcessorCpuLoadBetweenTicks(double[] processorValueProcessorCpuLoadBetweenTicks) {
+		this.processorValueProcessorCpuLoadBetweenTicks = processorValueProcessorCpuLoadBetweenTicks;
 	}
 
-	public long[][] getProcessorCpuLoadTicks() {
+	public long[][] getProcessorValueProcessorCpuLoadTicks() {
 		return processorValueProcessorCpuLoadTicks;
 	}
 
-	public void setProcessorCpuLoadTicks(long[][] processorCpuLoadTicks) {
-		this.processorValueProcessorCpuLoadTicks = processorCpuLoadTicks;
+	public void setProcessorValueProcessorCpuLoadTicks(long[][] processorValueProcessorCpuLoadTicks) {
+		this.processorValueProcessorCpuLoadTicks = processorValueProcessorCpuLoadTicks;
 	}
 
-	public long getSystemUpTime() {
+	public long getProcessorValueSystemUpTime() {
 		return processorValueSystemUpTime;
 	}
 
-	public void setSystemUpTime(long systemUpTime) {
-		this.processorValueSystemUpTime = systemUpTime;
+	public void setProcessorValueSystemUpTime(long processorValueSystemUpTime) {
+		this.processorValueSystemUpTime = processorValueSystemUpTime;
 	}
 
-	public long getContextSwitches() {
+	public long getProcessorValueContextSwitches() {
 		return processorValueContextSwitches;
 	}
 
-	public void setContextSwitches(long contextSwitches) {
-		this.processorValueContextSwitches = contextSwitches;
+	public void setProcessorValueContextSwitches(long processorValueContextSwitches) {
+		this.processorValueContextSwitches = processorValueContextSwitches;
 	}
 
-	public long getInterrupts() {
+	public long getProcessorValueInterrupts() {
 		return processorValueInterrupts;
 	}
 
-	public void setInterrupts(long interrupts) {
-		this.processorValueInterrupts = interrupts;
+	public void setProcessorValueInterrupts(long processorValueInterrupts) {
+		this.processorValueInterrupts = processorValueInterrupts;
 	}
 
-	public ProcessorValuePK getId() {
-		return processorValueId;
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }
