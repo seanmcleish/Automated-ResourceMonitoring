@@ -31,7 +31,7 @@ public class SystemController {
 		}
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, path = "/system/{systemIdentifier}", produces = "application/json")
+/*	@RequestMapping(method = RequestMethod.GET, path = "/system/{systemIdentifier}", produces = "application/json")
 	public System getSystenBySystemIdSystemIdentifier(@PathVariable("systemIdentifier") long systemIdentifier) {
 		return repo.existsBySystemIdSystemIdentifier(systemIdentifier) ? repo.findBySystemIdSystemIdentifier(systemIdentifier) : null;
 	}
@@ -55,6 +55,6 @@ public class SystemController {
 	public Set<Measurement> getSystenBySystemIdSystemIdentifierMeasurements(@PathVariable("systemIdentifier") long systemIdentifier) {
 		return repo.existsBySystemIdSystemIdentifier(systemIdentifier) ? repo.findBySystemIdSystemIdentifier(systemIdentifier).getSystemMeasurements(): null;
 	}
-
+*/
 
 }

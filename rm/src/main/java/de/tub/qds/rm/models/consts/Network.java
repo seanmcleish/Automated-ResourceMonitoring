@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,6 +32,8 @@ public class Network implements Serializable {
 	Long networkSpeed;
 	@OneToMany(mappedBy = "networkValueId.networkValueNetwork", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<NetworkValue> networkValues;
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "hardwareNetworks")
+	Set<Hardware> networkHardware;
 
 	public Network() {
 	}
@@ -45,6 +48,7 @@ public class Network implements Serializable {
 		this.networkMtu = mtu;
 		this.networkSpeed = speed;
 		this.networkValues = new HashSet<NetworkValue>();
+		this.networkHardware = new HashSet<Hardware>();
 	}
 
 	public String getNetworkMac() {
@@ -115,5 +119,16 @@ public class Network implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	@JsonIgnore
+	public Set<Hardware> getNetworkHardware() {
+		return networkHardware;
+	}
+
+	public void addNetworkHardware(Hardware networkHardware) {
+		this.networkHardware.add(networkHardware);
+	}
+	
+	
 
 }

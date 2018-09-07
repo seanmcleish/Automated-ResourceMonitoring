@@ -1,9 +1,11 @@
 package de.tub.qds.rm.models.values.pks;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,20 +15,18 @@ import de.tub.qds.rm.models.consts.FileStore;
 @Embeddable
 public class FileStoreValuePK implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	@ManyToOne(targetEntity = FileStore.class)
+	@ManyToOne(targetEntity = FileStore.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	FileStore fileStoreValueFileStore;
-	int fileStoreValueMeasurementId;
-	Date fileStoreValueTimestamp;
+	Long fileStoreValueMeasurementId;
+	Timestamp fileStoreValueTimestamp;
 
 	public FileStoreValuePK() {
 	}
 
-	public FileStoreValuePK(int measurement, Date timestamp) {
+	public FileStoreValuePK(FileStore fileStore, Long measurement, Timestamp timestamp) {
 		super();
+		this.fileStoreValueFileStore = fileStore;
 		this.fileStoreValueMeasurementId = measurement;
 		this.fileStoreValueTimestamp = timestamp;
 	}
@@ -40,19 +40,19 @@ public class FileStoreValuePK implements Serializable {
 		this.fileStoreValueFileStore = fileStoreValueFileStore;
 	}
 
-	public int getFileStoreValueMeasurementId() {
+	public Long getFileStoreValueMeasurementId() {
 		return fileStoreValueMeasurementId;
 	}
 
-	public void setFileStoreValueMeasurementId(int fileStoreValueMeasurementId) {
+	public void setFileStoreValueMeasurementId(Long fileStoreValueMeasurementId) {
 		this.fileStoreValueMeasurementId = fileStoreValueMeasurementId;
 	}
 
-	public Date getFileStoreValueTimestamp() {
+	public Timestamp getFileStoreValueTimestamp() {
 		return fileStoreValueTimestamp;
 	}
 
-	public void setFileStoreValueTimestamp(Date fileStoreValueTimestamp) {
+	public void setFileStoreValueTimestamp(Timestamp fileStoreValueTimestamp) {
 		this.fileStoreValueTimestamp = fileStoreValueTimestamp;
 	}
 

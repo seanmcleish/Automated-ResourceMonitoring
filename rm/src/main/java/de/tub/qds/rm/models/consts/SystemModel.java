@@ -23,7 +23,7 @@ public class SystemModel implements Serializable {
 	String systemModelSerialNumber;
 	String systemModelManufacturer;
 	String systemModelModel;
-	@OneToMany(mappedBy = "hardwareId.hardwareSystemModel", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "hardwareSystemModel", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Hardware> systemModelHardware;
 
 	public SystemModel() {

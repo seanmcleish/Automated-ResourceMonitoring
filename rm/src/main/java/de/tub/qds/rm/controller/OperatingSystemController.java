@@ -24,7 +24,7 @@ public class OperatingSystemController {
 		return repo.findAll();
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, path = "/operatingSystem/{operatingSystemIdentifier}", produces = "application/json")
+	/*@RequestMapping(method = RequestMethod.GET, path = "/operatingSystem/{operatingSystemIdentifier}", produces = "application/json")
 	public OperatingSystem getOperatingSystemByIdOperatingSystemIdentifier(@PathVariable("operatingSystemIdentifier") int operatingSystemIdentifier) {
 		return repo.existsByOperatingSystemIdOperatingSystemIdentifier(operatingSystemIdentifier) ? repo.findByOperatingSystemIdOperatingSystemIdentifier(operatingSystemIdentifier) : null;
 	}
@@ -73,5 +73,5 @@ public class OperatingSystemController {
 	public Set<System> getOperatingSystemByIdOperatingSystemIdentifierSystems(@PathVariable("operatingSystemIdentifier") int operatingSystemIdentifier) {
 		return repo.existsByOperatingSystemIdOperatingSystemIdentifier(operatingSystemIdentifier) ? repo.findByOperatingSystemIdOperatingSystemIdentifier(operatingSystemIdentifier).getOperatingSytemSystems() : null;
 	}
-
+*/
 }

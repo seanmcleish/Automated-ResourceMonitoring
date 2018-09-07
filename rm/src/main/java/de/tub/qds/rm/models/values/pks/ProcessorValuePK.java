@@ -1,9 +1,11 @@
 package de.tub.qds.rm.models.values.pks;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,38 +15,35 @@ import de.tub.qds.rm.models.consts.Processor;
 @Embeddable
 public class ProcessorValuePK implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	int processorValueMeasurementId;
-	Date processorValueTimestamp;
-	@ManyToOne
+	Long processorValueMeasurementId;
+	Timestamp processorValueTimestamp;
+	@ManyToOne(targetEntity=Processor.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Processor processorValueProcessor;
 
 	public ProcessorValuePK() {
 	}
 
-	public ProcessorValuePK(int measurement, Date timestamp, Processor processor) {
+	public ProcessorValuePK(Long measurement, Timestamp timestamp, Processor processor) {
 		super();
 		this.processorValueMeasurementId = measurement;
 		this.processorValueTimestamp = timestamp;
 		this.processorValueProcessor = processor;
 	}
 
-	public int getProcessorValueMeasurementId() {
+	public Long getProcessorValueMeasurementId() {
 		return processorValueMeasurementId;
 	}
 
-	public void setProcessorValueMeasurementId(int processorValueMeasurementId) {
+	public void setProcessorValueMeasurementId(Long processorValueMeasurementId) {
 		this.processorValueMeasurementId = processorValueMeasurementId;
 	}
 
-	public Date getProcessorValueTimestamp() {
+	public Timestamp getProcessorValueTimestamp() {
 		return processorValueTimestamp;
 	}
 
-	public void setProcessorValueTimestamp(Date processorValueTimestamp) {
+	public void setProcessorValueTimestamp(Timestamp processorValueTimestamp) {
 		this.processorValueTimestamp = processorValueTimestamp;
 	}
 

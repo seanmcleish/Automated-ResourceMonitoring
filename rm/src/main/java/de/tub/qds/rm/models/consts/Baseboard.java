@@ -15,16 +15,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Baseboard implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	String baseboardSerialNumber;
 	String baseboardManufacturer;
 	String baseboardModel;
 	String baseboardVersion;
-	@OneToMany(mappedBy = "hardwareId.hardwareBaseboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "hardwareBaseboard", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Hardware> baseboardHardware;
 
 	public Baseboard() {
@@ -76,8 +73,8 @@ public class Baseboard implements Serializable {
 		return baseboardHardware;
 	}
 
-	public void setBaseboardHardware(Set<Hardware> baseboardHardware) {
-		this.baseboardHardware = baseboardHardware;
+	public void addBaseboardHardware(Hardware baseboardHardware) {
+		this.baseboardHardware.add(baseboardHardware);
 	}
 
 	public static long getSerialversionuid() {

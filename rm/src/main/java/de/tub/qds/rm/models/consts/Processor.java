@@ -17,9 +17,6 @@ import de.tub.qds.rm.models.values.ProcessorValue;
 @Entity
 public class Processor implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	String processorId;
@@ -28,12 +25,12 @@ public class Processor implements Serializable {
 	String processorFamily;
 	String processorModel;
 	String processorStepping;
-	int processorPhysicalPackageCount;
-	int processorPhysicalProcessorCount;
-	int processorLogicalProcessorCount;
-	boolean processorCpu64bit;
-	long processorVendorFreq;
-	@OneToMany(mappedBy = "hardwareId.hardwareProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	Integer processorPhysicalPackageCount;
+	Integer processorPhysicalProcessorCount;
+	Integer processorLogicalProcessorCount;
+	Boolean processorCpu64bit;
+	Long processorVendorFreq;
+	@OneToMany(mappedBy = "hardwareProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Hardware> processorHardware;
 	@OneToMany(mappedBy = "processorValueId.processorValueProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<ProcessorValue> processorValues;
@@ -42,8 +39,8 @@ public class Processor implements Serializable {
 	}
 
 	public Processor(String id, String name, String vendor, String family, String model, String stepping,
-			int physicalPackageCount, int physicalProcessorCount, int logicalProcessorCount, boolean isCpu64bit,
-			long vendorFreq) {
+			Integer physicalPackageCount, Integer physicalProcessorCount, Integer logicalProcessorCount, Boolean isCpu64bit,
+			Long vendorFreq) {
 		super();
 		this.processorId = id;
 		this.processorName = name;
@@ -108,43 +105,43 @@ public class Processor implements Serializable {
 		this.processorStepping = processorStepping;
 	}
 
-	public int getProcessorPhysicalPackageCount() {
+	public Integer getProcessorPhysicalPackageCount() {
 		return processorPhysicalPackageCount;
 	}
 
-	public void setProcessorPhysicalPackageCount(int processorPhysicalPackageCount) {
+	public void setProcessorPhysicalPackageCount(Integer processorPhysicalPackageCount) {
 		this.processorPhysicalPackageCount = processorPhysicalPackageCount;
 	}
 
-	public int getProcessorPhysicalProcessorCount() {
+	public Integer getProcessorPhysicalProcessorCount() {
 		return processorPhysicalProcessorCount;
 	}
 
-	public void setProcessorPhysicalProcessorCount(int processorPhysicalProcessorCount) {
+	public void setProcessorPhysicalProcessorCount(Integer processorPhysicalProcessorCount) {
 		this.processorPhysicalProcessorCount = processorPhysicalProcessorCount;
 	}
 
-	public int getProcessorLogicalProcessorCount() {
+	public Integer getProcessorLogicalProcessorCount() {
 		return processorLogicalProcessorCount;
 	}
 
-	public void setProcessorLogicalProcessorCount(int processorLogicalProcessorCount) {
+	public void setProcessorLogicalProcessorCount(Integer processorLogicalProcessorCount) {
 		this.processorLogicalProcessorCount = processorLogicalProcessorCount;
 	}
 
-	public boolean isProcessorCpu64bit() {
+	public Boolean isProcessorCpu64bit() {
 		return processorCpu64bit;
 	}
 
-	public void setProcessorCpu64bit(boolean processorIsCpu64bit) {
+	public void setProcessorCpu64bit(Boolean processorIsCpu64bit) {
 		this.processorCpu64bit = processorIsCpu64bit;
 	}
 
-	public long getProcessorVendorFreq() {
+	public Long getProcessorVendorFreq() {
 		return processorVendorFreq;
 	}
 
-	public void setProcessorVendorFreq(long processorVendorFreq) {
+	public void setProcessorVendorFreq(Long processorVendorFreq) {
 		this.processorVendorFreq = processorVendorFreq;
 	}
 

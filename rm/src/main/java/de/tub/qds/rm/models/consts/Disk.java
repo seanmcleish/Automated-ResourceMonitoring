@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,19 +18,18 @@ import de.tub.qds.rm.models.values.DiskValue;
 @Entity
 public class Disk implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	String diskSerialNumber;
 	String diskModel;
 	String diskName;
 	Long diskSize;
-	@OneToMany(mappedBy = "diskValueId.diskValueDisk", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "diskValueId.diskValueDisk", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Set<DiskValue> diskValues;
-	@OneToMany(mappedBy = "fileStoreDisk", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "fileStoreDisk", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Set<FileStore> diskFileStores;
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy="hardwareDisks")
+	Set<Hardware> diskHardware;
 
 	public Disk() {
 	}
@@ -41,6 +41,7 @@ public class Disk implements Serializable {
 		this.diskName = name;
 		this.diskSize = size;
 		this.diskValues = new HashSet<DiskValue>();
+		this.diskHardware = new HashSet<Hardware>();
 	}
 
 	public String getDiskSerialNumber() {
@@ -89,12 +90,27 @@ public class Disk implements Serializable {
 		return diskValues;
 	}
 
-	public void setDiskValues(Set<DiskValue> diskValues) {
-		this.diskValues = diskValues;
+	public void addDiskValues(DiskValue diskValue) {
+		this.diskValues.add(diskValue);
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	@JsonIgnore
+	public Set<Hardware> getDiskHardware() {
+		return diskHardware;
+	}
+
+	public void addDiskHardware(Hardware diskHardware) {
+		this.diskHardware.add(diskHardware);
+	}
+
+	public void addDiskValue(DiskValue diskValue) {
+		this.diskValues.add(diskValue);
+	}
+	
+	
 
 }

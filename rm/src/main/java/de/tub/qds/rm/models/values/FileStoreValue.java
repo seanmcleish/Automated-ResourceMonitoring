@@ -16,12 +16,12 @@ public class FileStoreValue implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
 	FileStoreValuePK fileStoreValueId;
-	long fileStoreValueUsableSpace;
+	Long fileStoreValueUsableSpace;
 
 	public FileStoreValue() {
 	}
 
-	public FileStoreValue(FileStoreValuePK id, long usableSpace) {
+	public FileStoreValue(FileStoreValuePK id, Long usableSpace) {
 		super();
 		this.fileStoreValueId = id;
 		this.fileStoreValueUsableSpace = usableSpace;
@@ -36,11 +36,11 @@ public class FileStoreValue implements Serializable {
 		this.fileStoreValueId = fileStoreValueId;
 	}
 
-	public long getFileStoreValueUsableSpace() {
+	public Long getFileStoreValueUsableSpace() {
 		return fileStoreValueUsableSpace;
 	}
 
-	public void setFileStoreValueUsableSpace(long fileStoreValueUsableSpace) {
+	public void setFileStoreValueUsableSpace(Long fileStoreValueUsableSpace) {
 		this.fileStoreValueUsableSpace = fileStoreValueUsableSpace;
 	}
 

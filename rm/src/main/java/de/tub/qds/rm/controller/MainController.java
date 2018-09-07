@@ -7,7 +7,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,16 +29,10 @@ import de.tub.qds.rm.models.consts.OperatingSystem;
 import de.tub.qds.rm.models.consts.Processor;
 import de.tub.qds.rm.models.consts.System;
 import de.tub.qds.rm.models.consts.SystemModel;
-import de.tub.qds.rm.models.consts.pks.FirmwarePK;
-import de.tub.qds.rm.models.consts.pks.HardwarePK;
-import de.tub.qds.rm.models.consts.pks.OperatingSystemPK;
-import de.tub.qds.rm.models.consts.pks.SystemPK;
 import de.tub.qds.rm.models.consts.repos.BaseboardRepo;
 import de.tub.qds.rm.models.consts.repos.DiskRepo;
 import de.tub.qds.rm.models.consts.repos.FileStoreRepo;
 import de.tub.qds.rm.models.consts.repos.FirmwareRepo;
-import de.tub.qds.rm.models.consts.repos.HardwareDiskRepo;
-import de.tub.qds.rm.models.consts.repos.HardwareNetworkRepo;
 import de.tub.qds.rm.models.consts.repos.HardwareRepo;
 import de.tub.qds.rm.models.consts.repos.MeasurementRepo;
 import de.tub.qds.rm.models.consts.repos.MemoryRepo;
@@ -57,8 +50,6 @@ public class MainController {
 	@Autowired DiskRepo diskRepo;
 	@Autowired FileStoreRepo fileStoreRepo;
 	@Autowired FirmwareRepo firmwareRepo;
-	@Autowired HardwareDiskRepo hardwareDiskRepo;
-	@Autowired HardwareNetworkRepo hardwareNetworkRepo;
 	@Autowired HardwareRepo hardwareRepo;
 	@Autowired MeasurementRepo measurementRepo;
 	@Autowired MemoryRepo memoryRepo;
@@ -77,7 +68,7 @@ public class MainController {
 		FileSystem fileSystem = new FileSystem();
 		Firmware firmware = new Firmware();
 		Hardware hardware = new Hardware();*/
-		JSONObject obj = null;
+		/*JSONObject obj = null;
 		try {
 			obj = Unirest.get("http://localhost:8090/systemInfo/hardware/memory").asJson().getBody().getObject();
 		} catch (UnirestException e) {
@@ -102,7 +93,8 @@ public class MainController {
 		system.setSystemId(new SystemPK("localhost", operatingSystem, hardware));
 		systemRepo.save(system);
 		measurementRepo.save(measurement);
-		return measurement;
+		return measurement;*/
+		return null;
 	}
 	@RequestMapping(method = RequestMethod.GET, path = "/api")
 	public void getApi(HttpServletRequest request, HttpServletResponse response){
@@ -126,27 +118,26 @@ public class MainController {
 		
 		DocumentContext context = JsonPath.parse(testData);
 		
-		String systemModelSerialNumber 	=	context.read("$.hardware.computerSystem.serialNumber").toString();;
-		String systemModelManufacturer	=	context.read("$.hardware.computerSystem.manufacturer").toString();;
-		String systemModelModel			=	context.read("$.hardware.computerSystem.model").toString();;
+		String systemModelSerialNumber 	=	context.read("$.hardware.computerSystem.serialNumber").toString();
+		String systemModelManufacturer	=	context.read("$.hardware.computerSystem.manufacturer").toString();
+		String systemModelModel			=	context.read("$.hardware.computerSystem.model").toString();
 		SystemModel systemModel = new SystemModel(systemModelSerialNumber, systemModelManufacturer, systemModelModel);
-		systemModelRepo.save(systemModel);
+		//systemModelRepo.save(systemModel);
 				
 		String baseboardSerialNumber	=	context.read("$.hardware.computerSystem.baseboard.serialNumber").toString();
 		String baseboardManufacturer	=	context.read("$.hardware.computerSystem.baseboard.manufacturer").toString();
 		String baseboardModel			=	context.read("$.hardware.computerSystem.baseboard.model").toString();
 		String baseboardVersion			=	context.read("$.hardware.computerSystem.baseboard.version").toString();
 		Baseboard baseboard = new Baseboard(baseboardSerialNumber, baseboardManufacturer, baseboardModel, baseboardVersion);
-		baseboardRepo.save(baseboard);
+		//baseboardRepo.save(baseboard);
 		
 		String firmwareManufacturer		=	context.read("$.hardware.computerSystem.firmware.manufacturer").toString();
 		String firmwareName				=	context.read("$.hardware.computerSystem.firmware.name").toString();
 		String firmwareDescription		=	context.read("$.hardware.computerSystem.firmware.description").toString();
 		String firmwareVersion			=	context.read("$.hardware.computerSystem.firmware.version").toString();
 		String firmwareReleaseDate		=	context.read("$.hardware.computerSystem.firmware.releaseDate").toString();
-		FirmwarePK firmwareId = new FirmwarePK(firmwareManufacturer, firmwareName, firmwareDescription, firmwareVersion, firmwareReleaseDate);
-		Firmware firmware = new Firmware(firmwareId);
-		firmwareRepo.save(firmware);
+		Firmware firmware = new Firmware(firmwareManufacturer, firmwareName, firmwareDescription, firmwareVersion, firmwareReleaseDate);
+		//firmwareRepo.save(firmware);
 		
 		String processorId					=	context.read("$.hardware.processor.processorID").toString();
 		String processorName				=	context.read("$.hardware.processor.name").toString();
@@ -160,11 +151,11 @@ public class MainController {
 		boolean processorCpu64bit			=	Boolean.getBoolean(context.read("$.hardware.processor.cpu64bit").toString());
 		long processorVendorFreq			=	Long.parseLong(context.read("$.hardware.processor.logicalProcessorCount").toString());
 		Processor processor = new Processor(processorId, processorName, processorVendor, processorFamily, processorModel, processorStepping, processorPhysicalPackageCount, processorPhysicalProcessorCount, processorLogicalProcessorCount, processorCpu64bit, processorVendorFreq);;
-		processorRepo.save(processor);
+		//processorRepo.save(processor);
 		
 		long memoryTotalSpace =	Long.parseLong(context.read("$.hardware.memory.total").toString());
 		Memory memory = new Memory(memoryTotalSpace);
-		memoryRepo.save(memory);
+		//memoryRepo.save(memory);
 		
 		List<Disk> disks = new ArrayList<Disk>();
 		for(int i = 0; i<Integer.parseInt(context.read("$.hardware.disks.length()").toString()) ; i++)
@@ -174,7 +165,7 @@ public class MainController {
 			String diskName			=	context.read("$.hardware.disks["+i+"].name").toString();
 			Long diskSize			=	Long.parseLong(context.read("$.hardware.disks["+i+"].size").toString());
 			Disk disk = new Disk(diskSerialNumber, diskModel, diskName, diskSize);
-			diskRepo.save(disk);
+			//diskRepo.save(disk);
 			disks.add(disk);
 		}
 		
@@ -189,7 +180,7 @@ public class MainController {
 			String fileStoreDescription	=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].description").toString();
 			String fileStoreFsType		=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].fsType").toString();
 			FileStore fileStore = new FileStore(fileStoreUuid, fileStoreTotalSpace, fileStoreName, fileStoreVolume,  fileStoreMountPoint, fileStoreDescription, fileStoreFsType);
-			fileStoreRepo.save(fileStore);
+			//fileStoreRepo.save(fileStore);
 			fileStores.add(fileStore);
 		}
 		
@@ -210,7 +201,7 @@ public class MainController {
 			Long networkMtu				=	Long.parseLong(context.read("$.hardware.networks["+i+"].mtu").toString());
 			Long networkSpeed			=	Long.parseLong(context.read("$.hardware.networks["+i+"].speed").toString());
 			Network network = new Network(networkMac, networkName, networkDisplayName, networkIpv4, networkIpv6, networkMtu, networkSpeed);
-			networkRepo.save(network);
+			//networkRepo.save(network);
 			networks.add(network);
 		}
 		
@@ -219,25 +210,21 @@ public class MainController {
 		String operatingSystemVersion		=	context.read("$.operatingSystem.version.version").toString();
 		String operatingSystemCodeName		=	context.read("$.operatingSystem.version.codeName").toString();
 		String operatingSystemBuild			=	context.read("$.operatingSystem.version.build").toString();
-		OperatingSystemPK operatingSystemId = new OperatingSystemPK(operatingSystemManufacturer, operatingSystemFamily, operatingSystemVersion, operatingSystemCodeName, operatingSystemBuild);
-		OperatingSystem operatingSystem = new OperatingSystem(operatingSystemId);
-		operatingSystemRepo.save(operatingSystem);
+		OperatingSystem operatingSystem = new OperatingSystem(operatingSystemManufacturer, operatingSystemFamily, operatingSystemVersion, operatingSystemCodeName, operatingSystemBuild);
+		//operatingSystemRepo.save(operatingSystem);
 		
-		HardwarePK hardwareId = new HardwarePK(firmware, processor, memory, baseboard, systemModel);
-		Hardware hardware = new Hardware(hardwareId);
-		hardwareRepo.save(hardware);
-		
-		try{
-			SystemPK systemId = new SystemPK("localhost", operatingSystem, hardware);
-			System system = new System(systemId);
-			systemRepo.save(system);
+		Hardware hardware = new Hardware(systemModel, baseboard, firmware, processor, memory);
+		for(Network network : networks){
+			hardware.addHardwareNetwork(network);
 		}
-		catch(Exception e){
-			java.lang.System.out.println(e.getMessage());
+		for(Disk disk : disks){
+			hardware.addHardwareDisk(disk);
 		}
-		
-		SystemPK systemId = new SystemPK("localhost", operatingSystem, hardware);
-		System system = new System(systemId);
+		//hardwareRepo.save(hardware);
+
+		System system = new System("localhost", operatingSystem);
+		system.setSystemHardware(hardware);
+		systemRepo.save(system);
 		
 		Measurement measurement = new Measurement();
 		measurement.setMeasurementSystem(system);
@@ -245,6 +232,13 @@ public class MainController {
 		
 	}
 
-	
+	@RequestMapping(method = RequestMethod.GET, path = "/testEqual")
+	public boolean checkEquality(){
+		/*FirmwarePK pk1 = new FirmwarePK("1", "2", "3", "4", "5");
+		Firmware fw1 = firmwareRepo.save(new Firmware(pk1));
+		FirmwarePK pk2 = new FirmwarePK("1", "2", "3", "4", "5");
+		return firmwareRepo.existsById(pk2);*/
+		return true;
+	}
 
 }

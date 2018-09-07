@@ -2,7 +2,6 @@ package de.tub.qds.rm.models.values.pks;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
@@ -20,7 +19,7 @@ public class MemoryValuePK implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	long memoryValueMeasurementId;
+	Long memoryValueMeasurementId;
 	Timestamp memoryValueTimestamp;
 	@ManyToOne(targetEntity=Memory.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Memory memoryValueMemory;
@@ -28,7 +27,7 @@ public class MemoryValuePK implements Serializable {
 	public MemoryValuePK() {
 	}
 
-	public MemoryValuePK(Memory memory, long measurement, Timestamp timestamp) {
+	public MemoryValuePK(Memory memory, Long measurement, Timestamp timestamp) {
 		super();
 		this.memoryValueMemory = memory;
 		this.memoryValueMeasurementId = measurement;
@@ -36,15 +35,15 @@ public class MemoryValuePK implements Serializable {
 	}
 
 	@JsonIgnore
-	public long getMemoryValueMeasurementId() {
+	public Long getMemoryValueMeasurementId() {
 		return memoryValueMeasurementId;
 	}
 
-	public void setMemoryValueMeasurementId(long memoryValueMeasurementId) {
+	public void setMemoryValueMeasurementId(Long memoryValueMeasurementId) {
 		this.memoryValueMeasurementId = memoryValueMeasurementId;
 	}
 
-	public Date getMemoryValueTimestamp() {
+	public Timestamp getMemoryValueTimestamp() {
 		return memoryValueTimestamp;
 	}
 

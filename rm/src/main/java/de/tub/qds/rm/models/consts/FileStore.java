@@ -30,7 +30,7 @@ public class FileStore implements Serializable {
 	String fileStoreMountPoint;
 	String fileStoreDescription;
 	String fileStoreFsType;
-	@ManyToOne(targetEntity = Disk.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(targetEntity = Disk.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Disk fileStoreDisk;
 	@OneToMany(mappedBy = "fileStoreValueId.fileStoreValueFileStore", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<FileStoreValue> fileStoreValues;

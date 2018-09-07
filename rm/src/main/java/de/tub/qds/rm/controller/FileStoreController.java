@@ -1,7 +1,12 @@
 package de.tub.qds.rm.controller;
 
+import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,14 +17,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.tub.qds.rm.models.consts.Disk;
 import de.tub.qds.rm.models.consts.FileStore;
+import de.tub.qds.rm.models.consts.repos.DiskRepo;
 import de.tub.qds.rm.models.consts.repos.FileStoreRepo;
+import de.tub.qds.rm.models.consts.repos.FileStoreValueRepo;
+import de.tub.qds.rm.models.consts.repos.MeasurementRepo;
 import de.tub.qds.rm.models.values.FileStoreValue;
+import de.tub.qds.rm.models.values.pks.FileStoreValuePK;
+import de.tub.qds.rm.models.values.wrapper.FileStoreValueWrapper;
 
+
+//FINISHED IMPLEMENTATION & TESTED
 @RestController
 public class FileStoreController {
 
 	@Autowired
 	FileStoreRepo repo;
+	@Autowired
+	FileStoreValueRepo valueRepo;
+	@Autowired
+	DiskRepo diskRepo;
+	@Autowired
+	MeasurementRepo measurementRepo;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore", produces = "application/json")
 	public List<FileStore> getFileStores() {
@@ -29,19 +47,69 @@ public class FileStoreController {
 	@RequestMapping(method = RequestMethod.POST, path = "/fileStore", produces = "application/json")
 	public FileStore postFileStore(
 			@RequestParam("fileStoreUuid") String fileStoreUuid, 
-			@RequestParam("fileStoreTotalSpace") long fileStoreTotalSpace ,
-			@RequestParam("fileStoreName") String fileStoreName,
-			@RequestParam("fileStoreVolume") String fileStoreVolume,
-			@RequestParam("fileStoreMountPoint") String fileStoreMountPoint,
-			@RequestParam("fileStoreDescription") String fileStoreDescription,
-			@RequestParam("fileStoreFsType") String fileStoreFsType
+			@RequestParam(value="fileStoreTotalSpace", required=false) Long fileStoreTotalSpace ,
+			@RequestParam(value="fileStoreName", required=false) String fileStoreName,
+			@RequestParam(value="fileStoreVolume", required=false) String fileStoreVolume,
+			@RequestParam(value="fileStoreMountPoint", required=false) String fileStoreMountPoint,
+			@RequestParam(value="fileStoreDescription", required=false) String fileStoreDescription,
+			@RequestParam(value="fileStoreFsType", required=false) String fileStoreFsType,
+			HttpServletRequest request, 
+			HttpServletResponse response
 			) {
-		return repo.save(new FileStore(fileStoreUuid, fileStoreTotalSpace, fileStoreName, fileStoreVolume, fileStoreMountPoint, fileStoreDescription, fileStoreFsType));
+		try{
+			FileStore fileStore = new FileStore(fileStoreUuid, fileStoreTotalSpace, fileStoreName, fileStoreVolume, fileStoreMountPoint, fileStoreDescription, fileStoreFsType);
+			return repo.save(fileStore);
+		}
+		catch(Exception e){
+			return  null;
+		}
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}", produces = "application/json")
 	public FileStore getFileStoreById(@PathVariable("fileStoreUuid") String fileStoreUuid) {
 		return repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get() : null;
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, path = "/fileStore/{fileStoreUuid}", produces = "application/json")
+	public FileStore updateFileStoreById(
+			@PathVariable("fileStoreUuid") String fileStoreUuid,
+			@RequestParam(value="fileStoreTotalSpace", required=false) Long fileStoreTotalSpace ,
+			@RequestParam(value="fileStoreName", required=false) String fileStoreName,
+			@RequestParam(value="fileStoreVolume", required=false) String fileStoreVolume,
+			@RequestParam(value="fileStoreMountPoint", required=false) String fileStoreMountPoint,
+			@RequestParam(value="fileStoreDescription", required=false) String fileStoreDescription,
+			@RequestParam(value="fileStoreFsType", required=false) String fileStoreFsType
+			) {
+		FileStore fileStore = repo.findById(fileStoreUuid).orElse(null);
+		if(fileStore != null){
+			if(fileStoreTotalSpace != null){
+				fileStore.setFileStoreTotalSpace(fileStoreTotalSpace);
+			}
+			if(fileStoreName != null){
+				fileStore.setFileStoreName(fileStoreName);
+			}
+			if(fileStoreVolume != null){
+				fileStore.setFileStoreVolume(fileStoreVolume);
+			}
+			if(fileStoreMountPoint != null){
+				fileStore.setFileStoreMountPoint(fileStoreMountPoint);
+			}
+			if(fileStoreDescription != null){
+				fileStore.setFileStoreDescription(fileStoreDescription);
+			}
+			if(fileStoreFsType != null){
+				fileStore.setFileStoreFsType(fileStoreFsType);
+			}
+			return repo.save(fileStore);
+		}
+		return null;
+	}
+	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/fileStore/{fileStoreUuid}", produces = "application/json")
+	public void deleteFileStoreById(@PathVariable("fileStoreUuid") String fileStoreUuid) {
+		if(repo.existsById(fileStoreUuid)){
+			repo.deleteById(fileStoreUuid);
+		}
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid/fileStoreTotalSpace}", produces = "application/json")
@@ -74,28 +142,89 @@ public class FileStoreController {
 		return repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get().getFileStoreFsType() : null;
 	}
 	
-	/*@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreFileSystem", produces = "application/json")
-	public FileSystem getFileStoreByIdFileSystem(@PathVariable("fileStoreUuid") String fileStoreUuid) {
-		return repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get().getFileStoreFileSystem() : null;
-	}*/
-
-	/*@RequestMapping(method = RequestMethod.PUT, path = "/fileStore/{fileStoreUuid}/fileStoreFileSystem", produces = "application/json")
-	public FileStore putFileStoreByIdFileSystem(@PathVariable("fileStoreUuid") String fileStoreUuid, @RequestParam("fileSystemId") long fileSystemId) {
-		FileStore fileStore = repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get() : null;
-		if(fileStore == null) return null;
-		Optional<FileSystem> fileSystem = fileSystemRepo.findById(fileSystemId);
-		if(!fileSystem.isPresent()) return null;
-		fileStore.setFileStoreFileSystem(fileSystem.get());
-		return repo.save(fileStore);
-	}*/
-	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreDisk", produces = "application/json")
 	public Disk getFileStoreByIdDisk(@PathVariable("fileStoreUuid") String fileStoreUuid) {
 		return repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get().getFileStoreDisk() : null;
 	}
+	
+	@RequestMapping(method = RequestMethod.PUT, path = "/fileStore/{fileStoreUuid}/fileStoreDisk", produces = "application/json")
+	public Disk setFileStoreByIdDisk(@PathVariable("fileStoreUuid") String fileStoreUuid, @RequestParam("diskSerialNumber") String diskSerialNumber) {
+		FileStore fileStore = repo.findById(fileStoreUuid).orElse(null);
+		Disk disk = diskRepo.findById(diskSerialNumber).orElse(null);
+		if(fileStore == null || disk == null){
+			return null;
+		}
+		fileStore.setFileStoreDisk(disk);
+		return repo.save(fileStore).getFileStoreDisk();
+	}
 		
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues", produces = "application/json")
 	public Set<FileStoreValue> getFileStoreByIdValues(@PathVariable("fileStoreUuid") String fileStoreUuid) {
-		return repo.existsById(fileStoreUuid) ? repo.findById(fileStoreUuid).get().getFileStoreValues() : null;
+		if(!repo.existsById(fileStoreUuid)){
+			return null;
+		}
+		return valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidOrderByFileStoreValueIdFileStoreValueTimestampAsc(fileStoreUuid);
 	}
+	
+	@RequestMapping(method = RequestMethod.POST, path = "/fileStore/{fileStoreUuid}/fileStoreValues", produces = "application/json")
+	public FileStoreValue addFileStoreValueById(
+			@PathVariable("fileStoreUuid") String fileStoreUuid,
+			@RequestParam("measurementId") Long measurementId,
+			@RequestParam(value = "timestamp", required=false) Long timestamp,
+			@RequestParam(value="fileStoreValueUsableSpace", required=false) Long fileStoreValueUsableSpace) {
+		
+		FileStore fileStore = repo.findById(fileStoreUuid).orElse(null);
+		if(fileStore!=null){
+			FileStoreValuePK pk = new FileStoreValuePK(fileStore, measurementId, new Timestamp(timestamp!=null? timestamp: System.currentTimeMillis()));
+			FileStoreValue value = new FileStoreValue(pk, fileStoreValueUsableSpace);
+			return valueRepo.save(value);
+		}
+		return null;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}", produces = "application/json")
+	public Set<FileStoreValue> getFileStoreByIdValuesByMeasurementId(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		return valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementIdOrderByFileStoreValueIdFileStoreValueTimestampAsc(fileStoreUuid, measurementId);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/max", produces = "application/json")
+	public FileStoreValueWrapper<Long> getFileStoreByIdValuesByMeasurementIdMax(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
+		return new FileStoreValueWrapper<Long>(values.stream().max(Comparator.comparing(FileStoreValue::getFileStoreValueUsableSpace)).get().getFileStoreValueUsableSpace());
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/min", produces = "application/json")
+	public FileStoreValueWrapper<Long> getFileStoreByIdValuesByMeasurementIdMin(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
+		return new FileStoreValueWrapper<Long>(values.stream().min(Comparator.comparing(FileStoreValue::getFileStoreValueUsableSpace)).get().getFileStoreValueUsableSpace());
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/avg", produces = "application/json")
+	public FileStoreValueWrapper<Double> getFileStoreByIdValuesByMeasurementIdAvg(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
+		return new FileStoreValueWrapper<Double>(values.stream().map(FileStoreValue::getFileStoreValueUsableSpace).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN));
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/count", produces = "application/json")
+	public FileStoreValueWrapper<Long> getFileStoreByIdValuesByMeasurementIdCount(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
+		return new FileStoreValueWrapper<Long>(values.stream().map(FileStoreValue::getFileStoreValueUsableSpace).filter(x -> x!=null).count());
+	}
+	
+	
 }

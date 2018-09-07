@@ -5,46 +5,67 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import de.tub.qds.rm.models.consts.pks.SystemPK;
 
 @Entity
 public class System implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	@EmbeddedId
-	SystemPK systemId;
-	@OneToMany(mappedBy = "measurementSystem", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@Id@GeneratedValue
+	Long systemId;
+	String systemHostName;
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	OperatingSystem systemOperatingSystem;
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	Hardware systemHardware;
+	@OneToMany(mappedBy = "measurementSystem", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	Set<Measurement> systemMeasurements;
 
 	public System() {
 		
 	}
 
-	public System(SystemPK id) {
+	public System(String systemHostName, OperatingSystem systemOperatingSystem) {
 		super();
-		this.systemId = id;
+		this.systemHostName = systemHostName;
+		this.systemOperatingSystem = systemOperatingSystem;
 		this.systemMeasurements = new HashSet<Measurement>();
 	}
 
-	public SystemPK getSystemId() {
+	public Long getSystemId() {
 		return systemId;
 	}
 
-	public void setSystemId(SystemPK systemId) {
-		this.systemId = systemId;
+	public String getSystemHostName() {
+		return systemHostName;
 	}
 
-	@JsonIgnore
+	public void setSystemHostName(String systemHostName) {
+		this.systemHostName = systemHostName;
+	}
+
+	public OperatingSystem getSystemOperatingSystem() {
+		return systemOperatingSystem;
+	}
+
+	public void setSystemOperatingSystem(OperatingSystem systemOperatingSystem) {
+		this.systemOperatingSystem = systemOperatingSystem;
+	}
+
+	public Hardware getSystemHardware() {
+		return systemHardware;
+	}
+
+	public void setSystemHardware(Hardware systemHardware) {
+		this.systemHardware = systemHardware;
+	}
+
 	public Set<Measurement> getSystemMeasurements() {
 		return systemMeasurements;
 	}
@@ -52,13 +73,11 @@ public class System implements Serializable {
 	public void setSystemMeasurements(Set<Measurement> systemMeasurements) {
 		this.systemMeasurements = systemMeasurements;
 	}
-	
-	/*public void addSystemMeasurement(Measurement systemMeasurement) {
-		this.systemMeasurements.add(systemMeasurement);
-	}*/
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	
 
 }

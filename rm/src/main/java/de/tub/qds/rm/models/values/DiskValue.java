@@ -1,13 +1,12 @@
 package de.tub.qds.rm.models.values;
 
 import java.io.Serializable;
-
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
-import de.tub.qds.rm.models.consts.Disk;
 import de.tub.qds.rm.models.values.pks.DiskValuePK;
 
+// FINISHED IMPLEMENTATION
 @Entity
 public class DiskValue implements Serializable {
 
@@ -17,17 +16,17 @@ public class DiskValue implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
 	DiskValuePK diskValueId;
-	long diskValueReads;
-	long diskValueReadBytes;
-	long diskValueWrites;
-	long diskValueWriteBytes;
-	long diskValueTransferTime;
+	Long diskValueReads;
+	Long diskValueReadBytes;
+	Long diskValueWrites;
+	Long diskValueWriteBytes;
+	Long diskValueTransferTime;
 
-	public DiskValue() {
+	public DiskValue() 
+	{
 	}
 
-	public DiskValue(DiskValuePK id, Disk disk, long reads, long readBytes, long writes, long writeBytes,
-			long transferTime) {
+	public DiskValue(DiskValuePK id,Long reads,Long readBytes, Long writes, Long writeBytes, Long transferTime) {
 		super();
 		this.diskValueId = id;
 		this.diskValueReads = reads;
@@ -45,43 +44,43 @@ public class DiskValue implements Serializable {
 		this.diskValueId = diskValueId;
 	}
 
-	public long getDiskValueReads() {
+	public Long getDiskValueReads() {
 		return diskValueReads;
 	}
 
-	public void setDiskValueReads(long diskValueReads) {
+	public void setDiskValueReads(Long diskValueReads) {
 		this.diskValueReads = diskValueReads;
 	}
 
-	public long getDiskValueReadBytes() {
+	public Long getDiskValueReadBytes() {
 		return diskValueReadBytes;
 	}
 
-	public void setDiskValueReadBytes(long diskValueReadBytes) {
+	public void setDiskValueReadBytes(Long diskValueReadBytes) {
 		this.diskValueReadBytes = diskValueReadBytes;
 	}
 
-	public long getDiskValueWrites() {
+	public Long getDiskValueWrites() {
 		return diskValueWrites;
 	}
 
-	public void setDiskValueWrites(long diskValueWrites) {
+	public void setDiskValueWrites(Long diskValueWrites) {
 		this.diskValueWrites = diskValueWrites;
 	}
 
-	public long getDiskValueWriteBytes() {
+	public Long getDiskValueWriteBytes() {
 		return diskValueWriteBytes;
 	}
 
-	public void setDiskValueWriteBytes(long diskValueWriteBytes) {
+	public void setDiskValueWriteBytes(Long diskValueWriteBytes) {
 		this.diskValueWriteBytes = diskValueWriteBytes;
 	}
 
-	public long getDiskValueTransferTime() {
+	public Long getDiskValueTransferTime() {
 		return diskValueTransferTime;
 	}
 
-	public void setDiskValueTransferTime(long diskValueTransferTime) {
+	public void setDiskValueTransferTime(Long diskValueTransferTime) {
 		this.diskValueTransferTime = diskValueTransferTime;
 	}
 

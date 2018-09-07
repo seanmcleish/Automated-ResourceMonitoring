@@ -16,18 +16,18 @@ public class NetworkValue implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
 	NetworkValuePK networkValueId;
-	long networkValueBytesRecv;
-	long networkValueBytesSent;
-	long networkValuePacketsRecv;
-	long networkValuePacketsSent;
-	long networkValueInErrors;
-	long networkValueOutErrors;
+	Long networkValueBytesRecv;
+	Long networkValueBytesSent;
+	Long networkValuePacketsRecv;
+	Long networkValuePacketsSent;
+	Long networkValueInErrors;
+	Long networkValueOutErrors;
 
 	public NetworkValue() {
 	}
 
-	public NetworkValue(NetworkValuePK id, long bytesRecv, long bytesSent, long packetsRecv, long packetsSent,
-			long inErrors, long outErrors) {
+	public NetworkValue(NetworkValuePK id, Long bytesRecv, Long bytesSent, Long packetsRecv, Long packetsSent,
+			Long inErrors, Long outErrors) {
 		super();
 		this.networkValueId = id;
 		this.networkValueBytesRecv = bytesRecv;
@@ -47,51 +47,51 @@ public class NetworkValue implements Serializable {
 		this.networkValueId = networkValueId;
 	}
 
-	public long getNetworkValueBytesRecv() {
+	public Long getNetworkValueBytesRecv() {
 		return networkValueBytesRecv;
 	}
 
-	public void setNetworkValueBytesRecv(long networkValueBytesRecv) {
+	public void setNetworkValueBytesRecv(Long networkValueBytesRecv) {
 		this.networkValueBytesRecv = networkValueBytesRecv;
 	}
 
-	public long getNetworkValueBytesSent() {
+	public Long getNetworkValueBytesSent() {
 		return networkValueBytesSent;
 	}
 
-	public void setNetworkValueBytesSent(long networkValueBytesSent) {
+	public void setNetworkValueBytesSent(Long networkValueBytesSent) {
 		this.networkValueBytesSent = networkValueBytesSent;
 	}
 
-	public long getNetworkValuePacketsRecv() {
+	public Long getNetworkValuePacketsRecv() {
 		return networkValuePacketsRecv;
 	}
 
-	public void setNetworkValuePacketsRecv(long networkValuePacketsRecv) {
+	public void setNetworkValuePacketsRecv(Long networkValuePacketsRecv) {
 		this.networkValuePacketsRecv = networkValuePacketsRecv;
 	}
 
-	public long getNetworkValuePacketsSent() {
+	public Long getNetworkValuePacketsSent() {
 		return networkValuePacketsSent;
 	}
 
-	public void setNetworkValuePacketsSent(long networkValuePacketsSent) {
+	public void setNetworkValuePacketsSent(Long networkValuePacketsSent) {
 		this.networkValuePacketsSent = networkValuePacketsSent;
 	}
 
-	public long getNetworkValueInErrors() {
+	public Long getNetworkValueInErrors() {
 		return networkValueInErrors;
 	}
 
-	public void setNetworkValueInErrors(long networkValueInErrors) {
+	public void setNetworkValueInErrors(Long networkValueInErrors) {
 		this.networkValueInErrors = networkValueInErrors;
 	}
 
-	public long getNetworkValueOutErrors() {
+	public Long getNetworkValueOutErrors() {
 		return networkValueOutErrors;
 	}
 
-	public void setNetworkValueOutErrors(long networkValueOutErrors) {
+	public void setNetworkValueOutErrors(Long networkValueOutErrors) {
 		this.networkValueOutErrors = networkValueOutErrors;
 	}
 

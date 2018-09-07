@@ -5,56 +5,76 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import de.tub.qds.rm.models.consts.pks.ProcessPK;
 import de.tub.qds.rm.models.values.ProcessValue;
 
 @Entity
 public class Process implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	@EmbeddedId
-	ProcessPK processId;
-	boolean processIsParentProcess;
+	@Id@GeneratedValue
+	Long processId;
+	Boolean processIsParentProcess;
+	String processName;
+	Long processPid;
+	@ManyToOne(fetch = FetchType.LAZY)
+	Measurement processMeasurement;
 	@OneToMany(mappedBy = "processValueId.processValueProcess", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<ProcessValue> processValues;
 
 	public Process() {
 	}
 
-	public Process(ProcessPK id, boolean isParentProcess) {
+	public Process(Boolean processIsParentProcess, String processName, Long processPid) {
 		super();
-		this.processId = id;
-		this.processIsParentProcess = isParentProcess;
+		this.processIsParentProcess = processIsParentProcess;
+		this.processName = processName;
+		this.processPid = processPid;
 		this.processValues = new HashSet<ProcessValue>();
 	}
 
-	public ProcessPK getProcessId() {
+	public Long getProcessId() {
 		return processId;
 	}
 
-	public void setProcessId(ProcessPK processId) {
-		this.processId = processId;
-	}
-
-	public boolean isProcessIsParentProcess() {
+	public Boolean getProcessIsParentProcess() {
 		return processIsParentProcess;
 	}
 
-	public void setProcessIsParentProcess(boolean processIsParentProcess) {
+	public void setProcessIsParentProcess(Boolean processIsParentProcess) {
 		this.processIsParentProcess = processIsParentProcess;
 	}
 
-	@JsonIgnore
+	public String getProcessName() {
+		return processName;
+	}
+
+	public void setProcessName(String processName) {
+		this.processName = processName;
+	}
+
+	public Long getProcessPid() {
+		return processPid;
+	}
+
+	public void setProcessPid(Long processPid) {
+		this.processPid = processPid;
+	}
+
+	public Measurement getProcessMeasurement() {
+		return processMeasurement;
+	}
+
+	public void setProcessMeasurement(Measurement processMeasurement) {
+		this.processMeasurement = processMeasurement;
+	}
+
 	public Set<ProcessValue> getProcessValues() {
 		return processValues;
 	}
@@ -67,4 +87,5 @@ public class Process implements Serializable {
 		return serialVersionUID;
 	}
 
+	
 }

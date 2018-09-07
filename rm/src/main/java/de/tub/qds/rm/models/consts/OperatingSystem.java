@@ -8,42 +8,43 @@ import javax.persistence.CascadeType;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import de.tub.qds.rm.models.consts.pks.OperatingSystemPK;
-
 @Entity
 public class OperatingSystem implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	@EmbeddedId
-	OperatingSystemPK operatingSystemId;
-	@OneToMany(mappedBy = "systemId.systemOperatingSystem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@Id @GeneratedValue
+	Long operatingSystemId;
+	@OneToMany(mappedBy = "systemOperatingSystem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<System> operatingSytemSystems;
+	String operatingSystemManufacturer;
+	String operatingSystemFamily;
+	String operatingSystemVersion;
+	String operatingSystemCodeName;
+	String operatingSystemBuild;
 
 	public OperatingSystem() {
 	}
 
-	public OperatingSystem(OperatingSystemPK id) {
+	public OperatingSystem(String operatingSystemManufacturer, String operatingSystemFamily, String operatingSystemVersion, String operatingSystemCodeName, String operatingSystemBuild ) {
 		super();
-		this.operatingSystemId = id;
+		this.operatingSystemManufacturer = operatingSystemManufacturer;
+		this.operatingSystemFamily = operatingSystemFamily;
+		this.operatingSystemVersion = operatingSystemVersion;
+		this.operatingSystemCodeName = operatingSystemCodeName;
+		this.operatingSystemBuild = operatingSystemBuild;
 		this.operatingSytemSystems = new HashSet<System>();
 	}
 
-	public OperatingSystemPK getOperatingSystemId() {
+	public Long getOperatingSystemId() {
 		return operatingSystemId;
 	}
 
-	public void setOperatingSystemId(OperatingSystemPK operatingSystemId) {
-		this.operatingSystemId = operatingSystemId;
-	}
-
-	@JsonIgnore
 	public Set<System> getOperatingSytemSystems() {
 		return operatingSytemSystems;
 	}
@@ -52,8 +53,49 @@ public class OperatingSystem implements Serializable {
 		this.operatingSytemSystems = operatingSytemSystems;
 	}
 
+	public String getOperatingSystemManufacturer() {
+		return operatingSystemManufacturer;
+	}
+
+	public void setOperatingSystemManufacturer(String operatingSystemManufacturer) {
+		this.operatingSystemManufacturer = operatingSystemManufacturer;
+	}
+
+	public String getOperatingSystemFamily() {
+		return operatingSystemFamily;
+	}
+
+	public void setOperatingSystemFamily(String operatingSystemFamily) {
+		this.operatingSystemFamily = operatingSystemFamily;
+	}
+
+	public String getOperatingSystemVersion() {
+		return operatingSystemVersion;
+	}
+
+	public void setOperatingSystemVersion(String operatingSystemVersion) {
+		this.operatingSystemVersion = operatingSystemVersion;
+	}
+
+	public String getOperatingSystemCodeName() {
+		return operatingSystemCodeName;
+	}
+
+	public void setOperatingSystemCodeName(String operatingSystemCodeName) {
+		this.operatingSystemCodeName = operatingSystemCodeName;
+	}
+
+	public String getOperatingSystemBuild() {
+		return operatingSystemBuild;
+	}
+
+	public void setOperatingSystemBuild(String operatingSystemBuild) {
+		this.operatingSystemBuild = operatingSystemBuild;
+	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
 
+	
 }

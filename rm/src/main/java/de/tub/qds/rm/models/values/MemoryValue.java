@@ -16,14 +16,14 @@ public class MemoryValue implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
 	MemoryValuePK memoryValueId;
-	long memoryValueAvailable;
-	long memoryValueSwapTotal;
-	long memoryValueSwapUsed;
+	Long memoryValueAvailable;
+	Long memoryValueSwapTotal;
+	Long memoryValueSwapUsed;
 
 	public MemoryValue() {
 	}
 
-	public MemoryValue(MemoryValuePK id, long available, long swapTotal, long swapUsed) {
+	public MemoryValue(MemoryValuePK id, Long available, Long swapTotal, Long swapUsed) {
 		super();
 		this.memoryValueId = id;
 		this.memoryValueAvailable = available;
@@ -40,27 +40,27 @@ public class MemoryValue implements Serializable {
 		this.memoryValueId = memoryValueId;
 	}
 
-	public long getMemoryValueAvailable() {
+	public Long getMemoryValueAvailable() {
 		return memoryValueAvailable;
 	}
 
-	public void setMemoryValueAvailable(long memoryValueAvailable) {
+	public void setMemoryValueAvailable(Long memoryValueAvailable) {
 		this.memoryValueAvailable = memoryValueAvailable;
 	}
 
-	public long getMemoryValueSwapTotal() {
+	public Long getMemoryValueSwapTotal() {
 		return memoryValueSwapTotal;
 	}
 
-	public void setMemoryValueSwapTotal(long memoryValueSwapTotal) {
+	public void setMemoryValueSwapTotal(Long memoryValueSwapTotal) {
 		this.memoryValueSwapTotal = memoryValueSwapTotal;
 	}
 
-	public long getMemoryValueSwapUsed() {
+	public Long getMemoryValueSwapUsed() {
 		return memoryValueSwapUsed;
 	}
 
-	public void setMemoryValueSwapUsed(long memoryValueSwapUsed) {
+	public void setMemoryValueSwapUsed(Long memoryValueSwapUsed) {
 		this.memoryValueSwapUsed = memoryValueSwapUsed;
 	}
 

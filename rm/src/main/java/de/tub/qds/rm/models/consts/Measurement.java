@@ -24,14 +24,14 @@ public class Measurement implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue
-	long measurementId;
+	Long measurementId;
 	String measurementIp;
 	Timestamp measurementStartDate;
 	Timestamp measurementEndDate;
 	boolean measurementRunning;
-	@OneToMany(mappedBy = "processId.processMeasurement", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "processMeasurement", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Process> measurementProcesses;
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	System measurementSystem;
 
 	public Measurement() {
@@ -40,15 +40,15 @@ public class Measurement implements Serializable {
 
 	public Measurement(String ip) {
 		super();
-		this.measurementIp = ip;;
+		this.measurementIp = ip;
 		this.measurementProcesses = new HashSet<Process>();
 	}
 
-	public long getMeasurementId() {
+	public Long getMeasurementId() {
 		return measurementId;
 	}
 
-	public void setMeasurementId(long measurementId) {
+	public void setMeasurementId(Long measurementId) {
 		this.measurementId = measurementId;
 	}
 
@@ -84,13 +84,13 @@ public class Measurement implements Serializable {
 		this.measurementRunning = measurementRunning;
 	}
 
+	@JsonIgnore
 	public Set<Process> getMeasurementProcesses() {
 		return measurementProcesses;
 	}
 
-	@JsonIgnore
-	public void setMeasurementProcesses(Set<Process> measurementProcesses) {
-		this.measurementProcesses = measurementProcesses;
+	public void addMeasurementProcess(Process measurementProcess) {
+		this.measurementProcesses.add(measurementProcess);
 	}
 
 	@JsonIgnore

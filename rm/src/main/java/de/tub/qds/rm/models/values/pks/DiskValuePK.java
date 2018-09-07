@@ -1,9 +1,11 @@
 package de.tub.qds.rm.models.values.pks;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,20 +15,18 @@ import de.tub.qds.rm.models.consts.Disk;
 @Embeddable
 public class DiskValuePK implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	@ManyToOne(targetEntity = Disk.class)
+	@ManyToOne(targetEntity = Disk.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Disk diskValueDisk;
-	int diskValueMeasurementId;
-	Date diskValueTimestamp;
+	Long diskValueMeasurementId;
+	Timestamp diskValueTimestamp;
 
 	public DiskValuePK() {
 	}
 
-	public DiskValuePK(int measurement, Date timestamp) {
+	public DiskValuePK(Disk disk, Long measurement, Timestamp timestamp) {
 		super();
+		this.diskValueDisk = disk;
 		this.diskValueMeasurementId = measurement;
 		this.diskValueTimestamp = timestamp;
 	}
@@ -40,19 +40,19 @@ public class DiskValuePK implements Serializable {
 		this.diskValueDisk = diskValueDisk;
 	}
 
-	public int getDiskValueMeasurementId() {
+	public Long getDiskValueMeasurementId() {
 		return diskValueMeasurementId;
 	}
 
-	public void setDiskValueMeasurementId(int diskValueMeasurementId) {
+	public void setDiskValueMeasurementId(Long diskValueMeasurementId) {
 		this.diskValueMeasurementId = diskValueMeasurementId;
 	}
 
-	public Date getDiskValueTimestamp() {
+	public Timestamp getDiskValueTimestamp() {
 		return diskValueTimestamp;
 	}
 
-	public void setDiskValueTimestamp(Date diskValueTimestamp) {
+	public void setDiskValueTimestamp(Timestamp diskValueTimestamp) {
 		this.diskValueTimestamp = diskValueTimestamp;
 	}
 

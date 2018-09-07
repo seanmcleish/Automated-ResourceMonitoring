@@ -1,8 +1,12 @@
 package de.tub.qds.rm.controller;
 
-import java.util.HashSet;
+import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,20 +19,28 @@ import de.tub.qds.rm.models.consts.Disk;
 import de.tub.qds.rm.models.consts.FileStore;
 import de.tub.qds.rm.models.consts.Hardware;
 import de.tub.qds.rm.models.consts.repos.DiskRepo;
-import de.tub.qds.rm.models.consts.repos.HardwareDiskRepo;
+import de.tub.qds.rm.models.consts.repos.DiskValueRepo;
+import de.tub.qds.rm.models.consts.repos.FileStoreRepo;
 import de.tub.qds.rm.models.consts.repos.HardwareRepo;
+import de.tub.qds.rm.models.consts.repos.MeasurementRepo;
 import de.tub.qds.rm.models.values.DiskValue;
+import de.tub.qds.rm.models.values.pks.DiskValuePK;
+import de.tub.qds.rm.models.values.wrapper.DiskValueWrapper;
 
+//FINISHED IMPLEMENTATION & TESTED
 @RestController
 public class DiskController {
 	
 	@Autowired
 	DiskRepo repo;
 	@Autowired
+	DiskValueRepo valueRepo;
+	@Autowired
 	HardwareRepo hardwareRepo;
 	@Autowired
-	HardwareDiskRepo hardwareDiskRepo;
-
+	FileStoreRepo fileStoreRepo;
+	@Autowired
+	MeasurementRepo measurementRepo;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/disk", produces = "application/json")
 	public List<Disk> getDisks() {
@@ -38,16 +50,51 @@ public class DiskController {
 	@RequestMapping(method = RequestMethod.POST, path = "/disk", produces = "application/json")
 	public Disk postDisk(
 			@RequestParam("diskSerialNumber") String diskSerialNumber, 
-			@RequestParam("diskModel") String diskModel ,
-			@RequestParam("diskName") String diskName,
-			@RequestParam("diskSize") long diskSize
+			@RequestParam(value="diskModel", required=false) String diskModel ,
+			@RequestParam(value="diskName", required=false) String diskName,
+			@RequestParam(value="diskSize", required=false) Long diskSize,
+			HttpServletRequest request, 
+			HttpServletResponse response
 			) {
-		return repo.save(new Disk(diskSerialNumber, diskModel, diskName, diskSize));
+		Disk disk = new Disk(diskSerialNumber, diskModel, diskName, diskSize);
+		return repo.save(disk);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}", produces = "application/json")
 	public Disk getDiskById(@PathVariable("diskSerialNumber") String diskSerialNumber) {
 		return repo.existsById(diskSerialNumber) ? repo.findById(diskSerialNumber).get() : null;
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, path = "/disk/{diskSerialNumber}", produces = "application/json")
+	public Disk updateDiskById(
+			@PathVariable("diskSerialNumber") String diskSerialNumber, 
+			@RequestParam(value = "diskModel", required=false) String diskModel ,
+			@RequestParam(value="diskName", required=false) String diskName,
+			@RequestParam(value="diskSize", required=false) Long diskSize
+			) {
+		Disk disk = repo.findById(diskSerialNumber).orElse(null);
+		if(disk != null) {
+			if(diskModel != null) {
+				disk.setDiskModel(diskModel);
+			}
+			if(diskName != null){
+				disk.setDiskName(diskName);
+			}
+			if(diskSize!=null) {
+				disk.setDiskSize(diskSize);
+			}
+			return repo.save(disk);
+		}
+		else{
+			return null;
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/disk/{diskSerialNumber}", produces = "application/json")
+	public void deleteDiskById(@PathVariable("diskSerialNumber") String diskSerialNumber) {
+		if(repo.existsById(diskSerialNumber)){
+			repo.deleteById(diskSerialNumber);
+		}
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskModel", produces = "text/plain")
@@ -70,21 +117,145 @@ public class DiskController {
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues", produces = "application/json")
 	public Set<DiskValue> getDiskByIdDiskValues(@PathVariable("diskSerialNumber") String diskSerialNumber) {
-		return repo.existsById(diskSerialNumber)
-				? repo.findById(diskSerialNumber).get().getDiskValues() : null;
+		if(!repo.existsById(diskSerialNumber)){
+			return null;
+		}
+		return valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberOrderByDiskValueIdDiskValueTimestampAsc(diskSerialNumber);
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}", produces = "application/json")
+	public Set<DiskValue> getDiskByIdDiskValuesByMeasurementId(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}else{
+			return valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementIdOrderByDiskValueIdDiskValueTimestampAsc(diskSerialNumber, measurementId);
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/max", produces = "application/json")
+	public DiskValueWrapper<Long> getDiskByIdDiskValuesByMeasurementIdMax(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}else{
+			Set<DiskValue> values = valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementId(diskSerialNumber, measurementId);
+			Long diskValueReadsMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueReads)).get().getDiskValueReads();
+			Long diskValueReadBytesMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueReadBytes)).get().getDiskValueReadBytes();
+			Long diskValueWritesMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueWrites)).get().getDiskValueWrites();
+			Long diskValueWriteBytesMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueWriteBytes)).get().getDiskValueWriteBytes();
+			Long diskValueTransferTimeMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueTransferTime)).get().getDiskValueTransferTime();
+			return new DiskValueWrapper<Long>(diskValueReadsMax, diskValueReadBytesMax, diskValueWritesMax, diskValueWriteBytesMax, diskValueTransferTimeMax);
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/min", produces = "application/json")
+	public DiskValueWrapper<Long> getDiskByIdDiskValuesByMeasurementIdMin(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}else{
+			Set<DiskValue> values = valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementId(diskSerialNumber, measurementId);
+			Long diskValueReadsMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueReads)).get().getDiskValueReads();
+			Long diskValueReadBytesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueReadBytes)).get().getDiskValueReadBytes();
+			Long diskValueWritesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueWrites)).get().getDiskValueWrites();
+			Long diskValueWriteBytesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueWriteBytes)).get().getDiskValueWriteBytes();
+			Long diskValueTransferTimeMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueTransferTime)).get().getDiskValueTransferTime();
+			return new DiskValueWrapper<Long>(diskValueReadsMin, diskValueReadBytesMin, diskValueWritesMin, diskValueWriteBytesMin, diskValueTransferTimeMin);
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/avg", produces = "application/json")
+	public DiskValueWrapper<Double> getDiskByIdDiskValuesByMeasurementIdAvg(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}else{
+			Set<DiskValue> values = valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementId(diskSerialNumber, measurementId);
+			Double diskValueReadsAvg = values.stream().map(DiskValue::getDiskValueReads).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+			Double diskValueReadBytesAvg = values.stream().map(DiskValue::getDiskValueReadBytes).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+			Double diskValueWritesAvg = values.stream().map(DiskValue::getDiskValueWrites).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+			Double diskValueWriteBytesAvg = values.stream().map(DiskValue::getDiskValueWriteBytes).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+			Double diskValueTransferTimeAvg = values.stream().map(DiskValue::getDiskValueTransferTime).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+			return new DiskValueWrapper<Double>(diskValueReadsAvg, diskValueReadBytesAvg, diskValueWritesAvg, diskValueWriteBytesAvg, diskValueTransferTimeAvg);
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/count", produces = "application/json")
+	public DiskValueWrapper<Long> getDiskByIdDiskValuesByMeasurementIdCount(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}else{
+			Set<DiskValue> values = valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementId(diskSerialNumber, measurementId);
+			Long diskValueReadsCount = values.stream().map(DiskValue::getDiskValueReads).filter(x -> x!=null).count();
+			Long diskValueReadBytesCount = values.stream().map(DiskValue::getDiskValueReadBytes).filter(x -> x!=null).count();
+			Long diskValueWritesCount = values.stream().map(DiskValue::getDiskValueWrites).filter(x -> x!=null).count();
+			Long diskValueWriteBytesCount = values.stream().map(DiskValue::getDiskValueWriteBytes).filter(x -> x!=null).count();
+			Long diskValueTransferTimeCount = values.stream().map(DiskValue::getDiskValueTransferTime).filter(x -> x!=null).count();
+			return new DiskValueWrapper<Long>(diskValueReadsCount, diskValueReadBytesCount, diskValueWritesCount, diskValueWriteBytesCount, diskValueTransferTimeCount);
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, path = "/disk/{diskSerialNumber}/diskValues", produces = "application/json")
+	public DiskValue addDiskValueById(
+			@PathVariable("diskSerialNumber") String diskSerialNumber,
+			@RequestParam("measurementId") Long measurementId,
+			@RequestParam(value="timestamp", required=false) Long timestamp,
+			@RequestParam(value = "diskValueReads", required=false) Long diskValueReads,
+			@RequestParam(value = "diskValueReadBytes", required=false) Long diskValueReadBytes,
+			@RequestParam(value = "diskValueWrites", required=false) Long diskValueWrites,
+			@RequestParam(value = "diskValueWriteBytes",required=false) Long diskValueWriteBytes,
+			@RequestParam(value = "diskValueTransferTime", required=false) Long diskValueTransferTime
+			) {
+		Disk disk =  repo.findById(diskSerialNumber).orElse(null);
+		if(disk != null) {
+			DiskValuePK pk = new DiskValuePK(disk, measurementId, new Timestamp(timestamp!=null? timestamp: System.currentTimeMillis()));
+			DiskValue value = new DiskValue(
+					pk,
+					diskValueReads,
+					diskValueReadBytes,
+					diskValueWrites,
+					diskValueWriteBytes,
+					diskValueTransferTime);
+			return valueRepo.save(value);
+		}
+		else{
+			return null;
+		}
+	}
+
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskFileStores", produces = "application/json")
 	public Set<FileStore> getDiskByIdDiskFileStores(@PathVariable("diskSerialNumber") String diskSerialNumber) {
 		return repo.existsById(diskSerialNumber)
 				? repo.findById(diskSerialNumber).get().getDiskFileStores() : null;
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, path = "/disk/{diskSerialNumber}/diskFileStores", produces = "application/json")
+	public FileStore addDiskFileStoreByUuid(@PathVariable("diskSerialNumber") String diskSerialNumber, @RequestParam("diskFileStoreUuid") String diskFileStoreUuid) {
+		Disk disk = repo.findById(diskSerialNumber).orElse(null);
+		FileStore fileStore = fileStoreRepo.findById(diskFileStoreUuid).orElse(null);
+		if(disk==null || fileStore == null ){
+			return null;
+		}
+		fileStore.setFileStoreDisk(disk);
+		return fileStoreRepo.save(fileStore);
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskHardware", produces = "application/json")
 	public Set<Hardware> getDiskByIdDiskHardware(@PathVariable("diskSerialNumber") String diskSerialNumber) {
-		Set<Hardware> hardware = new HashSet<Hardware>();
-		hardwareDiskRepo.findByDiskSerialNumber(diskSerialNumber).forEach(x -> hardware.add(hardwareRepo.findByHardwareIdHardwareIdentifier(x.getHardwareIdentifier())));
-		return hardware;
+		return repo.existsById(diskSerialNumber)
+				? repo.findById(diskSerialNumber).get().getDiskHardware() : null;
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, path = "/disk/{diskSerialNumber}/diskHardware", produces = "application/json")
+	public Set<Hardware> addDiskHardwareById(@PathVariable("diskSerialNumber") String diskSerialNumber, @RequestParam("hardwareIdentifier") Long hardwareIdentifier) {
+		Disk disk = repo.findById(diskSerialNumber).orElse(null);
+		Hardware hardware = hardwareRepo.findById(hardwareIdentifier).orElse(null);
+		if(disk == null || hardware == null){
+			return null;
+		}
+		disk.addDiskHardware(hardware);
+		return repo.save(disk).getDiskHardware();
 	}
 	
 }

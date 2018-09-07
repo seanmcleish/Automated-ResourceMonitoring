@@ -17,32 +17,29 @@ import de.tub.qds.rm.models.values.MemoryValue;
 @Entity
 public class Memory implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
-	long memoryTotalSpace;
+	Long memoryTotalSpace;
 	@OneToMany(mappedBy = "memoryValueId.memoryValueMemory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<MemoryValue> memoryValues;
-	@OneToMany(mappedBy = "hardwareId.hardwareMemory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "hardwareMemory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	Set<Hardware> memoryHardware;
 
 	public Memory() {
 	}
 
-	public Memory(long totalSpace) {
+	public Memory(Long totalSpace) {
 		super();
 		this.memoryTotalSpace = totalSpace;
 		this.memoryValues = new HashSet<MemoryValue>();
 		this.memoryHardware = new HashSet<Hardware>();
 	}
 
-	public long getMemoryTotalSpace() {
+	public Long getMemoryTotalSpace() {
 		return memoryTotalSpace;
 	}
 
-	public void setMemoryTotalSpace(long memoryTotalSpace) {
+	public void setMemoryTotalSpace(Long memoryTotalSpace) {
 		this.memoryTotalSpace = memoryTotalSpace;
 	}
 
@@ -51,10 +48,6 @@ public class Memory implements Serializable {
 		return memoryValues;
 	}
 
-	public void setMemoryValues(Set<MemoryValue> memoryValues) {
-		this.memoryValues = memoryValues;
-	}
-	
 	public void addMemoryValue(MemoryValue memoryValue) {
 		this.memoryValues.add(memoryValue);
 	}
@@ -64,8 +57,8 @@ public class Memory implements Serializable {
 		return memoryHardware;
 	}
 
-	public void setMemoryHardware(Set<Hardware> memoryHardware) {
-		this.memoryHardware = memoryHardware;
+	public void addMemoryHardware(Hardware memoryHardware) {
+		this.memoryHardware.add(memoryHardware);
 	}
 
 	public static long getSerialversionuid() {

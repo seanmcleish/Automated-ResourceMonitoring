@@ -26,7 +26,7 @@ public class ProcessController {
 		return repo.findAll();
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, path = "/process/{processIdentifier}", produces = "application/json")
+	/*@RequestMapping(method = RequestMethod.GET, path = "/process/{processIdentifier}", produces = "application/json")
 	public Process getProcessByProcessIdProcessIdentifier(@PathVariable("processIdentifier") long processIdentifier) {
 		return repo.existsByProcessIdProcessIdentifier(processIdentifier) ? repo.findByProcessIdProcessIdentifier(processIdentifier) : null;
 	}
@@ -51,5 +51,5 @@ public class ProcessController {
 		return repo.existsByProcessIdProcessIdentifier(processIdentifier) ? repo.findByProcessIdProcessIdentifier(processIdentifier).getProcessValues(): null;
 	}
 
-
+*/
 }

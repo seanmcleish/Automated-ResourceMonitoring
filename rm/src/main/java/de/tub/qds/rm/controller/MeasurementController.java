@@ -13,13 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.tub.qds.rm.models.consts.Measurement;
 import de.tub.qds.rm.models.consts.Process;
+import de.tub.qds.rm.models.consts.System;
 import de.tub.qds.rm.models.consts.repos.MeasurementRepo;
+import de.tub.qds.rm.models.consts.repos.ProcessRepo;
+import de.tub.qds.rm.models.consts.repos.SystemRepo;
 
+//FINISHED IMPLEMENTATION & TESTED
 @RestController
 public class MeasurementController {
 	
 	@Autowired
 	MeasurementRepo repo;
+	@Autowired
+	SystemRepo systemRepo;
+	@Autowired
+	ProcessRepo processRepo;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/measurement", produces = "application/json")
 	public List<Measurement> getMeasurements() {
@@ -27,13 +35,47 @@ public class MeasurementController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, path = "/measurement", produces = "application/json")
-	public Measurement postMeasurement() {
-		return repo.save(new Measurement());
+	public Measurement postMeasurement(@RequestParam(value = "measurementIp", required=false) String measurementIp) {
+		if(measurementIp == null){
+			return repo.save(new Measurement());
+		}
+		return repo.save(new Measurement(measurementIp));
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}", produces = "application/json")
 	public Measurement getMeasurementById(@PathVariable("measurementId") long measurementId) {
 		return repo.existsById(measurementId) ? repo.findById(measurementId).get() : null;
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, path = "/measurement/{measurementId}", produces = "application/json")
+	public Measurement updateMeasurementById(
+			@PathVariable("measurementId") Long measurementId,
+			@RequestParam(value="measurementIp", required=false) String measurementIp,
+			@RequestParam(value="measurementRunning", required=false) Boolean measurementRunning,
+			@RequestParam(value="measurementSystem", required=false) Long systemId
+			) {
+		Measurement measurement = repo.findById(measurementId).orElse(null);
+		System system = systemRepo.findById(systemId).orElse(null);
+		if(measurement == null){
+			return null;
+		}
+		if(system != null){
+			measurement.setMeasurementSystem(system);
+		}
+		if(measurementIp != null){
+			measurement.setMeasurementIp(measurementIp);
+		}
+		if(measurementRunning != null){
+			boolean isCurrentlyRunning = measurement.isMeasurementRunning();
+			if(isCurrentlyRunning && !measurementRunning){
+				measurement.setMeasurementEndDate(new Timestamp(java.lang.System.currentTimeMillis()));
+			}
+			else if(!isCurrentlyRunning && measurementRunning){
+				measurement.setMeasurementStartDate(new Timestamp(java.lang.System.currentTimeMillis()));
+				measurement.setMeasurementEndDate(null);
+			}
+		}
+		return repo.save(measurement);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurementIp", produces = "text/plain")
@@ -56,22 +98,9 @@ public class MeasurementController {
 		return repo.existsById(measurementId) ? repo.findById(measurementId).get().isMeasurementRunning() : null;
 	}
 	
-	@RequestMapping(method = RequestMethod.PUT, path = "/measurement/{measurementId}/measurementRunning", produces = "application/json")
-	public Measurement putMeasurementByIdRunning(@PathVariable("measurementId") long measurementId, @RequestParam("value") boolean value) {
-		if(repo.existsById(measurementId)){
-			Measurement measurement = repo.findById(measurementId).get();
-			boolean isCurrentlyRunning = measurement.isMeasurementRunning();
-			if(isCurrentlyRunning && !value){
-				measurement.setMeasurementEndDate(new Timestamp(System.currentTimeMillis()));
-			}
-			else if(!isCurrentlyRunning && value){
-				measurement.setMeasurementStartDate(new Timestamp(System.currentTimeMillis()));
-				measurement.setMeasurementEndDate(null);
-			}
-			measurement.setMeasurementRunning(value);
-			return repo.save(measurement);
-		}
-		return null;
+	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurementSystem", produces = "application/json")
+	public System getMeasurementByIdSystem(@PathVariable("measurementId") long measurementId) {
+		return repo.existsById(measurementId) ? repo.findById(measurementId).get().getMeasurementSystem() : null;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurmentProcesses", produces = "application/json")
@@ -79,9 +108,15 @@ public class MeasurementController {
 		return repo.existsById(measurementId) ? repo.findById(measurementId).get().getMeasurementProcesses() : null;
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurementSystem", produces = "application/json")
-	public de.tub.qds.rm.models.consts.System getMeasurementByIdSystem(@PathVariable("measurementId") long measurementId) {
-		return repo.existsById(measurementId) ? repo.findById(measurementId).get().getMeasurementSystem() : null;
+	@RequestMapping(method = RequestMethod.PUT, path = "/measurement/{measurementId}/measurmentProcesses", produces = "application/json")
+	public Set<Process> addMeasurementByIdProcess(@PathVariable("measurementId") long measurementId, @RequestParam("processId") Long processId) {
+		Measurement measurement = repo.findById(measurementId).orElse(null);
+		Process process = processRepo.findById(processId).orElse(null);
+		if(measurement == null || process == null){
+			return null;
+		}
+		measurement.addMeasurementProcess(process);
+		return repo.save(measurement).getMeasurementProcesses();
 	}
 
 }
