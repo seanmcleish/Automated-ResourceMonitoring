@@ -18,7 +18,7 @@ public class System implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@Id@GeneratedValue
-	Long systemId;
+	Long systemIdentifier;
 	String systemHostName;
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	OperatingSystem systemOperatingSystem;
@@ -38,8 +38,8 @@ public class System implements Serializable {
 		this.systemMeasurements = new HashSet<Measurement>();
 	}
 
-	public Long getSystemId() {
-		return systemId;
+	public Long getSystemIdentifier() {
+		return systemIdentifier;
 	}
 
 	public String getSystemHostName() {

@@ -1,7 +1,5 @@
 package de.tub.qds.rm.server.handler;
 
-import org.threeten.bp.LocalDate;
-
 import com.google.gson.Gson;
 
 import io.undertow.server.HttpServerExchange;
@@ -90,7 +88,7 @@ public interface HardwareIF {
 
 	public static void getComputerSystemFirmwareReleaseDate(HttpServerExchange exchange) {
 		exchange.getResponseHeaders().add(new HttpString("Content-Type"),"application/json");
-		LocalDate response = new SystemInfo().getHardware().getComputerSystem().getFirmware().getReleaseDate();
+		String response = new SystemInfo().getHardware().getComputerSystem().getFirmware().getReleaseDate();
 		exchange.getResponseSender().send(new Gson().toJson(response));
 	}
 	

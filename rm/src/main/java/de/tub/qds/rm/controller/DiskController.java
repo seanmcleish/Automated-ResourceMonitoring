@@ -3,6 +3,7 @@ package de.tub.qds.rm.controller;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -132,35 +133,59 @@ public class DiskController {
 		}
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/first", produces = "application/json")
+	public DiskValue getDiskByIdDiskValuesByMeasurementIdFirst(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		return valueRepo.findTop1ByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementIdOrderByDiskValueIdDiskValueTimestampAsc(diskSerialNumber, measurementId);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/last", produces = "application/json")
+	public DiskValue getDiskByIdDiskValuesByMeasurementIdlast(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		return valueRepo.findTop1ByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementIdOrderByDiskValueIdDiskValueTimestampDesc(diskSerialNumber, measurementId);
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/max", produces = "application/json")
 	public DiskValueWrapper<Long> getDiskByIdDiskValuesByMeasurementIdMax(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
-		
 		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
 			return null;
 		}else{
 			Set<DiskValue> values = valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementId(diskSerialNumber, measurementId);
-			Long diskValueReadsMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueReads)).get().getDiskValueReads();
-			Long diskValueReadBytesMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueReadBytes)).get().getDiskValueReadBytes();
-			Long diskValueWritesMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueWrites)).get().getDiskValueWrites();
-			Long diskValueWriteBytesMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueWriteBytes)).get().getDiskValueWriteBytes();
-			Long diskValueTransferTimeMax = values.stream().max(Comparator.comparing(DiskValue::getDiskValueTransferTime)).get().getDiskValueTransferTime();
-			return new DiskValueWrapper<Long>(diskValueReadsMax, diskValueReadBytesMax, diskValueWritesMax, diskValueWriteBytesMax, diskValueTransferTimeMax);
+			Optional<DiskValue> diskValueReadsMin = values.stream().max(Comparator.comparing(DiskValue::getDiskValueReads, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueReadBytesMin = values.stream().max(Comparator.comparing(DiskValue::getDiskValueReadBytes, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueWritesMin = values.stream().max(Comparator.comparing(DiskValue::getDiskValueWrites, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueWriteBytesMin = values.stream().max(Comparator.comparing(DiskValue::getDiskValueWriteBytes, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueTransferTimeMin = values.stream().max(Comparator.comparing(DiskValue::getDiskValueTransferTime, Comparator.nullsFirst(Comparator.naturalOrder())));
+			return new DiskValueWrapper<Long>(
+					diskValueReadsMin.isPresent()? diskValueReadsMin.get().getDiskValueReads() : null, 
+					diskValueReadBytesMin.isPresent()? diskValueReadBytesMin.get().getDiskValueReadBytes() : null, 
+					diskValueWritesMin.isPresent()? diskValueWritesMin.get().getDiskValueWrites() : null, 
+					diskValueWriteBytesMin.isPresent()? diskValueWriteBytesMin.get().getDiskValueWriteBytes() : null, 
+					diskValueTransferTimeMin.isPresent()?diskValueTransferTimeMin.get().getDiskValueTransferTime() : null );
 		}
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/disk/{diskSerialNumber}/diskValues/{measurementId}/min", produces = "application/json")
 	public DiskValueWrapper<Long> getDiskByIdDiskValuesByMeasurementIdMin(@PathVariable("diskSerialNumber") String diskSerialNumber, @PathVariable("measurementId") Long measurementId) {
-		
 		if(!repo.existsById(diskSerialNumber) || !measurementRepo.existsById(measurementId)){
 			return null;
 		}else{
 			Set<DiskValue> values = valueRepo.findByDiskValueIdDiskValueDiskDiskSerialNumberAndDiskValueIdDiskValueMeasurementId(diskSerialNumber, measurementId);
-			Long diskValueReadsMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueReads)).get().getDiskValueReads();
-			Long diskValueReadBytesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueReadBytes)).get().getDiskValueReadBytes();
-			Long diskValueWritesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueWrites)).get().getDiskValueWrites();
-			Long diskValueWriteBytesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueWriteBytes)).get().getDiskValueWriteBytes();
-			Long diskValueTransferTimeMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueTransferTime)).get().getDiskValueTransferTime();
-			return new DiskValueWrapper<Long>(diskValueReadsMin, diskValueReadBytesMin, diskValueWritesMin, diskValueWriteBytesMin, diskValueTransferTimeMin);
+			Optional<DiskValue> diskValueReadsMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueReads, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueReadBytesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueReadBytes, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueWritesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueWrites, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueWriteBytesMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueWriteBytes, Comparator.nullsFirst(Comparator.naturalOrder())));
+			Optional<DiskValue> diskValueTransferTimeMin = values.stream().min(Comparator.comparing(DiskValue::getDiskValueTransferTime, Comparator.nullsFirst(Comparator.naturalOrder())));
+			return new DiskValueWrapper<Long>(
+					diskValueReadsMin.isPresent()? diskValueReadsMin.get().getDiskValueReads() : null, 
+					diskValueReadBytesMin.isPresent()? diskValueReadBytesMin.get().getDiskValueReadBytes() : null, 
+					diskValueWritesMin.isPresent()? diskValueWritesMin.get().getDiskValueWrites() : null, 
+					diskValueWriteBytesMin.isPresent()? diskValueWriteBytesMin.get().getDiskValueWriteBytes() : null, 
+					diskValueTransferTimeMin.isPresent()?diskValueTransferTimeMin.get().getDiskValueTransferTime() : null );
 		}
 	}
 	
@@ -176,6 +201,11 @@ public class DiskController {
 			Double diskValueWritesAvg = values.stream().map(DiskValue::getDiskValueWrites).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
 			Double diskValueWriteBytesAvg = values.stream().map(DiskValue::getDiskValueWriteBytes).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
 			Double diskValueTransferTimeAvg = values.stream().map(DiskValue::getDiskValueTransferTime).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+			diskValueReadsAvg = Double.isNaN(diskValueReadsAvg)? null : diskValueReadsAvg;
+			diskValueReadBytesAvg = Double.isNaN(diskValueReadBytesAvg)? null : diskValueReadBytesAvg;
+			diskValueWritesAvg = Double.isNaN(diskValueWritesAvg)? null : diskValueWritesAvg;
+			diskValueWriteBytesAvg = Double.isNaN(diskValueWriteBytesAvg)? null : diskValueWriteBytesAvg;
+			diskValueTransferTimeAvg = Double.isNaN(diskValueTransferTimeAvg)? null : diskValueTransferTimeAvg;
 			return new DiskValueWrapper<Double>(diskValueReadsAvg, diskValueReadBytesAvg, diskValueWritesAvg, diskValueWriteBytesAvg, diskValueTransferTimeAvg);
 		}
 	}

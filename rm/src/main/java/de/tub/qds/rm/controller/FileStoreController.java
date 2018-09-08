@@ -3,6 +3,7 @@ package de.tub.qds.rm.controller;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -190,13 +191,31 @@ public class FileStoreController {
 		return valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementIdOrderByFileStoreValueIdFileStoreValueTimestampAsc(fileStoreUuid, measurementId);
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/first", produces = "application/json")
+	public FileStoreValue getFileStoreByIdValuesByMeasurementIdFirst(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		return valueRepo.findTop1ByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementIdOrderByFileStoreValueIdFileStoreValueTimestampAsc(fileStoreUuid, measurementId);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/last", produces = "application/json")
+	public FileStoreValue getFileStoreByIdValuesByMeasurementIdLast(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
+		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
+			return null;
+		}
+		return valueRepo.findTop1ByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementIdOrderByFileStoreValueIdFileStoreValueTimestampDesc(fileStoreUuid, measurementId);
+	}
+		
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/max", produces = "application/json")
 	public FileStoreValueWrapper<Long> getFileStoreByIdValuesByMeasurementIdMax(@PathVariable("fileStoreUuid") String fileStoreUuid, @PathVariable("measurementId") Long measurementId) {
 		if(!repo.existsById(fileStoreUuid) || !measurementRepo.existsById(measurementId)){
 			return null;
 		}
 		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
-		return new FileStoreValueWrapper<Long>(values.stream().max(Comparator.comparing(FileStoreValue::getFileStoreValueUsableSpace)).get().getFileStoreValueUsableSpace());
+		Optional<FileStoreValue> fileStoreValueUsableSpace = values.stream().max(Comparator.comparing(FileStoreValue::getFileStoreValueUsableSpace, Comparator.nullsFirst(Comparator.naturalOrder())));
+		return new FileStoreValueWrapper<Long>(fileStoreValueUsableSpace.isPresent()? fileStoreValueUsableSpace.get().getFileStoreValueUsableSpace() : null);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/min", produces = "application/json")
@@ -205,7 +224,8 @@ public class FileStoreController {
 			return null;
 		}
 		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
-		return new FileStoreValueWrapper<Long>(values.stream().min(Comparator.comparing(FileStoreValue::getFileStoreValueUsableSpace)).get().getFileStoreValueUsableSpace());
+		Optional<FileStoreValue> fileStoreValueUsableSpace = values.stream().min(Comparator.comparing(FileStoreValue::getFileStoreValueUsableSpace, Comparator.nullsFirst(Comparator.naturalOrder())));
+		return new FileStoreValueWrapper<Long>(fileStoreValueUsableSpace.isPresent()? fileStoreValueUsableSpace.get().getFileStoreValueUsableSpace() : null);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/avg", produces = "application/json")
@@ -214,7 +234,9 @@ public class FileStoreController {
 			return null;
 		}
 		Set<FileStoreValue> values = valueRepo.findByFileStoreValueIdFileStoreValueFileStoreFileStoreUuidAndFileStoreValueIdFileStoreValueMeasurementId(fileStoreUuid, measurementId);
-		return new FileStoreValueWrapper<Double>(values.stream().map(FileStoreValue::getFileStoreValueUsableSpace).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN));
+		Double fileStoreValueUsableSpace = values.stream().map(FileStoreValue::getFileStoreValueUsableSpace).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+		fileStoreValueUsableSpace = Double.isNaN(fileStoreValueUsableSpace)? null: fileStoreValueUsableSpace;
+		return new FileStoreValueWrapper<Double>(fileStoreValueUsableSpace);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/fileStore/{fileStoreUuid}/fileStoreValues/{measurementId}/count", produces = "application/json")

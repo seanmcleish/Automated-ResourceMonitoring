@@ -18,7 +18,7 @@ public class ProcessValue implements Serializable {
 	ProcessValuePK processValueId;
 	Integer processValueThreadCount;
 	Integer processValuePriority;
-	Long processValuevirtualSize;
+	Long processValueVirtualSize;
 	Long processValueResidentSetSize;
 	Long processValueKernelTime;
 	Long processValueUserTime;
@@ -38,7 +38,7 @@ public class ProcessValue implements Serializable {
 		this.processValueId = id;
 		this.processValueThreadCount = threadCount;
 		this.processValuePriority = priority;
-		this.processValuevirtualSize = virtualSize;
+		this.processValueVirtualSize = virtualSize;
 		this.processValueResidentSetSize = residentSetSize;
 		this.processValueKernelTime = kernelTime;
 		this.processValueUserTime = userTime;
@@ -74,12 +74,12 @@ public class ProcessValue implements Serializable {
 		this.processValuePriority = processValuePriority;
 	}
 
-	public Long getProcessValuevirtualSize() {
-		return processValuevirtualSize;
+	public Long getProcessValueVirtualSize() {
+		return processValueVirtualSize;
 	}
 
-	public void setProcessValuevirtualSize(Long processValuevirtualSize) {
-		this.processValuevirtualSize = processValuevirtualSize;
+	public void setProcessValueVirtualSize(Long processValuevirtualSize) {
+		this.processValueVirtualSize = processValuevirtualSize;
 	}
 
 	public Long getProcessValueResidentSetSize() {

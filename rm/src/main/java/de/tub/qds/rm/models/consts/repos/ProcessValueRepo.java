@@ -1,10 +1,19 @@
 package de.tub.qds.rm.models.consts.repos;
 
+import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import de.tub.qds.rm.models.values.ProcessValue;
 import de.tub.qds.rm.models.values.pks.ProcessValuePK;
 
 public interface ProcessValueRepo extends JpaRepository<ProcessValue, ProcessValuePK> {
+	
+	Set<ProcessValue> findByProcessValueIdProcessValueProcessProcessId(Long processIdentifier);
+	Set<ProcessValue> findByProcessValueIdProcessValueProcessProcessIdOrderByProcessValueIdProcessValueTimestampAsc(Long processIdentifier);
+	Set<ProcessValue> findByProcessValueIdProcessValueProcessProcessIdAndProcessValueIdProcessValueMeasurementId(Long processIdentifier, Long measurementId);
+	Set<ProcessValue> findByProcessValueIdProcessValueProcessProcessIdAndProcessValueIdProcessValueMeasurementIdOrderByProcessValueIdProcessValueTimestampAsc(Long processIdentifier, Long measurementId);
+	ProcessValue findTop1ByProcessValueIdProcessValueProcessProcessIdAndProcessValueIdProcessValueMeasurementIdOrderByProcessValueIdProcessValueTimestampAsc(Long processIdentifier, Long measurementId);
+	ProcessValue findTop1ByProcessValueIdProcessValueProcessProcessIdAndProcessValueIdProcessValueMeasurementIdOrderByProcessValueIdProcessValueTimestampDesc(Long processIdentifier, Long measurementId);
 
 }

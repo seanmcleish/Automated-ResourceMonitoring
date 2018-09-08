@@ -49,8 +49,8 @@ public class OperatingSystem implements Serializable {
 		return operatingSytemSystems;
 	}
 
-	public void setOperatingSytemSystems(Set<System> operatingSytemSystems) {
-		this.operatingSytemSystems = operatingSytemSystems;
+	public void addOperatingSytemSystem(System operatingSytemSystem) {
+		this.operatingSytemSystems.add(operatingSytemSystem);
 	}
 
 	public String getOperatingSystemManufacturer() {

@@ -31,11 +31,12 @@ public class Process implements Serializable {
 	public Process() {
 	}
 
-	public Process(Boolean processIsParentProcess, String processName, Long processPid) {
+	public Process(Boolean processIsParentProcess, String processName, Long processPid, Measurement measurement) {
 		super();
 		this.processIsParentProcess = processIsParentProcess;
 		this.processName = processName;
 		this.processPid = processPid;
+		this.processMeasurement = measurement;
 		this.processValues = new HashSet<ProcessValue>();
 	}
 

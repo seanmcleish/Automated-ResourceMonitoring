@@ -3,6 +3,7 @@ package de.tub.qds.rm.controller;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,16 +91,35 @@ public class MemoryController {
 		return valueRepo.findByMemoryValueIdMemoryValueMemoryMemoryTotalSpaceAndMemoryValueIdMemoryValueMeasurementIdOrderByMemoryValueIdMemoryValueTimestampAsc(memoryTotalSpace, measurementId);
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, path = "/memory/{memoryTotalSpace}/memoryValues/{measurementId}/first", produces = "application/json")
+	public MemoryValue getMemoryByTotalSpaceValueAndMeasurementIdFirst(@PathVariable("memoryTotalSpace") Long memoryTotalSpace, @PathVariable("measurementId") Long measurementId) {
+		if(!measurementRepo.existsById(measurementId) || !repo.existsById(memoryTotalSpace)){
+			return null;
+		}
+		return valueRepo.findTop1ByMemoryValueIdMemoryValueMemoryMemoryTotalSpaceAndMemoryValueIdMemoryValueMeasurementIdOrderByMemoryValueIdMemoryValueTimestampAsc(memoryTotalSpace, measurementId);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/memory/{memoryTotalSpace}/memoryValues/{measurementId}/last", produces = "application/json")
+	public MemoryValue getMemoryByTotalSpaceValueAndMeasurementIdLast(@PathVariable("memoryTotalSpace") Long memoryTotalSpace, @PathVariable("measurementId") Long measurementId) {
+		if(!measurementRepo.existsById(measurementId) || !repo.existsById(memoryTotalSpace)){
+			return null;
+		}
+		return valueRepo.findTop1ByMemoryValueIdMemoryValueMemoryMemoryTotalSpaceAndMemoryValueIdMemoryValueMeasurementIdOrderByMemoryValueIdMemoryValueTimestampDesc(memoryTotalSpace, measurementId);
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/memory/{memoryTotalSpace}/memoryValues/{measurementId}/max", produces = "application/json")
 	public MemoryValueWrapper<Long> getMemoryByTotalSpaceValueAndMeasurementIdMax(@PathVariable("memoryTotalSpace") Long memoryTotalSpace, @PathVariable("measurementId") Long measurementId) {
 		if(!measurementRepo.existsById(measurementId) || !repo.existsById(memoryTotalSpace)){
 			return null;
 		}
 		Set<MemoryValue> values = valueRepo.findByMemoryValueIdMemoryValueMemoryMemoryTotalSpaceAndMemoryValueIdMemoryValueMeasurementId(memoryTotalSpace, measurementId);
-		Long memoryValueAvailableMax = values.stream().max(Comparator.comparing(MemoryValue::getMemoryValueAvailable)).get().getMemoryValueAvailable();
-		Long memoryValueSwapTotalMax = values.stream().max(Comparator.comparing(MemoryValue::getMemoryValueSwapTotal)).get().getMemoryValueSwapTotal();
-		Long memoryValueSwapUsedMax = values.stream().max(Comparator.comparing(MemoryValue::getMemoryValueSwapUsed)).get().getMemoryValueSwapUsed();
-		return new MemoryValueWrapper<Long>(memoryValueAvailableMax, memoryValueSwapTotalMax, memoryValueSwapUsedMax);
+		Optional<MemoryValue> memoryValueAvailableMin = values.stream().max(Comparator.comparing(MemoryValue::getMemoryValueAvailable, Comparator.nullsFirst(Comparator.naturalOrder())));
+		Optional<MemoryValue> memoryValueSwapTotalMin = values.stream().max(Comparator.comparing(MemoryValue::getMemoryValueSwapTotal, Comparator.nullsFirst(Comparator.naturalOrder())));
+		Optional<MemoryValue> memoryValueSwapUsedMin = values.stream().max(Comparator.comparing(MemoryValue::getMemoryValueSwapUsed, Comparator.nullsFirst(Comparator.naturalOrder())));
+		return new MemoryValueWrapper<Long>(
+				memoryValueAvailableMin.isPresent()? memoryValueAvailableMin.get().getMemoryValueAvailable() : null, 
+				memoryValueSwapTotalMin.isPresent()? memoryValueSwapTotalMin.get().getMemoryValueSwapTotal() : null , 
+				memoryValueSwapUsedMin.isPresent()? memoryValueSwapUsedMin.get().getMemoryValueSwapUsed() : null );
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/memory/{memoryTotalSpace}/memoryValues/{measurementId}/min", produces = "application/json")
@@ -108,10 +128,13 @@ public class MemoryController {
 			return null;
 		}
 		Set<MemoryValue> values = valueRepo.findByMemoryValueIdMemoryValueMemoryMemoryTotalSpaceAndMemoryValueIdMemoryValueMeasurementId(memoryTotalSpace, measurementId);
-		Long memoryValueAvailableMin = values.stream().min(Comparator.comparing(MemoryValue::getMemoryValueAvailable)).get().getMemoryValueAvailable();
-		Long memoryValueSwapTotalMin = values.stream().min(Comparator.comparing(MemoryValue::getMemoryValueSwapTotal)).get().getMemoryValueSwapTotal();
-		Long memoryValueSwapUsedMin = values.stream().min(Comparator.comparing(MemoryValue::getMemoryValueSwapUsed)).get().getMemoryValueSwapUsed();
-		return new MemoryValueWrapper<Long>(memoryValueAvailableMin, memoryValueSwapTotalMin, memoryValueSwapUsedMin);
+		Optional<MemoryValue> memoryValueAvailableMin = values.stream().min(Comparator.comparing(MemoryValue::getMemoryValueAvailable, Comparator.nullsFirst(Comparator.naturalOrder())));
+		Optional<MemoryValue> memoryValueSwapTotalMin = values.stream().min(Comparator.comparing(MemoryValue::getMemoryValueSwapTotal, Comparator.nullsFirst(Comparator.naturalOrder())));
+		Optional<MemoryValue> memoryValueSwapUsedMin = values.stream().min(Comparator.comparing(MemoryValue::getMemoryValueSwapUsed, Comparator.nullsFirst(Comparator.naturalOrder())));
+		return new MemoryValueWrapper<Long>(
+				memoryValueAvailableMin.isPresent()? memoryValueAvailableMin.get().getMemoryValueAvailable() : null, 
+				memoryValueSwapTotalMin.isPresent()? memoryValueSwapTotalMin.get().getMemoryValueSwapTotal() : null , 
+				memoryValueSwapUsedMin.isPresent()? memoryValueSwapUsedMin.get().getMemoryValueSwapUsed() : null );
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/memory/{memoryTotalSpace}/memoryValues/{measurementId}/avg", produces = "application/json")
@@ -123,6 +146,9 @@ public class MemoryController {
 		Double memoryValueAvailableAvg = values.stream().map(MemoryValue::getMemoryValueAvailable).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
 		Double memoryValueSwapTotalAvg = values.stream().map(MemoryValue::getMemoryValueSwapTotal).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
 		Double memoryValueSwapUsedAvg = values.stream().map(MemoryValue::getMemoryValueSwapUsed).filter(x -> x!=null).mapToLong(x -> x).average().orElse(Double.NaN);
+		memoryValueAvailableAvg = Double.isNaN(memoryValueAvailableAvg)? null : memoryValueAvailableAvg;
+		memoryValueSwapTotalAvg = Double.isNaN(memoryValueSwapTotalAvg)? null : memoryValueSwapTotalAvg; 
+		memoryValueSwapUsedAvg = Double.isNaN(memoryValueSwapUsedAvg)? null : memoryValueSwapUsedAvg; 
 		return new MemoryValueWrapper<Double>(memoryValueAvailableAvg, memoryValueSwapTotalAvg, memoryValueSwapUsedAvg);
 	}
 	

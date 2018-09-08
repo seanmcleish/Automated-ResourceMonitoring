@@ -13,6 +13,7 @@ D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\r
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\Process.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\SystemModelRepo.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\DiskRepo.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\ProcessValueWrapper.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\MeasurementRepo.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\pks\MemoryValuePK.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\pks\FileStoreValuePK.java
@@ -52,6 +53,7 @@ D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\r
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\MainController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\SystemController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\OperatingSystemController.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\NetworkValueWrapper.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\FileStore.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\pks\DiskValuePK.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\FirmwareRepo.java
