@@ -56,6 +56,13 @@ public class MemoryController {
 		return repo.existsById(memoryTotalSpace) ? repo.findById(memoryTotalSpace).get() : null;
 	}
 	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/memory/{memoryTotalSpace}", produces = "application/json")
+	public void deleteMemoryByTotalSpace(@PathVariable("memoryTotalSpace") long memoryTotalSpace) {
+		if(repo.existsById(memoryTotalSpace)){
+			repo.deleteById(memoryTotalSpace);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/memory/{memoryTotalSpace}/memoryValues", produces = "application/json")
 	public Set<MemoryValue> getMemoryByTotalSpaceValues(@PathVariable("memoryTotalSpace") long memoryTotalSpace) {
 		Memory memory = repo.findById(memoryTotalSpace).orElse(null);

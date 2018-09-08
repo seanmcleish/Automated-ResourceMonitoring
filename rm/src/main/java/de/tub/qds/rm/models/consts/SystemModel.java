@@ -66,8 +66,8 @@ public class SystemModel implements Serializable {
 		return systemModelHardware;
 	}
 
-	public void setSystemModelHardware(Set<Hardware> systemModelHardware) {
-		this.systemModelHardware = systemModelHardware;
+	public void addSystemModelHardware(Hardware systemModelHardware) {
+		this.systemModelHardware.add(systemModelHardware);
 	}
 
 	public static long getSerialversionuid() {

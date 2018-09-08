@@ -78,6 +78,14 @@ public class MeasurementController {
 		return repo.save(measurement);
 	}
 	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/measurement/{measurementId}", produces = "application/json")
+	public void deleteMeasurementById(@PathVariable("measurementId") long measurementId) {
+		if(repo.existsById(measurementId)){
+			repo.deleteById(measurementId);
+		}
+	}
+	
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/measurement/{measurementId}/measurementIp", produces = "text/plain")
 	public String getMeasurementByIdMeasurementIp(@PathVariable("measurementId") long measurementId) {
 		return repo.existsById(measurementId) ? repo.findById(measurementId).get().getMeasurementIp() : null;

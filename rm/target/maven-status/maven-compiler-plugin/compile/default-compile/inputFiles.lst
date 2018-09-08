@@ -27,6 +27,7 @@ D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\r
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\ScheduledTask.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\SystemRepo.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\SystemModel.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\ProcessorValueWrapper.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\NetworkValue.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\DiskController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\ProcessorRepo.java

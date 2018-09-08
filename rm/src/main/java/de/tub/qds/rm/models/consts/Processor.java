@@ -38,24 +38,29 @@ public class Processor implements Serializable {
 	public Processor() {
 	}
 
-	public Processor(String id, String name, String vendor, String family, String model, String stepping,
-			Integer physicalPackageCount, Integer physicalProcessorCount, Integer logicalProcessorCount, Boolean isCpu64bit,
-			Long vendorFreq) {
+	
+
+	public Processor(String processorId, String processorName, String processorVendor, String processorFamily,
+			String processorModel, String processorStepping, Integer processorPhysicalPackageCount,
+			Integer processorPhysicalProcessorCount, Integer processorLogicalProcessorCount, Boolean processorCpu64bit,
+			Long processorVendorFreq) {
 		super();
-		this.processorId = id;
-		this.processorName = name;
-		this.processorVendor = vendor;
-		this.processorFamily = family;
-		this.processorModel = model;
-		this.processorStepping = stepping;
-		this.processorPhysicalPackageCount = physicalPackageCount;
-		this.processorPhysicalProcessorCount = physicalProcessorCount;
-		this.processorLogicalProcessorCount = logicalProcessorCount;
-		this.processorCpu64bit = isCpu64bit;
-		this.processorVendorFreq = vendorFreq;
-		this.processorValues = new HashSet<ProcessorValue>();
+		this.processorId = processorId;
+		this.processorName = processorName;
+		this.processorVendor = processorVendor;
+		this.processorFamily = processorFamily;
+		this.processorModel = processorModel;
+		this.processorStepping = processorStepping;
+		this.processorPhysicalPackageCount = processorPhysicalPackageCount;
+		this.processorPhysicalProcessorCount = processorPhysicalProcessorCount;
+		this.processorLogicalProcessorCount = processorLogicalProcessorCount;
+		this.processorCpu64bit = processorCpu64bit;
+		this.processorVendorFreq = processorVendorFreq;
 		this.processorHardware = new HashSet<Hardware>();
+		this.processorValues = new HashSet<ProcessorValue>();
 	}
+
+
 
 	public String getProcessorId() {
 		return processorId;
@@ -150,8 +155,8 @@ public class Processor implements Serializable {
 		return processorHardware;
 	}
 
-	public void setProcessorHardware(Set<Hardware> processorHardware) {
-		this.processorHardware = processorHardware;
+	public void addProcessorHardware(Hardware processorHardware) {
+		this.processorHardware.add(processorHardware);
 	}
 
 	@JsonIgnore

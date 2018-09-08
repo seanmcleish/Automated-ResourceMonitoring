@@ -82,6 +82,13 @@ public class OperatingSystemController {
 		return repo.save(os);
 	}
 	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/operatingSystem/{operatingSystemIdentifier}", produces = "application/json")
+	public void deleteOperatingSystemByIdOperatingSystemIdentifier(@PathVariable("operatingSystemIdentifier") Long operatingSystemIdentifier) {
+		if(repo.existsById(operatingSystemIdentifier)){
+			repo.deleteById(operatingSystemIdentifier);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/operatingSystem/{operatingSystemIdentifier}/operatingSystemManufacturer", produces = "text/plain")
 	public String getOperatingSystemByIdOperatingSystemIdentifierManufacturer(@PathVariable("operatingSystemIdentifier") Long operatingSystemIdentifier) {
 		OperatingSystem os = repo.findById(operatingSystemIdentifier).orElse(null);

@@ -99,6 +99,13 @@ public class HardwareController {
 		return repo.save(hardware);
 	}
 	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/hardware/{hardwareIdentifier}", produces = "application/json")
+	public void deleteHardwareByIdHardwareIdentifier(@PathVariable("hardwareIdentifier") Long hardwareIdentifier) {
+		if(repo.existsById(hardwareIdentifier)){
+			repo.deleteById(hardwareIdentifier);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/hardware/{hardwareIdentifier}/hardwareSystemModel", produces = "application/json")
 	public SystemModel getHardwareByIdHardwareIdentifierSystemModel(@PathVariable("hardwareIdentifier") Long hardwareIdentifier) {
 		return repo.existsById(hardwareIdentifier) ? repo.findById(hardwareIdentifier).get().getHardwareSystemModel() : null;

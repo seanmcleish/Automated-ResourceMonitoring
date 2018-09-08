@@ -222,7 +222,7 @@ public class MainController {
 		}
 		//hardwareRepo.save(hardware);
 
-		System system = new System("localhost", operatingSystem);
+		System system = new System("localhost", operatingSystem, hardware);
 		system.setSystemHardware(hardware);
 		systemRepo.save(system);
 		

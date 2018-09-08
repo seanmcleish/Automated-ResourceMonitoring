@@ -100,6 +100,13 @@ public class NetworkController {
 		return repo.save(network);		
 	}
 	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/network/{networkMac}", produces = "application/json")
+	public void deleteNetworkByNetworkMac(@PathVariable("networkMac") String networkMac) {
+		if(repo.existsById(networkMac)){
+			repo.deleteById(networkMac);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/network/{networkMac}/networkName", produces = "text/plain")
 	public String getNetworkByNetworkMacName(@PathVariable("networkMac") String networkMac) {
 		return repo.existsById(networkMac) ? repo.findById(networkMac).get().getNetworkName() : null;

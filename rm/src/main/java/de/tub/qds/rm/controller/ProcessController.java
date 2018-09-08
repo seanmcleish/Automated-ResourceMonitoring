@@ -90,6 +90,13 @@ public class ProcessController {
 		return repo.save(process);
 	}
 	
+	@RequestMapping(method = RequestMethod.DELETE, path = "/process/{processId}", produces = "application/json")
+	public void deleteProcessByProcessIdprocessId(@PathVariable("processId") long processId) {
+		if(repo.existsById(processId)){
+			repo.deleteById(processId);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/process/{processId}/processName", produces = "text/plain")
 	public String getProcessByProcessIdprocessIdName(@PathVariable("processId") Long processId) {
 		Process process = repo.findById(processId).orElse(null);

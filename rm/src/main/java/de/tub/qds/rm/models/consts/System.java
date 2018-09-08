@@ -31,10 +31,11 @@ public class System implements Serializable {
 		
 	}
 
-	public System(String systemHostName, OperatingSystem systemOperatingSystem) {
+	public System(String systemHostName, OperatingSystem systemOperatingSystem, Hardware systemHardware) {
 		super();
 		this.systemHostName = systemHostName;
 		this.systemOperatingSystem = systemOperatingSystem;
+		this.systemHardware = systemHardware;
 		this.systemMeasurements = new HashSet<Measurement>();
 	}
 
