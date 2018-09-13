@@ -41,16 +41,15 @@ public class ProcessController {
 	
 	@RequestMapping(method = RequestMethod.POST, path = "/process", produces = "application/json")
 	public Process postProcess(
-			@RequestParam(value="processIsParentProcess", required=false) boolean processIsParentProcess,
-			@RequestParam(value="processName", required=false) String processName,
-			@RequestParam(value="processPid", required=false) Long processPid,
-			@RequestParam(value="measurementId", required=false) Long measurementId
+			@RequestParam(value="processName", required=true) String processName,
+			@RequestParam(value="measurementId", required=false) Long measurementId,
+			@RequestParam(value="processPid", required=false) Long processPid
 			) {
 		Measurement measurement = null;
 		if(measurementId != null){
 			measurement = measurementRepo.findById(measurementId).orElse(null);
 		} 
-		return repo.save(new Process(processIsParentProcess, processName, processPid, measurement));
+		return repo.save(new Process( processName, processPid, measurement));
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/process/{processId}", produces = "application/json")
@@ -74,9 +73,6 @@ public class ProcessController {
 		Process process = repo.findById(processId).orElse(null);
 		if(process == null){
 			return null;
-		}
-		if(processIsParentProcess != null){
-			process.setProcessIsParentProcess(processIsParentProcess);
 		}
 		if(processName != null){
 			process.setProcessName(processName);

@@ -76,7 +76,6 @@ public class Disk implements Serializable {
 		this.diskSize = diskSize;
 	}
 
-	@JsonIgnore
 	public Set<FileStore> getDiskFileStores() {
 		return diskFileStores;
 	}

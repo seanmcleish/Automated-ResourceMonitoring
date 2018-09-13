@@ -77,9 +77,9 @@ public class MemoryController {
 			@PathVariable("memoryTotalSpace") Long memoryTotalSpace,
 			@RequestParam("measurementId") Long measurementId,
 			@RequestParam(value="timestamp", required=false) Long timestamp,
-			@RequestParam(value = "memoryValueAvailable;", required = false) Long memoryValueAvailable,
-			@RequestParam(value = "memoryValueSwapTotal;", required = false) Long memoryValueSwapTotal,
-			@RequestParam(value = "memoryValueSwapUsed;", required = false) Long memoryValueSwapUsed
+			@RequestParam(value = "memoryValueAvailable", required = false) Long memoryValueAvailable,
+			@RequestParam(value = "memoryValueSwapTotal", required = false) Long memoryValueSwapTotal,
+			@RequestParam(value = "memoryValueSwapUsed", required = false) Long memoryValueSwapUsed
 			) {
 		Memory memory = repo.findById(memoryTotalSpace).orElse(null);
 		Measurement measurement = measurementRepo.findById(measurementId).orElse(null);

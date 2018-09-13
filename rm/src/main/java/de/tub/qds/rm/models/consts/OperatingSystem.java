@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class OperatingSystem implements Serializable {
 
@@ -42,6 +44,7 @@ public class OperatingSystem implements Serializable {
 		return operatingSystemId;
 	}
 
+	@JsonIgnore
 	public Set<System> getOperatingSytemSystems() {
 		return operatingSytemSystems;
 	}

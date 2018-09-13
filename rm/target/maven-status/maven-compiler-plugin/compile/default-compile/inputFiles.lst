@@ -1,6 +1,7 @@
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\App.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\DiskValueRepo.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\Baseboard.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\Rate.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\HardwareController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\NetworkController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\Processor.java
@@ -22,6 +23,7 @@ D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\r
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\DiskValueWrapper.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\BaseboardController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\MemoryValueWrapper.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\DiskPartitionFileStoreWrapper.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\MemoryValueRepo.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\SwaggerConfig.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\ScheduledTask.java
@@ -59,9 +61,11 @@ D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\r
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\pks\DiskValuePK.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\FirmwareRepo.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\repos\NetworkRepo.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\ProcessJsonWrapper.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\controller\FileStoreController.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\pks\ProcessorValuePK.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\wrapper\FileStoreValueWrapper.java
+D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\Methods.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\consts\Hardware.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\MemoryValue.java
 D:\Desktop\Bachelorarbeit\Projekt\RessourceMonitor\rm\src\main\java\de\tub\qds\rm\models\values\FileStoreValue.java

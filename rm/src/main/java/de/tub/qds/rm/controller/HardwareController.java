@@ -57,6 +57,31 @@ public class HardwareController {
 		return repo.findAll();
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, path = "/hardware", produces = "application/json")
+	public Hardware postHardware(
+			@RequestParam(value = "systemModelSerialNumber") String systemModelSerialNumber,
+			@RequestParam(value = "baseboardSerialNumber") String baseboardSerialNumber,
+			@RequestParam(value = "firmwareIdentifier") Long firmwareIdentifier,
+			@RequestParam(value = "processorId") String processorId,
+			@RequestParam(value = "memoryTotalSpace") Long memoryTotalSpace
+			){
+		
+		SystemModel systemModel = systemModelSerialNumber != null? systemModelRepo.findById(systemModelSerialNumber).orElse(null):null;
+		Baseboard baseboard = baseboardSerialNumber != null? baseboardRepo.findById(baseboardSerialNumber).orElse(null):null;
+		Firmware firmware = firmwareIdentifier != null? firmwareRepo.findById(firmwareIdentifier).orElse(null):null;
+		Processor processor = processorId != null? processorRepo.findById(processorId).orElse(null):null;
+		Memory memory = memoryTotalSpace != null? memoryRepo.findById(memoryTotalSpace).orElse(null):null;
+		
+		if(systemModel==null || baseboard == null || firmware == null || processor == null || memory==null ){
+			return null;
+		}
+		Hardware hardware = repo.findTop1ByHardwareSystemModelAndHardwareBaseboardAndHardwareFirmwareAndHardwareProcessorAndHardwareMemory(systemModel, baseboard, firmware, processor, memory).orElse(null);
+		if(hardware != null){
+			return hardware;
+		}
+		return repo.save(new Hardware(systemModel, baseboard, firmware, processor, memory));
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/hardware/{hardwareIdentifier}", produces = "application/json")
 	public Hardware getHardwareByIdHardwareIdentifier(@PathVariable("hardwareIdentifier") Long hardwareIdentifier) {
 		return repo.findById(hardwareIdentifier).orElse(null);

@@ -26,21 +26,34 @@ public class Measurement implements Serializable {
 	@GeneratedValue
 	Long measurementId;
 	String measurementIp;
+	String measurementRemotePort;
+	Rate measurementRate;
 	Timestamp measurementStartDate;
 	Timestamp measurementEndDate;
 	boolean measurementRunning;
-	@OneToMany(mappedBy = "processMeasurement", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "processMeasurement", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	Set<Process> measurementProcesses;
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(fetch = FetchType.EAGER,  cascade = CascadeType.ALL)
 	System measurementSystem;
 
 	public Measurement() {
+		this.measurementProcesses = new HashSet<Process>();
 
 	}
+	
+	public Measurement(String remotePort, System system ) {
+		super();
+		this.measurementRemotePort = remotePort;
+		this.measurementSystem = system;
+		this.measurementProcesses = new HashSet<Process>();
+	}
 
-	public Measurement(String ip) {
+	public Measurement(String ip, String remotePort, Rate rate, System system ) {
 		super();
 		this.measurementIp = ip;
+		this.measurementRemotePort = remotePort;
+		this.measurementRate = rate;
+		this.measurementSystem = system;
 		this.measurementProcesses = new HashSet<Process>();
 	}
 
@@ -101,9 +114,28 @@ public class Measurement implements Serializable {
 	public void setMeasurementSystem(System measurementSystem) {
 		this.measurementSystem = measurementSystem;
 	}
+	
+	public Rate getMeasurementRate() {
+		return measurementRate;
+	}
+
+	public void setMeasurementRate(Rate measurementRate) {
+		this.measurementRate = measurementRate;
+	}
+
+	public void setMeasurementProcesses(Set<Process> measurementProcesses) {
+		this.measurementProcesses = measurementProcesses;
+	}
+	
+	public String getMeasurementRemotePort() {
+		return measurementRemotePort;
+	}
+
+	public void setMeasurementRemotePort(String measurementRemotePort) {
+		this.measurementRemotePort = measurementRemotePort;
+	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-
 }

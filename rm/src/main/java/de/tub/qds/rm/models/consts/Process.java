@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import de.tub.qds.rm.models.values.ProcessValue;
 
 @Entity
@@ -20,7 +22,6 @@ public class Process implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id@GeneratedValue
 	Long processId;
-	Boolean processIsParentProcess;
 	String processName;
 	Long processPid;
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -31,9 +32,8 @@ public class Process implements Serializable {
 	public Process() {
 	}
 
-	public Process(Boolean processIsParentProcess, String processName, Long processPid, Measurement measurement) {
+	public Process(String processName, Long processPid, Measurement measurement) {
 		super();
-		this.processIsParentProcess = processIsParentProcess;
 		this.processName = processName;
 		this.processPid = processPid;
 		this.processMeasurement = measurement;
@@ -42,14 +42,6 @@ public class Process implements Serializable {
 
 	public Long getProcessId() {
 		return processId;
-	}
-
-	public Boolean getProcessIsParentProcess() {
-		return processIsParentProcess;
-	}
-
-	public void setProcessIsParentProcess(Boolean processIsParentProcess) {
-		this.processIsParentProcess = processIsParentProcess;
 	}
 
 	public String getProcessName() {
@@ -67,7 +59,8 @@ public class Process implements Serializable {
 	public void setProcessPid(Long processPid) {
 		this.processPid = processPid;
 	}
-
+	
+	@JsonIgnore
 	public Measurement getProcessMeasurement() {
 		return processMeasurement;
 	}
@@ -76,6 +69,7 @@ public class Process implements Serializable {
 		this.processMeasurement = processMeasurement;
 	}
 
+	@JsonIgnore
 	public Set<ProcessValue> getProcessValues() {
 		return processValues;
 	}

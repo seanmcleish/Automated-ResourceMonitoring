@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jayway.jsonpath.DocumentContext;
@@ -17,18 +18,9 @@ import com.jayway.jsonpath.JsonPath;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import de.tub.qds.rm.models.consts.Baseboard;
-import de.tub.qds.rm.models.consts.Disk;
-import de.tub.qds.rm.models.consts.FileStore;
-import de.tub.qds.rm.models.consts.Firmware;
-import de.tub.qds.rm.models.consts.Hardware;
+import de.tub.qds.rm.Methods;
 import de.tub.qds.rm.models.consts.Measurement;
-import de.tub.qds.rm.models.consts.Memory;
-import de.tub.qds.rm.models.consts.Network;
-import de.tub.qds.rm.models.consts.OperatingSystem;
-import de.tub.qds.rm.models.consts.Processor;
-import de.tub.qds.rm.models.consts.System;
-import de.tub.qds.rm.models.consts.SystemModel;
+import de.tub.qds.rm.models.consts.Rate;
 import de.tub.qds.rm.models.consts.repos.BaseboardRepo;
 import de.tub.qds.rm.models.consts.repos.DiskRepo;
 import de.tub.qds.rm.models.consts.repos.FileStoreRepo;
@@ -42,6 +34,8 @@ import de.tub.qds.rm.models.consts.repos.ProcessRepo;
 import de.tub.qds.rm.models.consts.repos.ProcessorRepo;
 import de.tub.qds.rm.models.consts.repos.SystemModelRepo;
 import de.tub.qds.rm.models.consts.repos.SystemRepo;
+import de.tub.qds.rm.models.values.wrapper.DiskPartitionFileStoreWrapper;
+import org.springframework.core.env.Environment;
 
 @RestController
 public class MainController {
@@ -59,43 +53,17 @@ public class MainController {
 	@Autowired ProcessorRepo processorRepo;
 	@Autowired SystemModelRepo systemModelRepo;
 	@Autowired SystemRepo systemRepo;
-	
-	@RequestMapping(method = RequestMethod.GET, path="/createTestDataSet", produces = "application/json")
-	public Measurement createTestDataSet(){
-		/*Baseboard baseboard = new Baseboard();
-		Disk disk = new Disk();
-		FileStore fileStore = new FileStore();
-		FileSystem fileSystem = new FileSystem();
-		Firmware firmware = new Firmware();
-		Hardware hardware = new Hardware();*/
-		/*JSONObject obj = null;
-		try {
-			obj = Unirest.get("http://localhost:8090/systemInfo/hardware/memory").asJson().getBody().getObject();
-		} catch (UnirestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	@Autowired Environment environment;
+
+	@RequestMapping(method = RequestMethod.GET, path = "/")
+	public void getIndex(HttpServletRequest request, HttpServletResponse response){
+	    try {
+			response.sendRedirect(request.getContextPath() + "/swagger-ui.html");
+		} catch (IOException e) {
+			return;
 		}
-		
-		Measurement measurement = new Measurement();
-		OperatingSystem operatingSystem = new OperatingSystem(new OperatingSystemPK("Test", "1", "2", "3", "4"));
-		operatingSystemRepo.save(operatingSystem);
-		Memory memory = memoryRepo.save(new Memory(obj.getLong("total")));
-		Firmware firmware = firmwareRepo.save(new Firmware(new FirmwarePK("1", "2", "3", "4", "5")));
-		Baseboard baseboard = baseboardRepo.save(new Baseboard("1", "", "", ""));
-		SystemModel systemModel = systemModelRepo.save(new SystemModel("1", "", ""));
-		Processor processor = new Processor();
-		processor.setProcessorId("1");
-		processor = processorRepo.save(processor);
-		Hardware hardware = hardwareRepo.save(new Hardware(new HardwarePK(firmware, processor, memory, baseboard, systemModel)));
-		//measurement.setMeasurementStartDate(new Date(java.lang.System.currentTimeMillis()));
-		measurement.setMeasurementRunning(true);
-		System system = new System();
-		system.setSystemId(new SystemPK("localhost", operatingSystem, hardware));
-		systemRepo.save(system);
-		measurementRepo.save(measurement);
-		return measurement;*/
-		return null;
-	}
+	  }
+	
 	@RequestMapping(method = RequestMethod.GET, path = "/api")
 	public void getApi(HttpServletRequest request, HttpServletResponse response){
 	    try {
@@ -105,15 +73,16 @@ public class MainController {
 		}
 	  }
 	
-	@RequestMapping(method = RequestMethod.POST, path = "/createTestDataWithLocalhost")
-	public void createTestDataWithLocalhost(){
+	@RequestMapping(method = RequestMethod.POST, path = "/createDataByHostName", produces = "application/json")
+	public Measurement createTestDataWithLocalhost(@RequestParam("hostName") String hostName, @RequestParam("remotePort") String remotePort) throws UnirestException{
+		String ip = Methods.ipResolve(hostName);
+		String url = String.format("http://%s:%s/systemInfo", ip, remotePort);
+		String localPort = environment.getProperty("local.server.port");
 		String testData = null;
 		try {
-			testData = Unirest.get("http://localhost:8090/systemInfo").asJson().getBody().toString();
+			testData = Unirest.get(url).asJson().getBody().toString();
 		} catch (UnirestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
+			return null;
 		}
 		
 		DocumentContext context = JsonPath.parse(testData);
@@ -121,23 +90,38 @@ public class MainController {
 		String systemModelSerialNumber 	=	context.read("$.hardware.computerSystem.serialNumber").toString();
 		String systemModelManufacturer	=	context.read("$.hardware.computerSystem.manufacturer").toString();
 		String systemModelModel			=	context.read("$.hardware.computerSystem.model").toString();
-		SystemModel systemModel = new SystemModel(systemModelSerialNumber, systemModelManufacturer, systemModelModel);
-		//systemModelRepo.save(systemModel);
+		String responseSystemModelId = Unirest.post(String.format("http://localhost:%s/systemModel", localPort))
+			.field("systemModelSerialNumber", systemModelSerialNumber)
+			.field("systemModelManufacturer", systemModelManufacturer)
+			.field("systemModelModel", systemModelModel)
+			.getHttpRequest().asJson().getBody().getObject().optString("systemModelSerialNumber");
+		/*SystemModel systemModel = systemModelRepo.findById(responseSystemModelId).orElse(null);*/
 				
 		String baseboardSerialNumber	=	context.read("$.hardware.computerSystem.baseboard.serialNumber").toString();
 		String baseboardManufacturer	=	context.read("$.hardware.computerSystem.baseboard.manufacturer").toString();
 		String baseboardModel			=	context.read("$.hardware.computerSystem.baseboard.model").toString();
 		String baseboardVersion			=	context.read("$.hardware.computerSystem.baseboard.version").toString();
-		Baseboard baseboard = new Baseboard(baseboardSerialNumber, baseboardManufacturer, baseboardModel, baseboardVersion);
-		//baseboardRepo.save(baseboard);
+		String responseBaseboardId = Unirest.post(String.format("http://localhost:%s/baseboard", localPort))
+				.field("baseboardSerialNumber", baseboardSerialNumber)
+				.field("baseboardManufacturer", baseboardManufacturer)
+				.field("baseboardModel", baseboardModel)
+				.field("baseboardVersion", baseboardVersion)
+				.getHttpRequest().asJson().getBody().getObject().optString("baseboardSerialNumber");
+		/*Baseboard baseboard = baseboardRepo.findById(responseBaseboardId).orElse(null);*/
 		
 		String firmwareManufacturer		=	context.read("$.hardware.computerSystem.firmware.manufacturer").toString();
 		String firmwareName				=	context.read("$.hardware.computerSystem.firmware.name").toString();
 		String firmwareDescription		=	context.read("$.hardware.computerSystem.firmware.description").toString();
 		String firmwareVersion			=	context.read("$.hardware.computerSystem.firmware.version").toString();
 		String firmwareReleaseDate		=	context.read("$.hardware.computerSystem.firmware.releaseDate").toString();
-		Firmware firmware = new Firmware(firmwareManufacturer, firmwareName, firmwareDescription, firmwareVersion, firmwareReleaseDate);
-		//firmwareRepo.save(firmware);
+		Long responseFirmwareId = Unirest.post(String.format("http://localhost:%s/firmware", localPort))
+				.field("firmwareManufacturer", firmwareManufacturer)
+				.field("firmwareName", firmwareName)
+				.field("firmwareDescription", firmwareDescription)
+				.field("firmwareVersion", firmwareVersion)
+				.field("firmwareReleaseDate", firmwareReleaseDate)
+				.getHttpRequest().asJson().getBody().getObject().optLong("firmwareIdentifier");
+		/*Firmware firmware = firmwareRepo.findById(responseFirmwareId).orElse(null);*/
 		
 		String processorId					=	context.read("$.hardware.processor.processorID").toString();
 		String processorName				=	context.read("$.hardware.processor.name").toString();
@@ -150,41 +134,78 @@ public class MainController {
 		int processorLogicalProcessorCount	=	Integer.parseInt(context.read("$.hardware.processor.logicalProcessorCount").toString());
 		boolean processorCpu64bit			=	Boolean.getBoolean(context.read("$.hardware.processor.cpu64bit").toString());
 		long processorVendorFreq			=	Long.parseLong(context.read("$.hardware.processor.logicalProcessorCount").toString());
-		Processor processor = new Processor(processorId, processorName, processorVendor, processorFamily, processorModel, processorStepping, processorPhysicalPackageCount, processorPhysicalProcessorCount, processorLogicalProcessorCount, processorCpu64bit, processorVendorFreq);;
-		//processorRepo.save(processor);
+		String responseProcessorId = Unirest.post(String.format("http://localhost:%s/processor", localPort))
+				.field("processorId", processorId)
+				.field("processorName", processorName)
+				.field("processorVendor", processorVendor)
+				.field("processorFamily", processorFamily)
+				.field("processorModel", processorModel)
+				.field("processorStepping", processorStepping)
+				.field("processorPhysicalPackageCount", processorPhysicalPackageCount)
+				.field("processorPhysicalProcessorCount", processorPhysicalProcessorCount)
+				.field("processorLogicalProcessorCount", processorLogicalProcessorCount)
+				.field("processorCpu64bit", processorCpu64bit)
+				.field("processorVendorFreq", processorVendorFreq)
+				.getHttpRequest().asJson().getBody().getObject().optString("processorId");
 		
 		long memoryTotalSpace =	Long.parseLong(context.read("$.hardware.memory.total").toString());
-		Memory memory = new Memory(memoryTotalSpace);
-		//memoryRepo.save(memory);
+		Long responseMemoryId = Unirest.post(String.format("http://localhost:%s/memory", localPort))
+				.field("memoryTotalSpace", memoryTotalSpace)
+				.getHttpRequest().asJson().getBody().getObject().optLong("memoryTotalSpace");
 		
-		List<Disk> disks = new ArrayList<Disk>();
+		List<DiskPartitionFileStoreWrapper> partitions = new ArrayList<DiskPartitionFileStoreWrapper>();
+		List<String> responseDiskIds = new ArrayList<String>();
 		for(int i = 0; i<Integer.parseInt(context.read("$.hardware.disks.length()").toString()) ; i++)
 		{
 			String diskSerialNumber	=	context.read("$.hardware.disks["+i+"].serial").toString();
 			String diskModel		=	context.read("$.hardware.disks["+i+"].model").toString();
 			String diskName			=	context.read("$.hardware.disks["+i+"].name").toString();
 			Long diskSize			=	Long.parseLong(context.read("$.hardware.disks["+i+"].size").toString());
-			Disk disk = new Disk(diskSerialNumber, diskModel, diskName, diskSize);
-			//diskRepo.save(disk);
-			disks.add(disk);
+			String responseDiskId = Unirest.post(String.format("http://localhost:%s/disk", localPort))
+					.field("diskSerialNumber", diskSerialNumber)
+					.field("diskModel", diskModel)
+					.field("diskName", diskName)
+					.field("diskSize", diskSize)
+					.getHttpRequest().asJson().getBody().getObject().optString("diskSerialNumber");
+			if(!responseDiskId.isEmpty()){
+				responseDiskIds.add(responseDiskId);
+			}
+			
+			for(int j = 0; j< Integer.parseInt(context.read("$.hardware.disks["+i+"].partitions.length()").toString()); j++){
+				String uuid = context.read("$.hardware.disks["+i+"].partitions["+j+"].uuid").toString();
+				partitions.add(new DiskPartitionFileStoreWrapper(responseDiskId, uuid));
+			}
 		}
-		
-		List<FileStore> fileStores = new ArrayList<FileStore>();
+		List<String> responseFileStoreIds = new ArrayList<String>();
 		for(int i = 0; i<Integer.parseInt(context.read("$.operatingSystem.fileSystem.fileStores.length()").toString()) ; i++)
 		{
-			Long fileStoreTotalSpace	=	Long.parseLong(context.read("$.operatingSystem.fileSystem.fileStores["+i+"].totalSpace").toString());
 			String fileStoreUuid		=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].uuid").toString();
+			Long fileStoreTotalSpace	=	Long.parseLong(context.read("$.operatingSystem.fileSystem.fileStores["+i+"].totalSpace").toString());
 			String fileStoreName		=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].name").toString();
 			String fileStoreVolume		=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].volume").toString();
 			String fileStoreMountPoint	=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].mountPoint").toString();
 			String fileStoreDescription	=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].description").toString();
 			String fileStoreFsType		=	context.read("$.operatingSystem.fileSystem.fileStores["+i+"].fsType").toString();
-			FileStore fileStore = new FileStore(fileStoreUuid, fileStoreTotalSpace, fileStoreName, fileStoreVolume,  fileStoreMountPoint, fileStoreDescription, fileStoreFsType);
-			//fileStoreRepo.save(fileStore);
-			fileStores.add(fileStore);
+			String responseFileStoreId = Unirest.post(String.format("http://localhost:%s/fileStore", localPort))
+					.field("fileStoreUuid", fileStoreUuid)
+					.field("fileStoreTotalSpace", fileStoreTotalSpace)
+					.field("fileStoreName", fileStoreName)
+					.field("fileStoreVolume", fileStoreVolume)
+					.field("fileStoreMountPoint", fileStoreMountPoint)
+					.field("fileStoreDescription", fileStoreDescription)
+					.field("fileStoreFsType", fileStoreFsType)
+					.getHttpRequest().asJson().getBody().getObject().optString("fileStoreUuid");
+			if(!responseFileStoreId.isEmpty()){
+				responseFileStoreIds.add(responseFileStoreId);
+			}
+			DiskPartitionFileStoreWrapper partition = partitions.stream().filter(p -> p.getUuid().equals(responseFileStoreId)).findAny().orElse(null);
+			if(partition != null){
+				Unirest.put(String.format("http://localhost:%s/fileStore/%s/fileStoreDisk", localPort, responseFileStoreId))
+						.field("diskSerialNumber", partition.getDiskSerialNumber()).asJson();
+			}
 		}
 		
-		List<Network> networks = new ArrayList<Network>();
+		List<String> responseNetworkIds = new ArrayList<String>();
 		for(int i = 0; i<Integer.parseInt(context.read("$.hardware.networks.length()").toString()) ; i++)
 		{
 			String networkIpv4 = "";
@@ -200,45 +221,104 @@ public class MainController {
 			}
 			Long networkMtu				=	Long.parseLong(context.read("$.hardware.networks["+i+"].mtu").toString());
 			Long networkSpeed			=	Long.parseLong(context.read("$.hardware.networks["+i+"].speed").toString());
-			Network network = new Network(networkMac, networkName, networkDisplayName, networkIpv4, networkIpv6, networkMtu, networkSpeed);
-			//networkRepo.save(network);
-			networks.add(network);
+			String responseNetworkId = Unirest.post(String.format("http://localhost:%s/network", localPort))
+					.field("networkMac", networkMac)
+					.field("networkName", networkName)
+					.field("networkDisplayName", networkDisplayName)
+					.field("networkIpv4", networkIpv4)
+					.field("networkIpv6", networkIpv6)
+					.field("networkMtu", networkMtu)
+					.field("networkSpeed", networkSpeed)
+					.getHttpRequest().asJson().getBody().getObject().optString("networkMac");
+			if(!responseNetworkId.isEmpty()){
+				responseNetworkIds.add(responseNetworkId);
+			}
 		}
-		
+	
 		String operatingSystemManufacturer	=	context.read("$.operatingSystem.manufacturer").toString();
 		String operatingSystemFamily		=	context.read("$.operatingSystem.family").toString();
 		String operatingSystemVersion		=	context.read("$.operatingSystem.version.version").toString();
 		String operatingSystemCodeName		=	context.read("$.operatingSystem.version.codeName").toString();
 		String operatingSystemBuild			=	context.read("$.operatingSystem.version.build").toString();
-		OperatingSystem operatingSystem = new OperatingSystem(operatingSystemManufacturer, operatingSystemFamily, operatingSystemVersion, operatingSystemCodeName, operatingSystemBuild);
-		//operatingSystemRepo.save(operatingSystem);
+		Long responseOperatingSystemId = Unirest.post(String.format("http://localhost:%s/operatingSystem", localPort))
+				.field("operatingSystemManufacturer", operatingSystemManufacturer)
+				.field("operatingSystemFamily", operatingSystemFamily)
+				.field("operatingSystemVersion", operatingSystemVersion)
+				.field("operatingSystemCodeName", operatingSystemCodeName)
+				.field("operatingSystemBuild", operatingSystemBuild)
+				.getHttpRequest().asJson().getBody().getObject().optLong("operatingSystemId");
 		
-		Hardware hardware = new Hardware(systemModel, baseboard, firmware, processor, memory);
-		for(Network network : networks){
-			hardware.addHardwareNetwork(network);
+		Long responseHardwareId = Unirest.post(String.format("http://localhost:%s/hardware", localPort))
+				.field("systemModelSerialNumber", responseSystemModelId)
+				.field("baseboardSerialNumber", responseBaseboardId)
+				.field("firmwareIdentifier", responseFirmwareId)
+				.field("processorId", responseProcessorId)
+				.field("memoryTotalSpace", responseMemoryId)
+				.getHttpRequest().asJson().getBody().getObject().optLong("hardwareId");
+				
+		for(String networkId : responseNetworkIds){
+			Unirest.put(String.format("http://localhost:%s/hardware/%d/hardwareNetworks", localPort, responseHardwareId))
+				.field("networkMac", networkId)
+				.asJson();
 		}
-		for(Disk disk : disks){
-			hardware.addHardwareDisk(disk);
+		
+		for(String diskId : responseDiskIds){
+			Unirest.put(String.format("http://localhost:%s/hardware/%d/hardwareDisks", localPort, responseHardwareId))
+				.field("diskSerialNumber", diskId)
+				.asJson();
 		}
-		//hardwareRepo.save(hardware);
+		
+		Long responseSystemId = Unirest.post(String.format("http://localhost:%s/system", localPort))
+			.field("systemHostName", hostName)
+			.field("systemOperatingSystemId", responseOperatingSystemId)
+			.field("systemHardwareId", responseHardwareId)
+			.getHttpRequest().asJson().getBody().getObject().optLong("systemIdentifier");
+		
+		 Long measurementId = Unirest.post(String.format("http://localhost:%s/measurement", localPort))
+					.field("measurementRate", Rate.FIFTEEN_SECONDS)
+					.field("measurementRemotePort", remotePort)
+					.field("measurementSystem", responseSystemId)
+					.getHttpRequest().asJson().getBody().getObject().optLong("measurementId");
+		 
+		 Unirest.post(String.format("http://localhost:%s/process", localPort))
+					.field("processName", "firefox.exe")
+					.field("measurementId", measurementId)
+					.getHttpRequest().asJson();
 
-		System system = new System("localhost", operatingSystem, hardware);
-		system.setSystemHardware(hardware);
-		systemRepo.save(system);
-		
-		Measurement measurement = new Measurement();
-		measurement.setMeasurementSystem(system);
-		measurementRepo.save(measurement);
-		
+		 Unirest.put(String.format("http://localhost:%s/measurement/%d", localPort, measurementId))
+			.field("measurementRunning", true)
+			.getHttpRequest().asJson();
+		 /*if(responseSystemId != 0){
+			 return systemRepo.findById(responseSystemId).orElse(null);
+		 }
+		 else{
+			 return null;
+		 }*/
+		 
+		 return measurementRepo.findById(measurementId).orElse(null);
+
 	}
-
+	
+/*
 	@RequestMapping(method = RequestMethod.GET, path = "/testEqual")
 	public boolean checkEquality(){
-		/*FirmwarePK pk1 = new FirmwarePK("1", "2", "3", "4", "5");
+		FirmwarePK pk1 = new FirmwarePK("1", "2", "3", "4", "5");
 		Firmware fw1 = firmwareRepo.save(new Firmware(pk1));
 		FirmwarePK pk2 = new FirmwarePK("1", "2", "3", "4", "5");
-		return firmwareRepo.existsById(pk2);*/
+		return firmwareRepo.existsById(pk2);
 		return true;
 	}
-
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/ipResolve/{hostName}")
+	public String ipResolve(@PathVariable("hostName") String hostName){
+		InetAddress response = null;
+		try{
+			response = InetAddress.getByName(hostName);
+			java.lang.System.out.println(response.getHostAddress());
+		}catch(Exception e){
+			java.lang.System.out.println(e.getMessage());
+		}
+		return response.getHostAddress();
+	}
+*/
 }

@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 public class System implements Serializable {
@@ -67,6 +69,7 @@ public class System implements Serializable {
 		this.systemHardware = systemHardware;
 	}
 
+	@JsonIgnore
 	public Set<Measurement> getSystemMeasurements() {
 		return systemMeasurements;
 	}
