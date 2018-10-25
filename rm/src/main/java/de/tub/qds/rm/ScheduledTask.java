@@ -1,10 +1,13 @@
 package de.tub.qds.rm;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,11 +37,11 @@ import de.tub.qds.rm.models.consts.repos.NetworkValueRepo;
 import de.tub.qds.rm.models.consts.repos.ProcessRepo;
 import de.tub.qds.rm.models.consts.repos.ProcessValueRepo;
 import de.tub.qds.rm.models.consts.repos.ProcessorValueRepo;
+import de.tub.qds.rm.models.values.wrapper.ProcessJsonWrapper;
 
 @Component
 public class ScheduledTask {
 	
-
 	@Autowired
 	MeasurementRepo measurementRepo;
 	@Autowired
@@ -60,6 +63,16 @@ public class ScheduledTask {
 	@Autowired
 	Environment environment;
 
+	@Scheduled(fixedRate = 5000)
+	public void execute_FIVE_SECONDS() {
+		measure(Rate.FIVE_SECONDS);
+	}
+	
+	@Scheduled(fixedRate = 10000)
+	public void execute_TEN_SECONDS() {
+		measure(Rate.TEN_SECONDS);
+	}
+	
 	@Scheduled(fixedRate = 15000)
 	public void execute_FIFTEEN_SECONDS() {
 		measure(Rate.FIFTEEN_SECONDS);
@@ -142,20 +155,70 @@ public class ScheduledTask {
 		}
 	}
 	
+	public void refreshPidsByMeasurement(Measurement measurement) throws UnirestException{
+		// Find all measurement-processes with pid==null
+		Set<Process> processes = processRepo.findByProcessMeasurementAndProcessPidIsNull(measurement);
+		if(!processes.isEmpty()){
+			List<ProcessJsonWrapper> processJsonWraps = new ArrayList<ProcessJsonWrapper>();
+			JSONArray processInfos = null;
+			// Get all possible processes on SUT with selected processname
+			String queryString = processes.stream().map(p -> p.getProcessName()).collect(Collectors.joining(","));
+			try {
+				processInfos = Unirest.get(String.format("http://%s:%s/systemInfo/operatingSystem/processes/byName/%s", measurement.getMeasurementIp(), measurement.getMeasurementRemotePort(), queryString)).asJson().getBody().getArray();
+			} catch (UnirestException e) {
+				processInfos = null;
+			};
+			// Read processinfos and adds them to a dictionary
+			if(processInfos != null){
+				for(int i = 0; i<processInfos.length(); i++){
+					JSONObject obj = processInfos.getJSONObject(i);
+					java.lang.System.out.println("Adding process: " + obj.getString("name")+ " | PID " + obj.getLong("processID") );
+					processJsonWraps.add(new ProcessJsonWrapper(obj.getString("name"), obj.getLong("processID")));
+				}
+			}
+			String localPort = environment.getProperty("local.server.port");
+			for(Process process : processes){
+				List<ProcessJsonWrapper> filtered = processJsonWraps.stream().filter(p -> p.getProcessName().equals(process.getProcessName())).collect(Collectors.toList());
+				if(filtered.size() == 0){
+					continue;
+				}
+				else if(filtered.size() >= 1){
+					// Use current instance as first process to update
+					Unirest.put(String.format("http://localhost:%s/process/%d", localPort, process.getProcessId())).field("processPid", filtered.get(0).getProcessId()).asJson();
+					java.lang.System.out.println("Updated process on index " + 0);
+					// if there are more processes than one, new instances will be added to the database
+					for(int i = 1; i<filtered.size(); i++){
+						Unirest.post(String.format("http://localhost:%s/process", localPort))
+						.field("processName", filtered.get(i).getProcessName())
+						.field("processPid", filtered.get(i).getProcessId())
+						.field("measurementId", measurement.getMeasurementId())
+						.asJson().getBody().getObject().toString();
+						java.lang.System.out.println("Posted process on index " + i + " with pid " + filtered.get(i).getProcessId());
+					}
+				}
+			}
+		}
+	}
+	
 	public void readValues(Measurement measurement) throws UnirestException{
-
+		
 		Long startTime = java.lang.System.currentTimeMillis();
 		String ip = measurement.getMeasurementIp();
 		String port = measurement.getMeasurementRemotePort();
 		String remotePort = environment.getProperty("local.server.port");
 		String hardwareUrl = String.format("http://%s:%s/systemInfo/hardware", ip, port);
+		refreshPidsByMeasurement(measurement);
 		String processesPids = processRepo.findByProcessMeasurement(measurement).stream().map(p -> p.getProcessPid().toString()).collect(Collectors.joining(","));
 		String processesUrl = String.format("http://%s:%s/systemInfo/operatingSystem/processes/%s", ip, port, processesPids);
 		String fileStoresUrl = String.format("http://%s:%s/systemInfo/operatingSystem/fileSystem/fileStores", ip, port);
 		
 		DocumentContext hardwareContext = JsonPath.parse(Unirest.get(hardwareUrl).asJson().getBody().toString());
 		DocumentContext fileStoresData = JsonPath.parse(Unirest.get(fileStoresUrl).asJson().getBody().toString());
-		DocumentContext processesData =  JsonPath.parse(Unirest.get(processesUrl).asJson().getBody().toString());
+		DocumentContext processesData = null;
+		if(processesPids != ""){
+			processesData =  JsonPath.parse(Unirest.get(processesUrl).asJson().getBody().toString());
+		}
+		
 		
 		Long timestamp = java.lang.System.currentTimeMillis();
 		
@@ -172,11 +235,16 @@ public class ScheduledTask {
 		}
 		
 		//ADD PROCESSDATA
-		Integer processesDataCount = processesData.read("$.length()");
+		Integer processesDataCount=0; 
+		if(processesData != null){
+			processesDataCount = processesData.read("$.length()");
+		}
 		for(int i = 0; i < processesDataCount; i++){
+			if(processes == null){
+				break;
+			}
 			int currentPid = processesData.read(String.format("$.[%d].processID", i));
-			Process currentProcess = processes.stream().filter(p -> p.getProcessPid() == currentPid).findFirst().orElse(null);
-			
+			Process currentProcess = processes.stream().filter(p -> p.getProcessPid() != null).filter(p -> p.getProcessPid() == currentPid).findFirst().orElse(null);
 			if(currentProcess != null){
 				Integer processValueThreadCount = (processesData.read("$.["+i+"].threadCount"));
 				Integer processValuePriority = Integer.parseInt(processesData.read("$.["+i+"].priority").toString());

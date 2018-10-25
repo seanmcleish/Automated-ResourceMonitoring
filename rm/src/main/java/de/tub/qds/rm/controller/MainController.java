@@ -275,50 +275,15 @@ public class MainController {
 			.getHttpRequest().asJson().getBody().getObject().optLong("systemIdentifier");
 		
 		 Long measurementId = Unirest.post(String.format("http://localhost:%s/measurement", localPort))
-					.field("measurementRate", Rate.FIFTEEN_SECONDS)
+					.field("measurementRate", Rate.FIVE_SECONDS)
 					.field("measurementRemotePort", remotePort)
 					.field("measurementSystem", responseSystemId)
 					.getHttpRequest().asJson().getBody().getObject().optLong("measurementId");
-		 
-		 Unirest.post(String.format("http://localhost:%s/process", localPort))
-					.field("processName", "firefox.exe")
-					.field("measurementId", measurementId)
-					.getHttpRequest().asJson();
 
 		 Unirest.put(String.format("http://localhost:%s/measurement/%d", localPort, measurementId))
 			.field("measurementRunning", true)
 			.getHttpRequest().asJson();
-		 /*if(responseSystemId != 0){
-			 return systemRepo.findById(responseSystemId).orElse(null);
-		 }
-		 else{
-			 return null;
-		 }*/
-		 
-		 return measurementRepo.findById(measurementId).orElse(null);
 
-	}
-	
-/*
-	@RequestMapping(method = RequestMethod.GET, path = "/testEqual")
-	public boolean checkEquality(){
-		FirmwarePK pk1 = new FirmwarePK("1", "2", "3", "4", "5");
-		Firmware fw1 = firmwareRepo.save(new Firmware(pk1));
-		FirmwarePK pk2 = new FirmwarePK("1", "2", "3", "4", "5");
-		return firmwareRepo.existsById(pk2);
-		return true;
-	}
-	
-	@RequestMapping(method = RequestMethod.GET, path = "/ipResolve/{hostName}")
-	public String ipResolve(@PathVariable("hostName") String hostName){
-		InetAddress response = null;
-		try{
-			response = InetAddress.getByName(hostName);
-			java.lang.System.out.println(response.getHostAddress());
-		}catch(Exception e){
-			java.lang.System.out.println(e.getMessage());
+		 return measurementRepo.findById(measurementId).orElse(null);
 		}
-		return response.getHostAddress();
 	}
-*/
-}

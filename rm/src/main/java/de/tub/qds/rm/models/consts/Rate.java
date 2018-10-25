@@ -1,7 +1,8 @@
 package de.tub.qds.rm.models.consts;
 
 public enum Rate {
-
+	FIVE_SECONDS(5000),
+	TEN_SECONDS(10000),
 	FIFTEEN_SECONDS(15000),
 	THIRTY_SECONDS(30000),
 	ONE_MINUTE(60000),

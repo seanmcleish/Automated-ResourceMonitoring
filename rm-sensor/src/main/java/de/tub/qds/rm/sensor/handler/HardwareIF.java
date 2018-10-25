@@ -1,6 +1,7 @@
 package de.tub.qds.rm.sensor.handler;
 
-import org.threeten.bp.LocalDate;
+
+import java.time.LocalDate;
 
 import com.google.gson.Gson;
 
@@ -90,7 +91,7 @@ public interface HardwareIF {
 
 	public static void getComputerSystemFirmwareReleaseDate(HttpServerExchange exchange) {
 		exchange.getResponseHeaders().add(new HttpString("Content-Type"),"application/json");
-		LocalDate response = new SystemInfo().getHardware().getComputerSystem().getFirmware().getReleaseDate();
+		String response = new SystemInfo().getHardware().getComputerSystem().getFirmware().getReleaseDate();
 		exchange.getResponseSender().send(new Gson().toJson(response));
 	}
 	

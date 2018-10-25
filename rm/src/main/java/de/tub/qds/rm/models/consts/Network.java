@@ -18,9 +18,6 @@ import de.tub.qds.rm.models.values.NetworkValue;
 @Entity
 public class Network implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	String networkMac;

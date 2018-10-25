@@ -105,43 +105,6 @@ public class MeasurementController {
 				if(measurement.getMeasurementIp() == null){
 					measurement.setMeasurementIp(Methods.ipResolve(measurement.getMeasurementSystem().getSystemHostName()));
 				}
-				Set<Process> processes = processRepo.findByProcessMeasurementAndProcessPidIsNull(measurement);
-				if(!processes.isEmpty()){
-					List<ProcessJsonWrapper> processJsonWraps = new ArrayList<ProcessJsonWrapper>();
-					JSONArray processInfos = null;
-					String queryString = processes.stream().map(p -> p.getProcessName()).collect(Collectors.joining(","));
-					try {
-						processInfos = Unirest.get(String.format("http://%s:%s/systemInfo/operatingSystem/processes/byName/%s", measurement.getMeasurementIp(), measurement.getMeasurementRemotePort(), queryString)).asJson().getBody().getArray();
-					} catch (UnirestException e) {
-						processInfos = null;
-					};
-					if(processInfos != null){
-						for(int i = 0; i<processInfos.length(); i++){
-							JSONObject obj = processInfos.getJSONObject(i);
-							java.lang.System.out.println("Adding process: " + obj.getString("name")+ " | PID " + obj.getLong("processID") );
-							processJsonWraps.add(new ProcessJsonWrapper(obj.getString("name"), obj.getLong("processID")));
-						}
-					}
-					String localPort = environment.getProperty("local.server.port");
-					for(Process process : processes){
-						List<ProcessJsonWrapper> filtered = processJsonWraps.stream().filter(p -> p.getProcessName().equals(process.getProcessName())).collect(Collectors.toList());
-						if(filtered.size() == 0){
-							continue;
-						}
-						else if(filtered.size() >= 1){
-							Unirest.put(String.format("http://localhost:%s/process/%d", localPort, process.getProcessId())).field("processPid", filtered.get(0).getProcessId()).asJson();
-							java.lang.System.out.println("Updated process on index " + 0);
-							for(int i = 1; i<filtered.size(); i++){
-								Unirest.post(String.format("http://localhost:%s/process", localPort))
-								.field("processName", filtered.get(i).getProcessName())
-								.field("processPid", filtered.get(i).getProcessId())
-								.field("measurementId", measurement.getMeasurementId())
-								.asJson().getBody().getObject().toString();
-								java.lang.System.out.println("Posted process on index " + i + " with pid " + filtered.get(i).getProcessId());
-							}
-						}
-					}
-				}
 				measurement.setMeasurementStartDate(new Timestamp(java.lang.System.currentTimeMillis()));
 				measurement.setMeasurementRunning(true);
 				measurement.setMeasurementEndDate(null);
