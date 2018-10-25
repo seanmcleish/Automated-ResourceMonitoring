@@ -13,5 +13,5 @@ import de.tub.qds.rm.models.consts.SystemModel;
 
 public interface HardwareRepo extends JpaRepository<Hardware, Long> {
 
-	Optional<Hardware> findTop1ByHardwareSystemModelAndHardwareBaseboardAndHardwareFirmwareAndHardwareProcessorAndHardwareMemory(SystemModel systemModel, Baseboard baseboard, Firmware firmware, Processor processor, Memory memory);
+	Optional<Hardware> findByHardwareSystemModelAndHardwareBaseboardAndHardwareFirmwareAndHardwareProcessorAndHardwareMemory(SystemModel systemModel, Baseboard baseboard, Firmware firmware, Processor processor, Memory memory);
 }

@@ -1,6 +1,7 @@
 package de.tub.qds.rm.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,6 @@ public class HardwareController {
 			@RequestParam(value = "processorId") String processorId,
 			@RequestParam(value = "memoryTotalSpace") Long memoryTotalSpace
 			){
-		
 		SystemModel systemModel = systemModelSerialNumber != null? systemModelRepo.findById(systemModelSerialNumber).orElse(null):null;
 		Baseboard baseboard = baseboardSerialNumber != null? baseboardRepo.findById(baseboardSerialNumber).orElse(null):null;
 		Firmware firmware = firmwareIdentifier != null? firmwareRepo.findById(firmwareIdentifier).orElse(null):null;
@@ -73,11 +73,27 @@ public class HardwareController {
 		Memory memory = memoryTotalSpace != null? memoryRepo.findById(memoryTotalSpace).orElse(null):null;
 		
 		if(systemModel==null || baseboard == null || firmware == null || processor == null || memory==null ){
+			if(systemModel==null){
+				java.lang.System.out.println("SystemModel is null!");
+			}
+			if(baseboard==null){
+				java.lang.System.out.println("baseboard is null!");		
+			}
+			if(firmware==null){
+				java.lang.System.out.println("firmware is null!");
+			}
+			if(processor==null){
+				java.lang.System.out.println("processor is null!");
+			}
+			if(memory==null){
+				java.lang.System.out.println("memory is null!");
+			}
 			return null;
 		}
-		Hardware hardware = repo.findTop1ByHardwareSystemModelAndHardwareBaseboardAndHardwareFirmwareAndHardwareProcessorAndHardwareMemory(systemModel, baseboard, firmware, processor, memory).orElse(null);
-		if(hardware != null){
-			return hardware;
+		Optional<Hardware> hardware = repo.findByHardwareSystemModelAndHardwareBaseboardAndHardwareFirmwareAndHardwareProcessorAndHardwareMemory(systemModel, baseboard, firmware, processor, memory);
+		java.lang.System.out.println("Hardware existing?: "+ hardware.isPresent());
+		if(hardware.isPresent()){
+			return hardware.get();
 		}
 		return repo.save(new Hardware(systemModel, baseboard, firmware, processor, memory));
 	}

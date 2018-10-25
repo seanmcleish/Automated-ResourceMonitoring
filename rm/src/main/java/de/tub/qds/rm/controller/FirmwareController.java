@@ -42,7 +42,7 @@ public class FirmwareController {
 			Firmware firmware = new Firmware(firmwareManufacturer, firmwareName, firmwareDescription, firmwareVersion, firmwareReleaseDate);
 			return repo.save(firmware);
 		}
-		return null;
+		return repo.findByFirmwareManufacturerAndFirmwareNameAndFirmwareDescriptionAndFirmwareVersionAndFirmwareReleaseDate(firmwareManufacturer, firmwareName, firmwareDescription, firmwareVersion, firmwareReleaseDate);
 	}	
 
 	@RequestMapping(method = RequestMethod.GET, path = "/firmware/{firmwareIdentifier}", produces = "application/json")

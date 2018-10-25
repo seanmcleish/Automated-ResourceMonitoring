@@ -121,6 +121,7 @@ public class MainController {
 				.field("firmwareVersion", firmwareVersion)
 				.field("firmwareReleaseDate", firmwareReleaseDate)
 				.getHttpRequest().asJson().getBody().getObject().optLong("firmwareIdentifier");
+		
 		/*Firmware firmware = firmwareRepo.findById(responseFirmwareId).orElse(null);*/
 		
 		String processorId					=	context.read("$.hardware.processor.processorID").toString();
