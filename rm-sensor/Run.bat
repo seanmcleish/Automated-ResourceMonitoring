@@ -1,1 +1,1 @@
-java -jar target\RessourceMonitor-Sensor.jar
+java -jar target\RessourceMonitor-Sensor.jar 8090

@@ -1,13 +1,9 @@
 package de.tub.qds.rm.controller;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.core.env.Environment;
 
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import de.tub.qds.rm.Methods;
@@ -27,7 +22,6 @@ import de.tub.qds.rm.models.consts.System;
 import de.tub.qds.rm.models.consts.repos.MeasurementRepo;
 import de.tub.qds.rm.models.consts.repos.ProcessRepo;
 import de.tub.qds.rm.models.consts.repos.SystemRepo;
-import de.tub.qds.rm.models.values.wrapper.ProcessJsonWrapper;
 
 //FINISHED IMPLEMENTATION & TESTED
 @RestController

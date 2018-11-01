@@ -1,8 +1,5 @@
 package de.tub.qds.rm.sensor.handler;
 
-
-import java.time.LocalDate;
-
 import com.google.gson.Gson;
 
 import io.undertow.server.HttpServerExchange;
