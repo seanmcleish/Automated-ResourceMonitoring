@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2014 Ericsson
+
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+
+
+   File:               Abstract_Socket_CNL113384.tpd
+   Description:        tpd project file
+   Rev:                R7G
+   Prodnr:             CNL 113 384
+   Updated:            2014-09-03
+   Contact:            http://ttcn.ericsson.se
+
+ -->
+<TITAN_Project_File_Information version="1.0">
+  <ProjectName>Abstract_Socket_CNL113384</ProjectName>
+  <Files>
+    <FileResource projectRelativePath="Abstract_Socket.cc" relativeURI="src/Abstract_Socket.cc"/>
+    <FileResource projectRelativePath="Abstract_Socket.hh" relativeURI="src/Abstract_Socket.hh"/>
+  </Files>
+  <ActiveConfiguration>SSL</ActiveConfiguration>
+  <Configurations>
+    <Configuration name="Default">
+      <ProjectProperties>
+        <MakefileSettings>
+          <GNUMake>true</GNUMake>
+          <targetExecutable>bin/Abstract_Socket_CNL113384</targetExecutable>
+        </MakefileSettings>
+        <LocalBuildSettings>
+          <workingDirectory>bin</workingDirectory>
+        </LocalBuildSettings>
+      </ProjectProperties>
+    </Configuration>
+    <Configuration name="SSL">
+      <ProjectProperties>
+        <MakefileSettings>
+          <generateInternalMakefile>true</generateInternalMakefile>
+          <GNUMake>true</GNUMake>
+          <targetExecutable>bin_ssl/Abstract_Socket_CNL113384</targetExecutable>
+          <preprocessorDefines>
+            <listItem>AS_USE_SSL</listItem>
+          </preprocessorDefines>
+          <preprocessorIncludes>
+            <listItem>[OPENSSL_DIR]/include</listItem>
+          </preprocessorIncludes>
+          <linkerLibraries>
+            <listItem>ssl</listItem>
+          </linkerLibraries>
+          <linkerLibrarySearchPath>
+            <listItem>[OPENSSL_DIR]/lib</listItem>
+          </linkerLibrarySearchPath>
+        </MakefileSettings>
+        <LocalBuildSettings>
+          <workingDirectory>bin_ssl</workingDirectory>
+        </LocalBuildSettings>
+      </ProjectProperties>
+    </Configuration>
+  </Configurations>
+</TITAN_Project_File_Information>

@@ -1,0 +1,103 @@
+module Test {
+
+modulepar {
+  charstring  	v_hostname :="localhost";
+  integer     	v_port := 8090;
+  charstring 	v_path := "/memory/972238848/memoryValues/5/min";
+}
+
+import from geoplugin all;
+import from HTTPmsg_Types all;
+import from HTTPmsg_PortType all;
+type enumerated Http_state {active(0),passive(1)};
+type component HTTP_CT {
+
+	port HTTPmsg_PT HTTP_PCO;
+};
+
+
+//------------------------------------------------------------------------------
+function ContentLength (in charstring par_body)  return charstring
+//------------------------------------------------------------------------------
+
+{
+  var charstring a:=int2str(lengthof (par_body))
+  return a;
+
+}
+
+//----------------------------------
+
+template  HTTPMessage t_request:={ request := { client_id := omit, method := "GET", uri := v_path, version_major := 1, version_minor := 1, header := {{ header_name := "Host", header_value := v_hostname }}/*, {header_name := "Content-Type", header_value :="application/json"}}*/, body := "" } } 
+
+template Close t_close:= { client_id := omit} 
+
+
+//******************************************************
+testcase tc_geoplugin() runs on HTTP_CT{
+  //******************************************************
+
+  //---------------------HTTP---------------------------
+  var Connect_result v_Connect_result
+  var charstring vl_char_body
+  var octetstring v_body
+  var HTTPMessage  v_HTTPMessage
+  var integer v_http_client_id
+  timer t0:=5.0;
+
+
+  map(self:HTTP_PCO, system:HTTP_PCO);
+
+  var Connect vl_connect:={ hostname := v_hostname, portnumber := v_port, use_ssl := false } 
+
+  HTTP_PCO.send(vl_connect) ;
+  t0.start;
+  alt 
+  {
+
+    []HTTP_PCO.receive(Connect_result:?) -> value v_Connect_result { v_http_client_id:=v_Connect_result.client_id}
+    []t0.timeout { }
+
+  }
+  HTTP_PCO.send(t_request)
+  alt 
+  {
+    []HTTP_PCO.receive(HTTPMessage:?)  -> value v_HTTPMessage
+    {
+      var JSON_PDU v_JSON_PDU;
+      if (ischosen(v_HTTPMessage.response_binary))
+      {
+        v_JSON_PDU := dec_JSON(v_HTTPMessage.response_binary.body);
+        setverdict(pass);
+      }
+      if (ischosen(v_HTTPMessage.response))
+      {
+        v_JSON_PDU := dec_JSON(char2oct(v_HTTPMessage.response.body));
+        setverdict(pass);
+      }
+      else
+      {
+      	setverdict(fail);
+      }
+    }
+  }
+
+  HTTP_PCO.send(t_close) 
+  t0.start;
+  alt 
+  {
+
+    []HTTP_PCO.receive {}
+    []t0.timeout {}
+  }
+
+
+  all component.kill;
+}//end tc
+
+control
+{
+  execute( tc_geoplugin());
+}
+}
+
