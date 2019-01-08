@@ -1,5 +1,6 @@
 package de.tub.qds.rm.sensor.handler;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -241,11 +242,17 @@ public interface OperatingSystemIF {
 	public static void getProcessesByPid(HttpServerExchange exchange) {
 		exchange.getResponseHeaders().add(new HttpString("Content-Type"), "application/json");
 		ArrayList<Integer> pids = new ArrayList<Integer>();
-		Arrays.stream(exchange.getQueryParameters().get("pid").getFirst().split(","))
-		.forEach(pid -> {if(pid != "") {pids.add(Integer.parseInt(pid));};});
-		
-		List<OSProcess> response = new oshi.SystemInfo().getOperatingSystem().getProcesses(pids);
-		exchange.getResponseSender().send(new Gson().toJson(response));
+		String parameters = exchange.getQueryParameters().get("pid").getFirst();
+		if(!parameters.isEmpty()) 
+		{
+			Arrays.stream(parameters.split(",")).forEach(pid -> pids.add(Integer.parseInt(pid)));
+			List<OSProcess> response = new oshi.SystemInfo().getOperatingSystem().getProcesses(pids);
+			exchange.getResponseSender().send(new Gson().toJson(response));
+		}
+		else 
+		{
+			exchange.getResponseSender().send(new Gson().toJson(null));
+		}
 	}
 
 	public static void getProcessByPidName(HttpServerExchange exchange) {

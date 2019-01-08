@@ -21,7 +21,7 @@ public class App {
     	}
     	else
     	{
-    		port = 8090;
+    		port = 10005;
     	}
     	
     	RoutingHandler handler = new RoutingHandler()
