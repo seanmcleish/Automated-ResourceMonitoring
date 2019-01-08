@@ -245,7 +245,7 @@ public interface OperatingSystemIF {
 		String parameters = exchange.getQueryParameters().get("pid").getFirst();
 		if(!parameters.isEmpty()) 
 		{
-			Arrays.stream(parameters.split(",")).forEach(pid -> pids.add(Integer.parseInt(pid)));
+			Arrays.stream(parameters.split(",")).filter(pid -> pid.isEmpty()).forEach(pid -> pids.add(Integer.parseInt(pid)));
 			List<OSProcess> response = new oshi.SystemInfo().getOperatingSystem().getProcesses(pids);
 			exchange.getResponseSender().send(new Gson().toJson(response));
 		}
