@@ -241,7 +241,8 @@ public interface OperatingSystemIF {
 	public static void getProcessesByPid(HttpServerExchange exchange) {
 		exchange.getResponseHeaders().add(new HttpString("Content-Type"), "application/json");
 		ArrayList<Integer> pids = new ArrayList<Integer>();
-		Arrays.stream(exchange.getQueryParameters().get("pid").getFirst().split(",")).forEach(pid -> pids.add(Integer.parseInt(pid)));
+		Arrays.stream(exchange.getQueryParameters().get("pid").getFirst().split(","))
+		.forEach(pid -> {if(pid != "") {pids.add(Integer.parseInt(pid));};});
 		
 		List<OSProcess> response = new oshi.SystemInfo().getOperatingSystem().getProcesses(pids);
 		exchange.getResponseSender().send(new Gson().toJson(response));
