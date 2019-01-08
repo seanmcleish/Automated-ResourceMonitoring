@@ -1,2 +1,2 @@
 # RessourceMonitor
-Bachelor Thesis - Project upload for LayTec, Theofanis
+Bachelor Thesis - Author: Sean McLeish
