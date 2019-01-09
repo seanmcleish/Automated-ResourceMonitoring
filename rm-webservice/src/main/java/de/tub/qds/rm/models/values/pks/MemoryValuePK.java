@@ -34,7 +34,6 @@ public class MemoryValuePK implements Serializable {
 		this.memoryValueTimestamp = timestamp;
 	}
 
-	@JsonIgnore
 	public Long getMemoryValueMeasurementId() {
 		return memoryValueMeasurementId;
 	}

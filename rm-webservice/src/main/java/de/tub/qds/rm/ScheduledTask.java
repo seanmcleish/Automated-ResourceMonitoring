@@ -151,6 +151,7 @@ public class ScheduledTask {
 
 			} catch (UnirestException e) {
 				java.lang.System.out.println("Error reading values: "+ e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -215,13 +216,10 @@ public class ScheduledTask {
 		DocumentContext hardwareContext = JsonPath.parse(Unirest.get(hardwareUrl).asJson().getBody().toString());
 		DocumentContext fileStoresData = JsonPath.parse(Unirest.get(fileStoresUrl).asJson().getBody().toString());
 		DocumentContext processesData = null;
-		if(processesPids != ""){
+		if(!processesPids.isEmpty()){
 			processesData =  JsonPath.parse(Unirest.get(processesUrl).asJson().getBody().toString());
 		}
-		
-		
 		Long timestamp = java.lang.System.currentTimeMillis();
-		
 		System system = measurement.getMeasurementSystem();
 		Hardware hardware = system.getSystemHardware();
 		Set<Disk> disks = hardware.getHardwareDisks();
@@ -233,7 +231,6 @@ public class ScheduledTask {
 		for(Disk disk : disks){
 			fileStores.addAll(disk.getDiskFileStores());
 		}
-		
 		//ADD PROCESSDATA
 		Integer processesDataCount=0; 
 		if(processesData != null){
