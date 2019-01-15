@@ -1,0 +1,122 @@
+module rmplugin
+{
+    import from HTTPmsg_Types all;
+	template HTTPMessage t_GET_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "GET", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := 
+			{
+				{ 
+					header_name := "Host", 
+					header_value := p_hostname
+				}
+			}, 
+			body := ""
+			}
+		}
+	template HTTPMessage t_PUT_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "PUT", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := 
+			{
+				{ 
+					header_name := "Host", 
+					header_value := p_hostname
+				}
+			}, 
+			body := p_body
+			}
+		}
+	template HTTPMessage t_POST_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "POST", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := 
+			{
+				{ 
+					header_name := "Host", 
+					header_value := p_hostname
+				}
+			}, 
+			body := p_body
+			}
+		}
+	template HTTPMessage t_DELETE_Request(in charstring p_path, in charstring p_hostname, in charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "DELETE", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := 
+			{
+				{ 
+					header_name := "Host", 
+					header_value := p_hostname
+				}
+			}, 
+			body := p_body
+			}
+		}
+	external function enc_JSON(in JSONObject msg) return octetstring
+	with
+	{
+		extension "prototype (convert) encode(JSON)";
+		extension "printing(pretty)";
+		extension "errorbehavior(ALL:ERROR)"
+	}
+
+	external function dec_JSON(in octetstring p_stream) return JSONObject
+	with
+	{
+		extension "prototype (convert) decode(JSON)"
+		extension "errorbehavior(ALL:ERROR)"
+	}
+	type union RESTRequest
+	{
+	  HTTPMessage t_GET_Request,
+	  HTTPMessage t_PUT_Request,
+	  HTTPMessage t_POST_Request,
+	  HTTPMessage t_DELETE_Request
+	}
+
+	type union JSONObject
+	{
+		Memory_response memory_response
+	}
+	with 
+	{
+		variant "JSON : as value"
+	}
+
+	type record Memory_response
+	{
+		integer memoryValueAvailable,
+		integer memoryValueSwapTotal,
+		integer memoryValueSwapUsed
+	}
+	
+}
+with 
+{
+	encode "JSON";
+}
