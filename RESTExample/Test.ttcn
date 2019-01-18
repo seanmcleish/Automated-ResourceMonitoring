@@ -18,7 +18,6 @@ function SendRESTRequest(in template HTTPMessage t_request) runs on HTTP_CT retu
 {
   	map(self:HTTP_PCO, system:HTTP_PCO);
     var Connect_result v_Connect_result;
-    var RESTRequest v_HTTPMessage_request;
     var HTTPMessage  v_HTTPMessage_response;
     template Close t_close := { client_id := omit}
     template Connect t_connect := { hostname := v_hostname, portnumber := v_port, use_ssl := false };
