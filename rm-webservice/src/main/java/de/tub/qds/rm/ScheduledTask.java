@@ -62,6 +62,7 @@ public class ScheduledTask {
 	ProcessValueRepo processValueRepo;
 	@Autowired
 	Environment environment;
+	
 
 	@Scheduled(fixedRate = 5000)
 	public void execute_FIVE_SECONDS() {
@@ -148,7 +149,6 @@ public class ScheduledTask {
 		for (Measurement measurement : measurements) {
 			try {
 				readValues(measurement);
-
 			} catch (UnirestException e) {
 				java.lang.System.out.println("Error reading values: "+ e.getMessage());
 				e.printStackTrace();
@@ -177,23 +177,20 @@ public class ScheduledTask {
 					processJsonWraps.add(new ProcessJsonWrapper(obj.getString("name"), obj.getLong("processID")));
 				}
 			}
-			String localPort = environment.getProperty("local.server.port");
 			for(Process process : processes){
 				List<ProcessJsonWrapper> filtered = processJsonWraps.stream().filter(p -> p.getProcessName().equals(process.getProcessName())).collect(Collectors.toList());
 				if(filtered.size() == 0){
 					continue;
 				}
 				else if(filtered.size() >= 1){
+					process.setProcessPid( filtered.get(0).getProcessId());
+					processRepo.save(process);
 					// Use current instance as first process to update
-					Unirest.put(String.format("http://localhost:%s/process/%d", localPort, process.getProcessId())).field("processPid", filtered.get(0).getProcessId()).asJson();
-					java.lang.System.out.println("Updated process on index " + 0);
+					java.lang.System.out.println("Updated main process (index 0)");
 					// if there are more processes than one, new instances will be added to the database
 					for(int i = 1; i<filtered.size(); i++){
-						Unirest.post(String.format("http://localhost:%s/process", localPort))
-						.field("processName", filtered.get(i).getProcessName())
-						.field("processPid", filtered.get(i).getProcessId())
-						.field("measurementId", measurement.getMeasurementId())
-						.asJson().getBody().getObject().toString();
+						processRepo.save(
+								new Process(filtered.get(i).getProcessName(), filtered.get(i).getProcessId(), measurement));
 						java.lang.System.out.println("Posted process on index " + i + " with pid " + filtered.get(i).getProcessId());
 					}
 				}
@@ -209,7 +206,7 @@ public class ScheduledTask {
 		String remotePort = environment.getProperty("local.server.port");
 		String hardwareUrl = String.format("http://%s:%s/systemInfo/hardware", ip, port);
 		refreshPidsByMeasurement(measurement);
-		String processesPids = processRepo.findByProcessMeasurement(measurement).stream().map(p -> p.getProcessPid().toString()).collect(Collectors.joining(","));
+		String processesPids = processRepo.findByProcessMeasurement(measurement).stream().filter(p -> p.getProcessPid() != null).map(p -> p.getProcessPid().toString()).collect(Collectors.joining(","));
 		String processesUrl = String.format("http://%s:%s/systemInfo/operatingSystem/processes/%s", ip, port, processesPids);
 		String fileStoresUrl = String.format("http://%s:%s/systemInfo/operatingSystem/fileSystem/fileStores", ip, port);
 		

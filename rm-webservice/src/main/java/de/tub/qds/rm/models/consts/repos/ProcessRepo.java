@@ -11,5 +11,6 @@ public interface ProcessRepo extends JpaRepository<Process, Long> {
 	
 	Set<Process> findByProcessMeasurement(Measurement measurement);
 	Set<Process> findByProcessMeasurementAndProcessPidIsNull(Measurement measurement);
+	Set<Process> findByProcessMeasurementAndProcessName(Measurement measurement, String processName);
 
 }
