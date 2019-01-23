@@ -1,6 +1,7 @@
 module rmplugin
 {
     import from HTTPmsg_Types all;
+
 	template HTTPMessage t_GET_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
 		{
 		  request := 
@@ -98,23 +99,398 @@ module rmplugin
 	  HTTPMessage t_POST_Request,
 	  HTTPMessage t_DELETE_Request
 	}
-
+	type record Nullable 
+	{
+	  
+	}
 	type union JSONObject
 	{
-		Memory_response memory_response
+		Baseboard baseboard,
+		Disk disk,
+		FileStore fileStore,
+		Firmware firmware,
+		Hardware hardware,
+		Measurement measurement,
+		Memory memory,
+		Network network,
+		OperatingSystem operatingSystem,
+		Process process,
+		Processor processor,
+		System systemObject,
+		SystemModel systemModel,
+		
+		DiskValue diskValue,
+		record of DiskValue diskValueList,
+		FileStoreValue fileStoreValue,
+		record of FileStoreValue fileStoreValueList,
+		MemoryValue memoryValue,
+		record of MemoryValue memoryValueList,
+		NetworkValue networkValue,
+		record of NetworkValue networkValueList,
+		ProcessValue processValue,
+		record of ProcessValue processValueList,
+		ProcessorValue processorValue,
+		record of ProcessorValue processorValueList,
+		DiskValueWrapperInt diskValueWrappedInt,
+		DiskValueWrapperFloat diskValueWrappedFloat,
+		FileStoreValueWrapperInt fileStoreValueWrappedInt,
+		FileStoreValueWrapperFloat fileStoreValueWrappedFloat,
+		MemoryValueWrapperInt memoryValueWrappedInt,
+		MemoryValueWrapperFloat memoryValueWrappedFloat,
+		NetworkValueWrapperInt networkValueWrappedInt,
+		NetworkValueWrapperFloat networkValueWrappedFloat,
+		ProcessValueWrapperInt processValueWrappedInt,
+		ProcessValueWrapperFloat processValueWrappedFloat,
+		ProcessorValueWrapperInt processorValueWrappedInt,
+		ProcessorValueWrapperFloat processorValueWrappedFloat,
+		Nullable nullable
 	}
 	with 
 	{
 		variant "JSON : as value"
 	}
-
-	type record Memory_response
+	
+	type record Baseboard
 	{
-		integer memoryValueAvailable,
-		integer memoryValueSwapTotal,
-		integer memoryValueSwapUsed
+	  charstring baseboardManufacturer,
+      charstring baseboardModel,
+      charstring baseboardSerialNumber,
+      charstring baseboardVersion
 	}
 	
+	type record Disk
+	{
+	  record of FileStore diskFileStores,
+      charstring diskModel,
+      charstring diskName,
+      charstring diskSerialNumber,
+      integer diskSize
+	}
+	
+	type record Firmware
+	{
+	  charstring firmwareDescription,
+      integer firmwareIdentifier,
+      charstring firmwareManufacturer,
+      charstring firmwareName,
+      charstring firmwareReleaseDate,
+      charstring firmwareVersion
+	}
+	
+	type record FileStore
+	{
+	  charstring fileStoreDescription,
+      charstring fileStoreFsType,
+      charstring fileStoreMountPoint,
+      charstring fileStoreName,
+      integer fileStoreTotalSpace,
+      charstring fileStoreUuid,
+      charstring fileStoreVolume
+	}
+	
+	type record Hardware
+	{
+	  Baseboard hardwareBaseboard,
+      record of Disk hardwareDisks,
+      Firmware hardwareFirmware,
+      integer hardwareId,
+      Memory hardwareMemory,
+      record of Network hardwareNetworks,
+      Processor hardwareProcessor,
+      SystemModel hardwareSystemModel
+	}
+	
+	type record Measurement
+	{
+      charstring measurementEndDate optional,
+      integer measurementId,
+      charstring measurementIp optional,
+      charstring measurementRate optional,
+      charstring measurementRemotePort optional,
+      boolean measurementRunning optional,
+      charstring measurementStartDate optional
+	}
+	
+	type record Memory
+	{
+	  integer memoryTotalSpace
+	}
+	
+	type record Network
+	{
+	  charstring networkDisplayName,
+      charstring networkIpv4,
+      charstring networkIpv6,
+      charstring networkMac,
+      integer networkMtu,
+      charstring networkName,
+      integer networkSpeed
+	}
+	
+	type record OperatingSystem
+	{
+	  charstring operatingSystemBuild,
+      charstring operatingSystemCodeName,
+      charstring operatingSystemFamily,
+      integer operatingSystemId,
+      charstring operatingSystemManufacturer,
+      charstring operatingSystemVersion
+	}
+	
+	type record Process
+	{
+	  integer processId,
+      charstring processName,
+      integer processPid
+	}
+	
+	type record Processor
+	{
+	  boolean processorCpu64bit,
+      charstring  processorFamily,
+      charstring  processorId,
+      integer  processorLogicalProcessorCount,
+      charstring  processorModel,
+      charstring  processorName,
+      integer  processorPhysicalPackageCount,
+      integer  processorPhysicalProcessorCount,
+      charstring  processorStepping,
+      charstring  processorVendor,
+      integer  processorVendorFreq
+	}
+	
+	type record System
+	{
+	  Hardware systemHardware,
+      charstring systemHostName,
+      integer systemIdentifier,
+      OperatingSystem systemOperatingSystem
+	}
+	
+	type record SystemModel
+	{
+	  charstring systemModelManufacturer,
+      charstring systemModelModel,
+      charstring systemModelSerialNumber
+	}
+	
+	
+	
+	/*
+		== VALUE CLASSES ==
+	*/
+
+	type record DiskValue
+	{
+	  DiskValuePK diskValueId,
+      integer diskValueReadBytes,
+      integer diskValueReads,
+      integer diskValueTransferTime,
+      integer diskValueWriteBytes,
+      integer diskValueWrites
+	}
+	
+	type record FileStoreValue
+	{
+  	   FileStoreValuePK fileStoreValueId,
+  	   integer fileStoreValueUsableSpace
+	}
+	
+	type record MemoryValue
+	{
+	  integer memoryValueAvailable,
+      MemoryValuePK memoryValueId,
+      integer memoryValueSwapTotal,
+      integer memoryValueSwapUsed
+	}
+	
+	type record NetworkValue
+	{
+	  integer networkValueBytesRecv,
+      integer networkValueBytesSent,
+      NetworkValuePK networkValueId,
+      integer networkValueInErrors,
+      integer networkValueOutErrors,
+      integer networkValuePacketsRecv,
+      integer networkValuePacketsSent
+	}
+	
+	type record ProcessValue
+	{
+	  integer processValueBytesRead,
+      integer processValueBytesWritten,
+      integer processValueHandles,
+      ProcessValuePK processValueId,
+      integer processValueKernelTime,
+      integer processValuePriority,
+      integer processValueResidentSetSize,
+      integer processValueStartTime,
+      integer processValueThreadCount,
+      integer processValueUpTime,
+      integer processValueUserTime,
+      integer processValueVirtualSize
+	}
+	
+	type record ProcessorValue
+	{
+	  integer processorValueContextSwitches,
+      ProcessorValuePK processorValueId,
+      integer processorValueInterrupts,
+      record of float processorValueProcessorCpuLoadBetweenTicks,
+      record of record of integer processorValueProcessorCpuLoadTicks,
+      float processorValueSystemCpuLoad,
+      float processorValueSystemCpuLoadBetweenTicks,
+      record of integer processorValueSystemCpuLoadTicks,
+      record of integer processorValueSystemLoadAverages,
+      integer processorValueSystemUpTime
+	}
+	
+	/*
+		== VALUE WRAPPER CLASSES ==
+	*/
+
+	type record DiskValueWrapperInt
+	{
+	  integer diskValueReadBytes,
+      integer diskValueReads,
+      integer diskValueTransferTime,
+      integer diskValueWriteBytes,
+      integer diskValueWrites
+	}
+	
+	type record DiskValueWrapperFloat
+	{
+	  float diskValueReadBytes,
+      float diskValueReads,
+      float diskValueTransferTime,
+      float diskValueWriteBytes,
+      float diskValueWrites
+	}
+
+	type record FileStoreValueWrapperInt
+	{
+	  integer fileStoreValueUsableSpace
+	}
+	
+	type record FileStoreValueWrapperFloat
+	{
+	  float fileStoreValueUsableSpace
+	}
+
+	type record MemoryValueWrapperInt
+	{
+	  integer memoryValueAvailable,
+      integer memoryValueSwapTotal,
+      integer memoryValueSwapUsed
+	}
+	type record MemoryValueWrapperFloat
+	{
+	  float memoryValueAvailable,
+      float memoryValueSwapTotal,
+      float memoryValueSwapUsed
+	}
+
+	type record NetworkValueWrapperInt
+	{
+	  integer networkValueBytesRecv,
+      integer networkValueBytesSent,
+      integer networkValueInErrors,
+      integer networkValueOutErrors,
+      integer networkValuePacketsRecv,
+      integer networkValuePacketsSent
+	}
+	
+	type record NetworkValueWrapperFloat
+	{
+	  float networkValueBytesRecv,
+      float networkValueBytesSent,
+      float networkValueInErrors,
+      float networkValueOutErrors,
+      float networkValuePacketsRecv,
+      float networkValuePacketsSent
+	}
+	
+	type record ProcessorValueWrapperInt
+	{
+	  integer processorValueContextSwitches,
+      integer processorValueInterrupts,
+      integer processorValueSystemCpuLoad,
+      integer processorValueSystemCpuLoadBetweenTicks,
+      integer processorValueSystemUpTime
+	}
+	
+	type record ProcessorValueWrapperFloat
+	{
+	  float processorValueContextSwitches,
+      float processorValueInterrupts,
+      float processorValueSystemCpuLoad,
+      float processorValueSystemCpuLoadBetweenTicks,
+      float processorValueSystemUpTime
+	}
+	
+	type record ProcessValueWrapperInt
+	{
+	  integer processValueBytesRead,
+      integer processValueBytesWritten,
+      integer processValueHandles,
+      integer processValueKernelTime,
+      integer processValuePriority,
+      integer processValueResidentSetSize,
+      integer processValueStartTime,
+      integer processValueThreadCount,
+      integer processValueUpTime,
+      integer processValueUserTime,
+      integer processValueVirtualSize
+	}
+	
+	type record ProcessValueWrapperFloat
+	{
+	  float processValueBytesRead,
+      float processValueBytesWritten,
+      float processValueHandles,
+      float processValueKernelTime,
+      float processValuePriority,
+      float processValueResidentSetSize,
+      float processValueStartTime,
+      float processValueThreadCount,
+      float processValueUpTime,
+      float processValueUserTime,
+      float processValueVirtualSize
+	}
+
+	/*
+		== PRIMARY KEY CLASSES ==
+	*/
+	
+	type record MemoryValuePK {
+	  integer memoryValueMeasurementId,
+	  charstring memoryValueTimestamp
+	}
+	
+	type record ProcessValuePK {
+	  integer processorValueMeasurementId,
+	  charstring processorValueTimestamp
+	}
+	
+	type record ProcessorValuePK {
+	  integer processorValueMeasurementId,
+	  charstring processorValueTimestamp
+	}
+	
+	type record NetworkValuePK {
+	  integer networkValueMeasurementId	,
+	  charstring networkValueTimestamp
+	}
+	
+	type record FileStoreValuePK{
+	  integer fileStoreValueMeasurementId,
+	  charstring fileStoreValueTimestamp 
+	}
+	
+	type record DiskValuePK{
+	  integer diskValueMeasurementId,
+	  charstring diskValueTimestamp
+	}
 }
 with 
 {
