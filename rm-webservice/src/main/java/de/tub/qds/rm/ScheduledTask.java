@@ -209,7 +209,7 @@ public class ScheduledTask {
 		String processesPids = processRepo.findByProcessMeasurement(measurement).stream().filter(p -> p.getProcessPid() != null).map(p -> p.getProcessPid().toString()).collect(Collectors.joining(","));
 		String processesUrl = String.format("http://%s:%s/systemInfo/operatingSystem/processes/%s", ip, port, processesPids);
 		String fileStoresUrl = String.format("http://%s:%s/systemInfo/operatingSystem/fileSystem/fileStores", ip, port);
-		
+		java.lang.System.out.println(processesUrl);
 		DocumentContext hardwareContext = JsonPath.parse(Unirest.get(hardwareUrl).asJson().getBody().toString());
 		DocumentContext fileStoresData = JsonPath.parse(Unirest.get(fileStoresUrl).asJson().getBody().toString());
 		DocumentContext processesData = null;
