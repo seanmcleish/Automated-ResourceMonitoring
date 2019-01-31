@@ -7,6 +7,7 @@ type record regressionParameter
   float interceptParameter 	// Niveau
 }
 
+
 type record of float FloatValues;
 type record of integer IntegerValues;
 
@@ -104,15 +105,15 @@ function calculateRegression (in Values values) runs on TestComponent return reg
   return {slope, intercept};
 }
 
-testcase tc_createDataByHostname(in ServiceInstance p_serviceInstance, in charstring p_sensorHostname, in integer p_sensorPortnumber, out JSONObject.measurement result)
+testcase tc_createDataByHostname(in ServiceInstance p_serviceInstance, in charstring p_sensorHostname, in integer p_sensorPortnumber, out JSONObject.Measurement result)
 runs on TestComponent
 {
   var template HTTPMessage post_request := t_POST_Request("/createDataByHostName?hostName="&p_sensorHostname&"&remotePort="&int2str(p_sensorPortnumber));
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
-  if(ischosen(response.measurement))
+  if(ischosen(response.Measurement))
   {
     setverdict(pass);
-    result:=response.measurement;
+    result:=response.Measurement;
   }
   else
   {
@@ -121,17 +122,17 @@ runs on TestComponent
 }
 
 
-testcase tc_getMeasurementSystem(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.systemObject p_result)
+testcase tc_getMeasurementSystem(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.SystemObject p_result)
 runs on TestComponent
 {
   map(self:TestPort, system:TestPort);
   var template HTTPMessage get_request := t_GET_Request( "/measurement/"&int2str(p_measurementId)& "/measurementSystem");
   var JSONObject response := SendRESTRequest(p_serviceInstance, get_request);
-  if(ischosen(response.systemObject))
+  if(ischosen(response.SystemObject))
     	
   {
     setverdict(pass);
-    p_result:=response.systemObject;
+    p_result:=response.SystemObject;
   }
   else
   {
@@ -140,23 +141,21 @@ runs on TestComponent
 }
 
 
-testcase tc_createProcessesWithMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, in charstring p_processName, out JSONObject.processes p_result)
+testcase tc_createProcessesWithMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, in JSONObject.Process p_process, out JSONObject.Processes p_result)
 runs on TestComponent
 {
   map(self:TestPort, system:TestPort);
-  var template HTTPMessage post_request := t_POST_Request( "/process?measurementId="&int2str(p_measurementId)&"&processName="&p_processName);
+  var template HTTPMessage post_request := t_POST_Request( "/process?measurementId="&int2str(p_measurementId)&"&processName="&p_process.processName);
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
-  if(ischosen(response.processes))
+  if(ischosen(response.Processes))
   {
     setverdict(pass);
-    p_result:=response.processes;
+    p_result:=response.Processes;
   }
   else
   {
     setverdict(none);
   }
-  timer t := 10.0;
-  t.start;
 }
 
 testcase tc_memoryUsageLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeLowerBound) 
@@ -180,7 +179,7 @@ runs on TestComponent
   var template HTTPMessage get_request := t_GET_Request( "/process/" &int2str(processId)&"/processValues/" &int2str(measurementId));
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
   setverdict(pass);
-  if(ischosen(result.nullable))
+  if(ischosen(result.Nullable))
   {
     setverdict(none);
     stop;  
@@ -194,6 +193,7 @@ runs on TestComponent
     }
   }
 }
+
 
 function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_processId, out JSONObject p_result) runs on TestComponent
  return boolean 
@@ -240,42 +240,81 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
  	}*/
 	control
     {
+      var JSONObject.Processes processes := {};
+      log(lengthof(processes));
+      
       var ServiceInstance v_serviceInstance := 
       {
         hostname := "localhost",
         portnumber := 8090
       };
+      var SensorInstances v_sensorInstances := {};
+      AddSensor("localhost", 10005, v_sensorInstances);
+      log("Length of sensorinstances "& int2str(lengthof(v_sensorInstances)));
+      //AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer")
+	
+	  //===== CREATE MEASUREMENT FOR EACH SENSOR =====
+      for(var integer i :=0; i<lengthof(v_sensorInstances); i:=i+1)
+      {
+        var JSONObject.Measurement v_measurement;
+        var JSONObject.SystemObject v_measurementSystem;
+        
+        var verdicttype v_createData := execute
+        								(
+        									tc_createDataByHostname
+        									(
+        										v_serviceInstance, 
+        										v_sensorInstances[i].hostname, 
+        										v_sensorInstances[i].portnumber,
+        										v_measurement
+        									)
+        								);
+        if(v_createData==none or v_createData==error)
+        {
+          if(v_createData==none)
+          {
+            log("Creating dataset by hostname failed. Received empty JSON-Response. Check parameters.");
+          }
+          else if(v_createData== error)
+          {
+            log("Received error. Check if webservice is running on the given remote hostname and remote port.");
+          }
+          stop;
+        }
+        v_sensorInstances[i].measurement := v_measurement;
+        v_sensorInstances[i].measurementSystem := v_measurementSystem;
+
+        // ==== CREATE PROCESSES ====
+        /*var JSONObject.Processes v_allProcesses := {};
+        v_sensorInstances[i].measurementProcesses := v_allProcesses;
+        for(var integer j := 0; j<=lengthof(v_sensorInstances[i].measurementProcesses); j := j+1)
+        {
+          var JSONObject.Process v_currentProcess := v_sensorInstances[i].measurementProcesses[j]; 	
+          var JSONObject.Processes v_currentProcesses := {};										
+          execute(tc_createProcessesWithMeasurementId(
+          v_serviceInstance,
+          v_sensorInstances[i].measurement.measurementId, 
+          v_currentProcess, 
+          v_currentProcesses));
+          for(var integer k := 0; k<lengthof(v_currentProcesses); k := k+1)
+          {
+            v_allProcesses[lengthof(v_allProcesses)] := v_currentProcesses[k];
+          }
+        }*/
+      }
+      
       
       //var integer iterations := 0;
       //Processes
       //var JSONObject processValues;
       //var regressionParameter processValues_Regression;
       //var Values.valuesAsInteger processValues_RAM;
-      //Create measurement
-      var JSONObject.measurement v_measurement;
-      //var JSONObject.systemObject measurementSystem;
-      //var JSONObject.processes processes;
       
-      //log(testEncode(example));
-      //execute(tc_tryQuery("http://localhost:8090/process/6/processValues"));
-      //execute(tc_tryQuery("http://localhost:8090/network/d8%3A9e%3Af3%3A4b%3A41%3A02/networkValues"));
-      //execute(tc_tryQuery("http://localhost:8090/memory/16840847360/memoryValues/6"));
-      //execute(tc_connectToSUT("localhost", 8090, v_serviceInstance));
-      //execute(tc_disconnectFromSUT(v_serviceInstance))
-	//=====CREATE MEASUREMENT=====
-      var verdicttype v_createData := execute(tc_createDataByHostname(v_serviceInstance, "localhost", 10005,  v_measurement));
-      if(v_createData==none or v_createData==error)
-      {
-        if(v_createData==none)
-        {
-          log("Creating dataset by hostname failed. Received empty JSON-Response. Check parameters.");
-        }
-        else if(v_createData== error)
-        {
-          log("Received error. Check if webservice is running on the given remote hostname and remote port.");
-        }
-        stop;
-      }
+      //
+      //var JSONObject.processes processes;
+
+	  
+      
       //log("Created measurement: " & int2str(v_measurement.measurementId));
       
       //=====GET MEASUREMENTSYSTEM=====

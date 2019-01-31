@@ -3,11 +3,35 @@ module RESTModul{
 	import from HTTPmsg_PortType all;
 	import from HTTPmsg_Types all;
 	import from JSONModul all;
+	type record of SensorInstance SensorInstances;
 	
 	type record ServiceInstance
     {
       charstring hostname,
       integer portnumber
+    }
+    
+    type record SensorInstance
+    {
+      charstring hostname,
+      integer portnumber,
+      JSONObject.Measurement measurement,
+      JSONObject.SystemObject measurementSystem,
+      JSONObject.Processes measurementProcesses
+    }
+    
+    function AddSensor(in charstring p_hostname, in integer p_portnumber, inout SensorInstances p_sensorInstances)
+    {
+      p_sensorInstances[lengthof(p_sensorInstances)] := {hostname := p_hostname, portnumber := p_portnumber};
+    }
+    function AddProcessToSensor(in SensorInstance p_sensor, in charstring p_processname )
+    {
+      /*p_sensor.measurementProcesses[lengthof(p_sensor.measurementProcesses)] := 
+      {
+      processId := omit, 
+      processName := p_processname, 
+      processPid := omit
+      };*/
     }
 	
 	type component TestComponent 
@@ -82,8 +106,9 @@ module RESTModul{
       
       // ==== CONNECTION-PART (ESTABLISH SOCKETCONNECTION) ====
       var Connect_result v_Connect_result;
+      log("Connectin")
 	  template Connect t_connect := { hostname := p_serviceInstance.hostname, portnumber := p_serviceInstance.portnumber, use_ssl := false };
-	  timer t0:=5.0;    
+	  timer t0:=10.0;    
       TestPort.send(t_connect) ;
       t0.start;
       alt 
@@ -105,7 +130,7 @@ module RESTModul{
   		header_name := "Host", 
   		header_value := p_serviceInstance.hostname & ":" & int2str(p_serviceInstance.portnumber)
 	  }
-      timer t1 := 5.0;
+      timer t1 := 20.0;
       t1.start;
       TestPort.send(t_request)
       alt 

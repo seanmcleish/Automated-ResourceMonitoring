@@ -19,36 +19,36 @@ module JSONModul {
 	{
 	  	// === SINGLE OBJECTS ===
 	  	
-	  	Nullable nullable,
-	  	Baseboard baseboard,
-	  	Disk disk,
-	  	FileStore fileStore,
-	  	Firmware firmware,
-	  	Hardware hardware,
-	  	Measurement measurement,
-	  	Memory memory,
-	  	Network network,
-	  	OperatingSystem operatingSystem,
-	  	Process process,
-	  	Processor processor,
-	  	SystemModel systemModel,
-	  	System systemObject,
+	  	Nullable Nullable,
+	  	Baseboard Baseboard,
+	  	Disk Disk,
+	  	FileStore FileStore,
+	  	Firmware Firmware,
+	  	Hardware Hardware,
+	  	Measurement Measurement,
+	  	Memory Memory,
+	  	Network Network,
+	  	OperatingSystem OperatingSystem,
+	  	Process Process,
+	  	Processor Processor,
+	  	SystemModel SystemModel,
+	  	System SystemObject,
 	  	
 	  	// === LISTS OF OBJECTS ===
 	  	
-	  	record of Baseboard baseboards,
-		record of Disk disks,
-		record of FileStore fileStores,
-		record of Firmware firmwares,
-		record of Hardware hardwares,
-		record of Measurement measurements,
-		record of Memory memories,
-		record of Network networks,
-		record of OperatingSystem operatingSystems,
-		record of Process processes,
-		record of Processor processors,
-		record of System systemObjects,
-		record of SystemModel systemModels,
+	  	record of Baseboard Baseboards,
+		record of Disk Disks,
+		record of FileStore FileStores,
+		record of Firmware Firmwares,
+		record of Hardware Hardwares,
+		record of Measurement Measurements,
+		record of Memory Memories,
+		record of Network Networks,
+		record of OperatingSystem OperatingSystems,
+		record of Process Processes,
+		record of Processor Processors,
+		record of System SystemObjects,
+		record of SystemModel SystemModels,
 		
 		// === SINGLE VALUES ===
 		
@@ -95,58 +95,58 @@ module JSONModul {
 	
 	type record Baseboard
 	{
-	  charstring baseboardManufacturer,
-      charstring baseboardModel,
-      charstring baseboardSerialNumber,
-      charstring baseboardVersion
+	  charstring baseboardManufacturer optional,
+      charstring baseboardModel optional,
+      charstring baseboardSerialNumber optional,
+      charstring baseboardVersion optional
 	}
 	
 	type record Disk
 	{
-	  record of FileStore diskFileStores,
-      charstring diskModel,
-      charstring diskName,
-      charstring diskSerialNumber,
-      integer diskSize
+	  record of FileStore diskFileStores optional,
+      charstring diskModel optional,
+      charstring diskName optional,
+      charstring diskSerialNumber optional,
+      integer diskSize optional
 	}
 	
 	type record Firmware
 	{
-	  charstring firmwareDescription,
-      integer firmwareIdentifier,
-      charstring firmwareManufacturer,
-      charstring firmwareName,
-      charstring firmwareReleaseDate,
-      charstring firmwareVersion
+	  charstring firmwareDescription optional,
+      integer firmwareIdentifier optional,
+      charstring firmwareManufacturer optional,
+      charstring firmwareName optional,
+      charstring firmwareReleaseDate optional,
+      charstring firmwareVersion optional
 	}
 	
 	type record FileStore
 	{
-	  charstring fileStoreDescription,
-      charstring fileStoreFsType,
-      charstring fileStoreMountPoint,
-      charstring fileStoreName,
-      integer fileStoreTotalSpace,
-      charstring fileStoreUuid,
-      charstring fileStoreVolume
+	  charstring fileStoreDescription optional,
+      charstring fileStoreFsType optional,
+      charstring fileStoreMountPoint optional,
+      charstring fileStoreName optional,
+      integer fileStoreTotalSpace optional,
+      charstring fileStoreUuid optional,
+      charstring fileStoreVolume optional
 	}
 	
 	type record Hardware
 	{
-	  Baseboard hardwareBaseboard,
-      record of Disk hardwareDisks,
-      Firmware hardwareFirmware,
-      integer hardwareId,
-      Memory hardwareMemory,
-      record of Network hardwareNetworks,
-      Processor hardwareProcessor,
-      SystemModel hardwareSystemModel
+	  Baseboard hardwareBaseboard optional,
+      record of Disk hardwareDisks optional,
+      Firmware hardwareFirmware optional,
+      integer hardwareId optional,
+      Memory hardwareMemory optional,
+      record of Network hardwareNetworks optional,
+      Processor hardwareProcessor optional,
+      SystemModel hardwareSystemModel optional
 	}
 	
 	type record Measurement
 	{
       charstring measurementEndDate optional,
-      integer measurementId,
+      integer measurementId optional,
       charstring measurementIp optional,
       charstring measurementRate optional,
       charstring measurementRemotePort optional,
@@ -156,65 +156,65 @@ module JSONModul {
 	
 	type record Memory
 	{
-	  integer memoryTotalSpace
+	  integer memoryTotalSpace optional
 	}
 	
 	type record Network
 	{
-	  charstring networkDisplayName,
-      charstring networkIpv4,
-      charstring networkIpv6,
-      charstring networkMac,
-      integer networkMtu,
-      charstring networkName,
-      integer networkSpeed
+	  charstring networkDisplayName optional,
+      charstring networkIpv4 optional,
+      charstring networkIpv6 optional,
+      charstring networkMac optional,
+      integer networkMtu optional,
+      charstring networkName optional,
+      integer networkSpeed optional
 	}
 	
 	type record OperatingSystem
 	{
-	  charstring operatingSystemBuild,
-      charstring operatingSystemCodeName,
-      charstring operatingSystemFamily,
-      integer operatingSystemId,
-      charstring operatingSystemManufacturer,
-      charstring operatingSystemVersion
+	  charstring operatingSystemBuild optional,
+      charstring operatingSystemCodeName optional,
+      charstring operatingSystemFamily optional,
+      integer operatingSystemId optional,
+      charstring operatingSystemManufacturer optional,
+      charstring operatingSystemVersion optional
 	}
 	
 	type record Process
 	{
-	  integer processId,
-      charstring processName,
+	  integer processId optional,
+      charstring processName optional,
       integer processPid optional
 	}
 	
 	type record Processor
 	{
-	  boolean processorCpu64bit,
-      charstring  processorFamily,
-      charstring  processorId,
-      integer  processorLogicalProcessorCount,
-      charstring  processorModel,
-      charstring  processorName,
-      integer  processorPhysicalPackageCount,
-      integer  processorPhysicalProcessorCount,
-      charstring  processorStepping,
-      charstring  processorVendor,
-      integer  processorVendorFreq
+	  boolean processorCpu64bit optional,
+      charstring  processorFamily optional,
+      charstring  processorId optional,
+      integer  processorLogicalProcessorCount optional,
+      charstring  processorModel optional,
+      charstring  processorName optional,
+      integer  processorPhysicalPackageCount optional,
+      integer  processorPhysicalProcessorCount optional,
+      charstring  processorStepping optional,
+      charstring  processorVendor optional,
+      integer  processorVendorFreq optional
 	}
 	
 	type record System
 	{
 	  Hardware systemHardware optional,
       charstring systemHostName optional,
-      integer systemIdentifier,
+      integer systemIdentifier optional,
       OperatingSystem systemOperatingSystem optional
 	}
 	
 	type record SystemModel
 	{
-	  charstring systemModelManufacturer,
-      charstring systemModelModel,
-      charstring systemModelSerialNumber
+	  charstring systemModelManufacturer optional,
+      charstring systemModelModel optional,
+      charstring systemModelSerialNumber optional
 	}
 	
 	
@@ -225,67 +225,67 @@ module JSONModul {
 
 	type record DiskValue
 	{
-	  DiskValuePK diskValueId,
-      integer diskValueReadBytes,
-      integer diskValueReads,
-      integer diskValueTransferTime,
-      integer diskValueWriteBytes,
-      integer diskValueWrites
+	  DiskValuePK diskValueId optional,
+      integer diskValueReadBytes optional,
+      integer diskValueReads optional,
+      integer diskValueTransferTime optional,
+      integer diskValueWriteBytes optional,
+      integer diskValueWrites optional
 	}
 	
 	type record FileStoreValue
 	{
-  	   FileStoreValuePK fileStoreValueId,
-  	   integer fileStoreValueUsableSpace
+  	   FileStoreValuePK fileStoreValueId optional,
+  	   integer fileStoreValueUsableSpace optional
 	}
 	
 	type record MemoryValue
 	{
-	  integer memoryValueAvailable,
-      MemoryValuePK memoryValueId,
-      integer memoryValueSwapTotal,
-      integer memoryValueSwapUsed
+	  integer memoryValueAvailable optional,
+      MemoryValuePK memoryValueId optional,
+      integer memoryValueSwapTotal optional,
+      integer memoryValueSwapUsed optional
 	}
 	
 	type record NetworkValue
 	{
-	  integer networkValueBytesRecv,
-      integer networkValueBytesSent,
-      NetworkValuePK networkValueId,
-      integer networkValueInErrors,
-      integer networkValueOutErrors,
-      integer networkValuePacketsRecv,
-      integer networkValuePacketsSent
+	  integer networkValueBytesRecv optional,
+      integer networkValueBytesSent optional,
+      NetworkValuePK networkValueId optional,
+      integer networkValueInErrors optional,
+      integer networkValueOutErrors optional,
+      integer networkValuePacketsRecv optional,
+      integer networkValuePacketsSent optional
 	}
 		
 	type record ProcessValue
 	{
-	  integer processValueThreadCount,
-	  ProcessValuePK processValueId,
-	  integer processValuePriority,
-	  integer processValueVirtualSize,
-	  integer processValueResidentSetSize,
-	  integer processValueKernelTime,
-	  integer processValueUserTime,
-	  integer processValueUpTime,
-	  integer processValueStartTime,
-	  integer processValueBytesRead,
-      integer processValueBytesWritten,
-      integer processValueHandles      
+	  integer processValueThreadCount optional,
+	  ProcessValuePK processValueId optional,
+	  integer processValuePriority optional,
+	  integer processValueVirtualSize optional,
+	  integer processValueResidentSetSize optional,
+	  integer processValueKernelTime optional,
+	  integer processValueUserTime optional,
+	  integer processValueUpTime optional,
+	  integer processValueStartTime optional,
+	  integer processValueBytesRead optional,
+      integer processValueBytesWritten optional,
+      integer processValueHandles optional   
 	}
 	
 	type record ProcessorValue
 	{
-	  integer processorValueContextSwitches,
-      ProcessorValuePK processorValueId,
-      integer processorValueInterrupts,
-      record of float processorValueProcessorCpuLoadBetweenTicks,
-      record of record of integer processorValueProcessorCpuLoadTicks,
-      float processorValueSystemCpuLoad,
-      float processorValueSystemCpuLoadBetweenTicks,
-      record of integer processorValueSystemCpuLoadTicks,
-      record of integer processorValueSystemLoadAverages,
-      integer processorValueSystemUpTime
+	  integer processorValueContextSwitches optional,
+      ProcessorValuePK processorValueId optional,
+      integer processorValueInterrupts optional,
+      record of float processorValueProcessorCpuLoadBetweenTicks optional,
+      record of record of integer processorValueProcessorCpuLoadTicks optional,
+      float processorValueSystemCpuLoad optional,
+      float processorValueSystemCpuLoadBetweenTicks optional,
+      record of integer processorValueSystemCpuLoadTicks optional,
+      record of integer processorValueSystemLoadAverages optional,
+      integer processorValueSystemUpTime optional
 	}
 	
 	/*
@@ -294,111 +294,111 @@ module JSONModul {
 
 	type record DiskValueWrapperInt
 	{
-	  integer diskValueReadBytes,
-      integer diskValueReads,
-      integer diskValueTransferTime,
-      integer diskValueWriteBytes,
-      integer diskValueWrites
+	  integer diskValueReadBytes optional,
+      integer diskValueReads optional,
+      integer diskValueTransferTime optional,
+      integer diskValueWriteBytes optional,
+      integer diskValueWrites optional
 	}
 	
 	type record DiskValueWrapperFloat
 	{
-	  float diskValueReadBytes,
-      float diskValueReads,
-      float diskValueTransferTime,
-      float diskValueWriteBytes,
-      float diskValueWrites
+	  float diskValueReadBytes optional,
+      float diskValueReads optional,
+      float diskValueTransferTime optional,
+      float diskValueWriteBytes optional,
+      float diskValueWrites optional
 	}
 
 	type record FileStoreValueWrapperInt
 	{
-	  integer fileStoreValueUsableSpace
+	  integer fileStoreValueUsableSpace optional
 	}
 	
 	type record FileStoreValueWrapperFloat
 	{
-	  float fileStoreValueUsableSpace
+	  float fileStoreValueUsableSpace optional
 	}
 
 	type record MemoryValueWrapperInt
 	{
-	  integer memoryValueAvailable,
-      integer memoryValueSwapTotal,
-      integer memoryValueSwapUsed
+	  integer memoryValueAvailable optional,
+      integer memoryValueSwapTotal optional,
+      integer memoryValueSwapUsed optional
 	}
 	type record MemoryValueWrapperFloat
 	{
-	  float memoryValueAvailable,
-      float memoryValueSwapTotal,
-      float memoryValueSwapUsed
+	  float memoryValueAvailable optional,
+      float memoryValueSwapTotal optional,
+      float memoryValueSwapUsed optional
 	}
 
 	type record NetworkValueWrapperInt
 	{
-	  integer networkValueBytesRecv,
-      integer networkValueBytesSent,
-      integer networkValueInErrors,
-      integer networkValueOutErrors,
-      integer networkValuePacketsRecv,
-      integer networkValuePacketsSent
+	  integer networkValueBytesRecv optional,
+      integer networkValueBytesSent optional,
+      integer networkValueInErrors optional,
+      integer networkValueOutErrors optional,
+      integer networkValuePacketsRecv optional,
+      integer networkValuePacketsSent optional
 	}
 	
 	type record NetworkValueWrapperFloat
 	{
-	  float networkValueBytesRecv,
-      float networkValueBytesSent,
-      float networkValueInErrors,
-      float networkValueOutErrors,
-      float networkValuePacketsRecv,
-      float networkValuePacketsSent
+	  float networkValueBytesRecv optional,
+      float networkValueBytesSent optional,
+      float networkValueInErrors optional,
+      float networkValueOutErrors optional,
+      float networkValuePacketsRecv optional,
+      float networkValuePacketsSent optional
 	}
 	
 	type record ProcessorValueWrapperInt
 	{
-	  integer processorValueContextSwitches,
-      integer processorValueInterrupts,
-      integer processorValueSystemCpuLoad,
-      integer processorValueSystemCpuLoadBetweenTicks,
-      integer processorValueSystemUpTime
+	  integer processorValueContextSwitches optional,
+      integer processorValueInterrupts optional,
+      integer processorValueSystemCpuLoad optional,
+      integer processorValueSystemCpuLoadBetweenTicks optional,
+      integer processorValueSystemUpTime optional
 	}
 	
 	type record ProcessorValueWrapperFloat
 	{
-	  float processorValueContextSwitches,
-      float processorValueInterrupts,
-      float processorValueSystemCpuLoad,
-      float processorValueSystemCpuLoadBetweenTicks,
-      float processorValueSystemUpTime
+	  float processorValueContextSwitches optional,
+      float processorValueInterrupts optional,
+      float processorValueSystemCpuLoad optional,
+      float processorValueSystemCpuLoadBetweenTicks optional,
+      float processorValueSystemUpTime optional
 	}
 	
 	type record ProcessValueWrapperInt
 	{
-	  integer processValueBytesRead,
-      integer processValueBytesWritten,
-      integer processValueHandles,
-      integer processValueKernelTime,
-      integer processValuePriority,
-      integer processValueResidentSetSize,
-      integer processValueStartTime,
-      integer processValueThreadCount,
-      integer processValueUpTime,
-      integer processValueUserTime,
-      integer processValueVirtualSize
+	  integer processValueBytesRead optional,
+      integer processValueBytesWritten optional,
+      integer processValueHandles optional,
+      integer processValueKernelTime optional,
+      integer processValuePriority optional,
+      integer processValueResidentSetSize optional,
+      integer processValueStartTime optional,
+      integer processValueThreadCount optional,
+      integer processValueUpTime optional,
+      integer processValueUserTime optional,
+      integer processValueVirtualSize optional
 	}
 	
 	type record ProcessValueWrapperFloat
 	{
-	  float processValueBytesRead,
-      float processValueBytesWritten,
-      float processValueHandles,
-      float processValueKernelTime,
-      float processValuePriority,
-      float processValueResidentSetSize,
-      float processValueStartTime,
-      float processValueThreadCount,
-      float processValueUpTime,
-      float processValueUserTime,
-      float processValueVirtualSize
+	  float processValueBytesRead optional,
+      float processValueBytesWritten optional,
+      float processValueHandles optional,
+      float processValueKernelTime optional,
+      float processValuePriority optional,
+      float processValueResidentSetSize optional,
+      float processValueStartTime optional,
+      float processValueThreadCount optional,
+      float processValueUpTime optional,
+      float processValueUserTime optional,
+      float processValueVirtualSize optional
 	}
 
 	/*
@@ -406,33 +406,33 @@ module JSONModul {
 	*/
 	
 	type record MemoryValuePK {
-	  integer memoryValueMeasurementId,
-	  charstring memoryValueTimestamp
+	  integer memoryValueMeasurementId optional,
+	  charstring memoryValueTimestamp optional
 	}
 	
 	type record ProcessValuePK {
-	  integer processValueMeasurementId,
-	  charstring processValueTimestamp
+	  integer processValueMeasurementId optional,
+	  charstring processValueTimestamp optional
 	}
 	
 	type record ProcessorValuePK {
-	  integer processorValueMeasurementId,
-	  charstring processorValueTimestamp
+	  integer processorValueMeasurementId optional,
+	  charstring processorValueTimestamp optional
 	}
 	
 	type record NetworkValuePK {
-	  integer networkValueMeasurementId,
-	  charstring networkValueTimestamp
+	  integer networkValueMeasurementId optional,
+	  charstring networkValueTimestamp optional
 	}
 	
 	type record FileStoreValuePK{
-	  integer fileStoreValueMeasurementId,
-	  charstring fileStoreValueTimestamp 
+	  integer fileStoreValueMeasurementId optional,
+	  charstring fileStoreValueTimestamp  optional
 	}
 	
 	type record DiskValuePK{
-	  integer diskValueMeasurementId,
-	  charstring diskValueTimestamp
+	  integer diskValueMeasurementId optional,
+	  charstring diskValueTimestamp optional
 	}
 }
 with 

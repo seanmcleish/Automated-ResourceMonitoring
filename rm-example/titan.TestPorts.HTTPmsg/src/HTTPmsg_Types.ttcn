@@ -20,10 +20,14 @@
 
 
 module HTTPmsg_Types {
+modulepar {	
+  boolean tsp_socket_debugging := false;	
+  strict_crlf_mode crlf_mode:=WARNING_ONCE;	
+}
 
 
 external function enc_HTTPMessage( in HTTPMessage msg) return octetstring;
-external function dec_HTTPMessage( in octetstring stream, inout HTTPMessage msg, in boolean socket_debugging := false) return integer;
+external function dec_HTTPMessage( in octetstring stream, inout HTTPMessage msg, in boolean socket_debugging := tsp_socket_debugging) return integer;
 
 
 type enumerated strict_crlf_mode {ERROR, WARNING, WARNING_ONCE, ACCEPT};
