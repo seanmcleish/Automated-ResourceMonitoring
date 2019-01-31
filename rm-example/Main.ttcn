@@ -1,0 +1,318 @@
+module Main {
+
+
+type record regressionParameter
+{
+  float slopeParameter,		// Steigung
+  float interceptParameter 	// Niveau
+}
+
+type record of float FloatValues;
+type record of integer IntegerValues;
+
+type union Values
+{
+  FloatValues valuesAsFloat,
+  IntegerValues valuesAsInteger
+}
+
+import from HTTPmsg_Types all;
+
+import from RESTModul all;
+import from JSONModul all;
+
+function ContentLength (in charstring par_body) return charstring
+{
+  var charstring a:=int2str(lengthof (par_body))
+  return a;
+}
+
+function calculateRegression (in Values values) runs on TestComponent return regressionParameter
+{
+  var float slope:=0.0;				// Steigung
+  var float intercept:=0.0;			// Niveau
+  var float averageCounter := 0.0;
+  var float averageValue := 0.0;
+  if(ischosen(values.valuesAsFloat))
+  {
+    if(lengthof(values.valuesAsFloat)<1)
+    {
+      slope := not_a_number;
+      intercept := not_a_number;
+    }
+    else
+    {
+      for(var integer i := 0; i<lengthof(values.valuesAsFloat); i := i+1)
+      {
+        averageCounter := averageCounter + int2float(i);
+        averageValue := averageValue + values.valuesAsFloat[i];
+      }
+      averageCounter := averageCounter / int2float(lengthof(values.valuesAsFloat));
+      averageValue := averageValue / int2float(lengthof(values.valuesAsFloat));
+      var float slope1 := 0.0;
+      var float slope2 := 0.0;
+      for(var integer i := 0; i<lengthof(values.valuesAsFloat); i := i+1)
+      {
+        slope1 := slope1 + (int2float(i)-averageCounter)*(values.valuesAsFloat[i]-averageValue);
+        slope2 := slope2 + (int2float(i)-averageCounter)*(int2float(i)-averageCounter);
+      }
+      slope := slope1/slope2;
+      intercept := averageValue-slope*averageCounter;
+      }
+
+  }
+  else if(ischosen(values.valuesAsInteger))
+  {
+    if(lengthof(values.valuesAsInteger)<1)
+    {
+      slope := not_a_number;
+      intercept := not_a_number;
+    }
+    else
+    {
+      for(var integer i := 0; i<lengthof(values.valuesAsInteger); i := i+1)
+      {
+        averageCounter := averageCounter + int2float(i);
+        averageValue := averageValue + int2float(values.valuesAsInteger[i]);
+      }
+      averageCounter := averageCounter / int2float(lengthof(values.valuesAsInteger));
+      averageValue := averageValue / int2float(lengthof(values.valuesAsInteger));
+      var float slope1 := 0.0;
+      var float slope2 := 0.0;
+      for(var integer i := 0; i<lengthof(values.valuesAsInteger); i := i+1)
+      {
+        slope1 := slope1 + (int2float(i)-averageCounter)*(int2float(values.valuesAsInteger[i])-averageValue);
+        slope2 := slope2 + (int2float(i)-averageCounter)*(int2float(i)-averageCounter);
+      }
+      slope := slope1;
+      if(slope2==0.0)
+      {
+        slope := 0.0;
+      }
+      else
+      {
+        slope := slope1/slope2;
+      }
+      intercept := averageValue-slope*averageCounter;
+    }
+  }
+  else
+  {
+    slope := not_a_number;
+    intercept := not_a_number;
+  }
+  return {slope, intercept};
+}
+
+testcase tc_createDataByHostname(in ServiceInstance p_serviceInstance, in charstring p_sensorHostname, in integer p_sensorPortnumber, out JSONObject.measurement result)
+runs on TestComponent
+{
+  var template HTTPMessage post_request := t_POST_Request("/createDataByHostName?hostName="&p_sensorHostname&"&remotePort="&int2str(p_sensorPortnumber));
+  var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+  if(ischosen(response.measurement))
+  {
+    setverdict(pass);
+    result:=response.measurement;
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
+
+testcase tc_getMeasurementSystem(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.systemObject p_result)
+runs on TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  var template HTTPMessage get_request := t_GET_Request( "/measurement/"&int2str(p_measurementId)& "/measurementSystem");
+  var JSONObject response := SendRESTRequest(p_serviceInstance, get_request);
+  if(ischosen(response.systemObject))
+    	
+  {
+    setverdict(pass);
+    p_result:=response.systemObject;
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
+
+testcase tc_createProcessesWithMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, in charstring p_processName, out JSONObject.processes p_result)
+runs on TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  var template HTTPMessage post_request := t_POST_Request( "/process?measurementId="&int2str(p_measurementId)&"&processName="&p_processName);
+  var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+  if(ischosen(response.processes))
+  {
+    setverdict(pass);
+    p_result:=response.processes;
+  }
+  else
+  {
+    setverdict(none);
+  }
+  timer t := 10.0;
+  t.start;
+}
+
+testcase tc_memoryUsageLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeLowerBound) 
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/memory/"&int2str(p_memoryTotalSpace)&"/memoryValues/"&int2str(p_measurementId));
+  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  setverdict(pass);
+  for(var integer i := 0; i < lengthof(result.memoryValues); i := i+1)
+  {
+    if((int2float(result.memoryValues[i].memoryValueAvailable)/int2float(p_memoryTotalSpace)) < p_relativeLowerBound)
+    {
+      setverdict(fail);
+    }
+  }
+}
+
+testcase tc_processMemoryUsageGreaterThan(in ServiceInstance p_serviceInstance, in integer measurementId, in integer memoryTotalSpace, in integer processId, in float relativeUpperBound)
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/process/" &int2str(processId)&"/processValues/" &int2str(measurementId));
+  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  setverdict(pass);
+  if(ischosen(result.nullable))
+  {
+    setverdict(none);
+    stop;  
+  }
+  for(var integer i := 0; i<lengthof(result.processorValues); i := i+1)
+  {
+    if((int2float(result.processValues[i].processValueResidentSetSize)/int2float(memoryTotalSpace)) > relativeUpperBound)
+    {
+      setverdict(fail);
+      stop;
+    }
+  }
+}
+
+function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_processId, out JSONObject p_result) runs on TestComponent
+ return boolean 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/process/" &int2str(p_processId)&"/processValues/" &int2str(p_measurementId));
+  p_result := SendRESTRequest(p_serviceInstance,get_request);
+  log(ischosen(p_result.processValues));
+  if(ischosen(p_result.processValues))
+  {
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+ /*testcase tc_connectToSUT(in charstring p_hostname, in integer p_portnumber, out ServiceInstance p_serviceInstance)
+ 	runs on TestComponent
+ 	system TestComponent
+ 	{
+ 	  map(self:TestPort, system:TestPort);
+ 	  if(ConnectToHost(p_serviceInstance, p_hostname, p_portnumber))
+ 	  {
+ 	    setverdict(pass);
+ 	  }
+ 	  else
+ 	  {
+ 	    setverdict(fail);
+ 	  }
+ 	}
+  testcase tc_disconnectFromSUT(out ServiceInstance p_serviceInstance)
+ 	runs on TestComponent
+ 	system TestComponent
+ 	{
+ 	
+ 	  if(DisconnectFromHost(p_serviceInstance))
+ 	  {
+ 	    setverdict(pass);
+ 	  }
+ 	  else
+ 	  {
+ 	    setverdict(fail);
+ 	  }
+ 	}*/
+	control
+    {
+      var ServiceInstance v_serviceInstance := 
+      {
+        hostname := "localhost",
+        portnumber := 8090
+      };
+      
+      //var integer iterations := 0;
+      //Processes
+      //var JSONObject processValues;
+      //var regressionParameter processValues_Regression;
+      //var Values.valuesAsInteger processValues_RAM;
+      //Create measurement
+      var JSONObject.measurement v_measurement;
+      //var JSONObject.systemObject measurementSystem;
+      //var JSONObject.processes processes;
+      
+      //log(testEncode(example));
+      //execute(tc_tryQuery("http://localhost:8090/process/6/processValues"));
+      //execute(tc_tryQuery("http://localhost:8090/network/d8%3A9e%3Af3%3A4b%3A41%3A02/networkValues"));
+      //execute(tc_tryQuery("http://localhost:8090/memory/16840847360/memoryValues/6"));
+      //execute(tc_connectToSUT("localhost", 8090, v_serviceInstance));
+      //execute(tc_disconnectFromSUT(v_serviceInstance))
+	//=====CREATE MEASUREMENT=====
+      var verdicttype v_createData := execute(tc_createDataByHostname(v_serviceInstance, "localhost", 10005,  v_measurement));
+      if(v_createData==none or v_createData==error)
+      {
+        if(v_createData==none)
+        {
+          log("Creating dataset by hostname failed. Received empty JSON-Response. Check parameters.");
+        }
+        else if(v_createData== error)
+        {
+          log("Received error. Check if webservice is running on the given remote hostname and remote port.");
+        }
+        stop;
+      }
+      //log("Created measurement: " & int2str(v_measurement.measurementId));
+      
+      //=====GET MEASUREMENTSYSTEM=====
+      //execute(tc_getMeasurementSystem(measurementSystem, measurement.measurementId));
+      
+      //=====CREATE PROCESSES====
+      //execute(tc_createProcessesWithMeasurementId(processes, measurement.measurementId, "HMSAP.LaytecViewer"));
+      //=====EXECUTE TESTCASES=====
+      //label startTestcases;
+      
+      //=====PROCESS RAM REGRESSION PARAMETER=====
+      //TestComponent.start(getProcessDataByPid(measurement.measurementId, processes[0].processId, processValues));
+      /*if()
+      {
+        for(var integer i := 0; i<lengthof(processValues.processValueList); i := i+1)
+        {
+          processValues_RAM[i] := processValues.processValueList[i].processValueResidentSetSize;
+        }
+        processValues_Regression := calculateRegression( {valuesAsInteger := processValues_RAM} );
+        log("Intercept Parameter: " & float2str(processValues_Regression.interceptParameter));
+        log("Slope Parameter: " & float2str(processValues_Regression.slopeParameter));
+      }*/
+      
+      //=====MEMORY USAGE====tc_=
+      /*execute(
+      	tc_memoryUsageLowerThan(
+      		measurement.measurementId, 
+      		measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace, 
+      		0.20
+    	)
+      );*/
+	  
+      
+      //Increased iterationscounter and repeat testcases until manually stopped
+      //iterations:=iterations+1;
+
+      //goto startTestcases;
+    }
+}
+

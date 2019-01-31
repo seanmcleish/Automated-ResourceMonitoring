@@ -1,88 +1,12 @@
-module rmplugin
-{
-    import from HTTPmsg_Types all;
+module JSONModul {
 
-	template HTTPMessage t_GET_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
-		{
-		  request := 
-			{ 
-			client_id := omit, 
-			method := "GET", 
-			uri := p_path, 
-			version_major := 1, 
-			version_minor := 1, 
-			header := 
-			{
-				{ 
-					header_name := "Host", 
-					header_value := p_hostname
-				}
-			}, 
-			body := ""
-			}
-		}
-	template HTTPMessage t_PUT_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
-		{
-		  request := 
-			{ 
-			client_id := omit, 
-			method := "PUT", 
-			uri := p_path, 
-			version_major := 1, 
-			version_minor := 1, 
-			header := 
-			{
-				{ 
-					header_name := "Host", 
-					header_value := p_hostname
-				}
-			}, 
-			body := p_body
-			}
-		}
-	template HTTPMessage t_POST_Request(charstring p_path, charstring p_hostname, charstring p_body := "") := 
-		{
-		  request := 
-			{ 
-			client_id := omit, 
-			method := "POST", 
-			uri := p_path, 
-			version_major := 1, 
-			version_minor := 1, 
-			header := 
-			{
-				{ 
-					header_name := "Host", 
-					header_value := p_hostname
-				}
-			}, 
-			body := p_body
-			}
-		}
-	template HTTPMessage t_DELETE_Request(in charstring p_path, in charstring p_hostname, in charstring p_body := "") := 
-		{
-		  request := 
-			{ 
-			client_id := omit, 
-			method := "DELETE", 
-			uri := p_path, 
-			version_major := 1, 
-			version_minor := 1, 
-			header := 
-			{
-				{ 
-					header_name := "Host", 
-					header_value := p_hostname
-				}
-			}, 
-			body := p_body
-			}
-		}
+	type integer long(-infinity .. infinity);
+
 	external function enc_JSON(in JSONObject msg) return octetstring
 	with
 	{
 		extension "prototype (convert) encode(JSON)";
-		extension "printing(pretty)";
+		extension "printing(compact)";
 		extension "errorbehavior(ALL:ERROR)"
 	}
 
@@ -92,45 +16,62 @@ module rmplugin
 		extension "prototype (convert) decode(JSON)"
 		extension "errorbehavior(ALL:ERROR)"
 	}
-	type union RESTRequest
-	{
-	  HTTPMessage t_GET_Request,
-	  HTTPMessage t_PUT_Request,
-	  HTTPMessage t_POST_Request,
-	  HTTPMessage t_DELETE_Request
-	}
-	type record Nullable 
-	{
-	  
-	}
+	
 	type union JSONObject
 	{
-		Baseboard baseboard,
-		Disk disk,
-		FileStore fileStore,
-		Firmware firmware,
-		Hardware hardware,
-		Measurement measurement,
-		Memory memory,
-		Network network,
-		OperatingSystem operatingSystem,
-		Process process,
-		Processor processor,
-		System systemObject,
-		SystemModel systemModel,
+	  	// === SINGLE OBJECTS ===
+	  	
+	  	Nullable nullable,
+	  	Baseboard baseboard,
+	  	Disk disk,
+	  	FileStore fileStore,
+	  	Firmware firmware,
+	  	Hardware hardware,
+	  	Measurement measurement,
+	  	Memory memory,
+	  	Network network,
+	  	OperatingSystem operatingSystem,
+	  	Process process,
+	  	Processor processor,
+	  	SystemModel systemModel,
+	  	System systemObject,
+	  	
+	  	// === LISTS OF OBJECTS ===
+	  	
+	  	record of Baseboard baseboards,
+		record of Disk disks,
+		record of FileStore fileStores,
+		record of Firmware firmwares,
+		record of Hardware hardwares,
+		record of Measurement measurements,
+		record of Memory memories,
+		record of Network networks,
+		record of OperatingSystem operatingSystems,
+		record of Process processes,
+		record of Processor processors,
+		record of System systemObjects,
+		record of SystemModel systemModels,
+		
+		// === SINGLE VALUES ===
 		
 		DiskValue diskValue,
-		record of DiskValue diskValueList,
 		FileStoreValue fileStoreValue,
-		record of FileStoreValue fileStoreValueList,
 		MemoryValue memoryValue,
-		record of MemoryValue memoryValueList,
 		NetworkValue networkValue,
-		record of NetworkValue networkValueList,
 		ProcessValue processValue,
-		record of ProcessValue processValueList,
 		ProcessorValue processorValue,
-		record of ProcessorValue processorValueList,
+		
+		// === LISTS OF VALUES
+		
+		record of DiskValue diskValues,
+		record of FileStoreValue fileStoreValues,
+		record of MemoryValue memoryValues,
+		record of NetworkValue networkValues,
+		record of ProcessValue processValues,
+		record of ProcessorValue processorValues,
+	  	
+	  	// === WRAPPER CLASSES === (only necessary for "less-weight" test execution, optional)
+		
 		DiskValueWrapperInt diskValueWrappedInt,
 		DiskValueWrapperFloat diskValueWrappedFloat,
 		FileStoreValueWrapperInt fileStoreValueWrappedInt,
@@ -142,12 +83,16 @@ module rmplugin
 		ProcessValueWrapperInt processValueWrappedInt,
 		ProcessValueWrapperFloat processValueWrappedFloat,
 		ProcessorValueWrapperInt processorValueWrappedInt,
-		ProcessorValueWrapperFloat processorValueWrappedFloat,
-		Nullable nullable
+		ProcessorValueWrapperFloat processorValueWrappedFloat
 	}
 	with 
 	{
-		variant "JSON : as value"
+		variant "JSON: as value"
+	}
+	
+	type record Nullable 
+	{
+	  
 	}
 	
 	type record Baseboard
@@ -241,7 +186,7 @@ module rmplugin
 	{
 	  integer processId,
       charstring processName,
-      integer processPid
+      integer processPid optional
 	}
 	
 	type record Processor
@@ -261,10 +206,10 @@ module rmplugin
 	
 	type record System
 	{
-	  Hardware systemHardware,
-      charstring systemHostName,
-      integer systemIdentifier,
-      OperatingSystem systemOperatingSystem
+	  Hardware systemHardware optional,
+      charstring systemHostName optional,
+      long systemIdentifier,
+      OperatingSystem systemOperatingSystem optional
 	}
 	
 	type record SystemModel
@@ -283,66 +228,66 @@ module rmplugin
 	type record DiskValue
 	{
 	  DiskValuePK diskValueId,
-      integer diskValueReadBytes,
-      integer diskValueReads,
-      integer diskValueTransferTime,
-      integer diskValueWriteBytes,
-      integer diskValueWrites
+      long diskValueReadBytes,
+      long diskValueReads,
+      long diskValueTransferTime,
+      long diskValueWriteBytes,
+      long diskValueWrites
 	}
 	
 	type record FileStoreValue
 	{
   	   FileStoreValuePK fileStoreValueId,
-  	   integer fileStoreValueUsableSpace
+  	   long fileStoreValueUsableSpace
 	}
 	
 	type record MemoryValue
 	{
-	  integer memoryValueAvailable,
+	  long memoryValueAvailable,
       MemoryValuePK memoryValueId,
-      integer memoryValueSwapTotal,
-      integer memoryValueSwapUsed
+      long memoryValueSwapTotal,
+      long memoryValueSwapUsed
 	}
 	
 	type record NetworkValue
 	{
-	  integer networkValueBytesRecv,
-      integer networkValueBytesSent,
+	  long networkValueBytesRecv,
+      long networkValueBytesSent,
       NetworkValuePK networkValueId,
-      integer networkValueInErrors,
-      integer networkValueOutErrors,
-      integer networkValuePacketsRecv,
-      integer networkValuePacketsSent
+      long networkValueInErrors,
+      long networkValueOutErrors,
+      long networkValuePacketsRecv,
+      long networkValuePacketsSent
 	}
-	
+		
 	type record ProcessValue
 	{
-	  integer processValueBytesRead,
-      integer processValueBytesWritten,
-      integer processValueHandles,
-      ProcessValuePK processValueId,
-      integer processValueKernelTime,
-      integer processValuePriority,
-      integer processValueResidentSetSize,
-      integer processValueStartTime,
-      integer processValueThreadCount,
-      integer processValueUpTime,
-      integer processValueUserTime,
-      integer processValueVirtualSize
+	  long processValueThreadCount,
+	  ProcessValuePK processValueId,
+	  long processValuePriority,
+	  long processValueVirtualSize,
+	  long processValueResidentSetSize,
+	  long processValueKernelTime,
+	  long processValueUserTime,
+	  long processValueUpTime,
+	  long processValueStartTime,
+	  long processValueBytesRead,
+      long processValueBytesWritten,
+      long processValueHandles      
 	}
 	
 	type record ProcessorValue
 	{
-	  integer processorValueContextSwitches,
+	  long processorValueContextSwitches,
       ProcessorValuePK processorValueId,
-      integer processorValueInterrupts,
+      long processorValueInterrupts,
       record of float processorValueProcessorCpuLoadBetweenTicks,
-      record of record of integer processorValueProcessorCpuLoadTicks,
+      record of record of long processorValueProcessorCpuLoadTicks,
       float processorValueSystemCpuLoad,
       float processorValueSystemCpuLoadBetweenTicks,
-      record of integer processorValueSystemCpuLoadTicks,
-      record of integer processorValueSystemLoadAverages,
-      integer processorValueSystemUpTime
+      record of long processorValueSystemCpuLoadTicks,
+      record of long processorValueSystemLoadAverages,
+      long processorValueSystemUpTime
 	}
 	
 	/*
@@ -351,11 +296,11 @@ module rmplugin
 
 	type record DiskValueWrapperInt
 	{
-	  integer diskValueReadBytes,
-      integer diskValueReads,
-      integer diskValueTransferTime,
-      integer diskValueWriteBytes,
-      integer diskValueWrites
+	  long diskValueReadBytes,
+      long diskValueReads,
+      long diskValueTransferTime,
+      long diskValueWriteBytes,
+      long diskValueWrites
 	}
 	
 	type record DiskValueWrapperFloat
@@ -369,7 +314,7 @@ module rmplugin
 
 	type record FileStoreValueWrapperInt
 	{
-	  integer fileStoreValueUsableSpace
+	  long fileStoreValueUsableSpace
 	}
 	
 	type record FileStoreValueWrapperFloat
@@ -379,9 +324,9 @@ module rmplugin
 
 	type record MemoryValueWrapperInt
 	{
-	  integer memoryValueAvailable,
-      integer memoryValueSwapTotal,
-      integer memoryValueSwapUsed
+	  long memoryValueAvailable,
+      long memoryValueSwapTotal,
+      long memoryValueSwapUsed
 	}
 	type record MemoryValueWrapperFloat
 	{
@@ -392,12 +337,12 @@ module rmplugin
 
 	type record NetworkValueWrapperInt
 	{
-	  integer networkValueBytesRecv,
-      integer networkValueBytesSent,
-      integer networkValueInErrors,
-      integer networkValueOutErrors,
-      integer networkValuePacketsRecv,
-      integer networkValuePacketsSent
+	  long networkValueBytesRecv,
+      long networkValueBytesSent,
+      long networkValueInErrors,
+      long networkValueOutErrors,
+      long networkValuePacketsRecv,
+      long networkValuePacketsSent
 	}
 	
 	type record NetworkValueWrapperFloat
@@ -412,11 +357,11 @@ module rmplugin
 	
 	type record ProcessorValueWrapperInt
 	{
-	  integer processorValueContextSwitches,
-      integer processorValueInterrupts,
-      integer processorValueSystemCpuLoad,
-      integer processorValueSystemCpuLoadBetweenTicks,
-      integer processorValueSystemUpTime
+	  long processorValueContextSwitches,
+      long processorValueInterrupts,
+      long processorValueSystemCpuLoad,
+      long processorValueSystemCpuLoadBetweenTicks,
+      long processorValueSystemUpTime
 	}
 	
 	type record ProcessorValueWrapperFloat
@@ -430,17 +375,17 @@ module rmplugin
 	
 	type record ProcessValueWrapperInt
 	{
-	  integer processValueBytesRead,
-      integer processValueBytesWritten,
-      integer processValueHandles,
-      integer processValueKernelTime,
-      integer processValuePriority,
-      integer processValueResidentSetSize,
-      integer processValueStartTime,
-      integer processValueThreadCount,
-      integer processValueUpTime,
-      integer processValueUserTime,
-      integer processValueVirtualSize
+	  long processValueBytesRead,
+      long processValueBytesWritten,
+      long processValueHandles,
+      long processValueKernelTime,
+      long processValuePriority,
+      long processValueResidentSetSize,
+      long processValueStartTime,
+      long processValueThreadCount,
+      long processValueUpTime,
+      long processValueUserTime,
+      long processValueVirtualSize
 	}
 	
 	type record ProcessValueWrapperFloat
@@ -463,32 +408,32 @@ module rmplugin
 	*/
 	
 	type record MemoryValuePK {
-	  integer memoryValueMeasurementId,
+	  long memoryValueMeasurementId,
 	  charstring memoryValueTimestamp
 	}
 	
 	type record ProcessValuePK {
-	  integer processorValueMeasurementId,
-	  charstring processorValueTimestamp
+	  long processValueMeasurementId,
+	  charstring processValueTimestamp
 	}
 	
 	type record ProcessorValuePK {
-	  integer processorValueMeasurementId,
+	  long processorValueMeasurementId,
 	  charstring processorValueTimestamp
 	}
 	
 	type record NetworkValuePK {
-	  integer networkValueMeasurementId	,
+	  long networkValueMeasurementId,
 	  charstring networkValueTimestamp
 	}
 	
 	type record FileStoreValuePK{
-	  integer fileStoreValueMeasurementId,
+	  long fileStoreValueMeasurementId,
 	  charstring fileStoreValueTimestamp 
 	}
 	
 	type record DiskValuePK{
-	  integer diskValueMeasurementId,
+	  long diskValueMeasurementId,
 	  charstring diskValueTimestamp
 	}
 }
@@ -496,3 +441,4 @@ with
 {
 	encode "JSON";
 }
+

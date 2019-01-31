@@ -1,0 +1,148 @@
+module RESTModul{
+
+	import from HTTPmsg_PortType all;
+	import from HTTPmsg_Types all;
+	import from JSONModul all;
+	
+	type record ServiceInstance
+    {
+      charstring hostname,
+      integer portnumber
+    }
+	
+	type component TestComponent 
+	{
+		port HTTPmsg_PT TestPort;
+	}
+	
+	type union RESTRequest
+	{
+	  HTTPMessage t_GET_Request,
+	  HTTPMessage t_PUT_Request,
+	  HTTPMessage t_POST_Request,
+	  HTTPMessage t_DELETE_Request
+	}
+
+	template HTTPMessage t_GET_Request(in charstring p_path, in charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "GET", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := {}, 
+			body := p_body
+			}
+		}
+	template HTTPMessage t_PUT_Request(in charstring p_path, in charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "PUT", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := {}, 
+			body := p_body
+			}
+		}
+	template HTTPMessage t_POST_Request(in charstring p_path, in charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "POST", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := 	{}, 
+			body := p_body
+			}
+		}
+	template HTTPMessage t_DELETE_Request(in charstring p_path, in charstring p_body := "") := 
+		{
+		  request := 
+			{ 
+			client_id := omit, 
+			method := "DELETE", 
+			uri := p_path, 
+			version_major := 1, 
+			version_minor := 1, 
+			header := {}, 
+			body := p_body
+			}
+		}
+	function SendRESTRequest(in ServiceInstance p_serviceInstance, in template HTTPMessage t_request) runs on TestComponent return JSONObject
+    {
+      map(self:TestPort, system:TestPort);
+      var JSONObject v_JSON_PDU;
+      
+      // ==== CONNECTION-PART (ESTABLISH SOCKETCONNECTION) ====
+      var Connect_result v_Connect_result;
+	  template Connect t_connect := { hostname := p_serviceInstance.hostname, portnumber := p_serviceInstance.portnumber, use_ssl := false };
+	  timer t0:=5.0;    
+      TestPort.send(t_connect) ;
+      t0.start;
+      alt 
+      {
+        []TestPort.receive(Connect_result:?) -> value v_Connect_result 
+        { 
+        }
+        []t0.timeout
+        {
+          log("Timeout: A connection to the service could not established. Aborting...");
+          return v_JSON_PDU;
+        }
+      }
+      
+      // ==== MESSAGE-PART (SEND HTTP_MESSAGE) ====
+      var HTTPMessage  v_HTTPMessage_response;
+      t_request.request.header[lengthof(t_request.request.header)] :=
+      { 
+  		header_name := "Host", 
+  		header_value := p_serviceInstance.hostname & ":" & int2str(p_serviceInstance.portnumber)
+	  }
+      timer t1 := 5.0;
+      t1.start;
+      TestPort.send(t_request)
+      alt 
+      {
+        []TestPort.receive(HTTPMessage:?)  -> value v_HTTPMessage_response
+        {
+          if (ischosen(v_HTTPMessage_response.response_binary))
+          {
+            v_JSON_PDU := dec_JSON(v_HTTPMessage_response.response_binary.body);
+          }
+          if (ischosen(v_HTTPMessage_response.response))
+          {
+            v_JSON_PDU := dec_JSON(char2oct(v_HTTPMessage_response.response.body));
+          }
+        }
+        []t1.timeout
+        {
+          log("Timeout: Sending a message to the service failed. Aborting...");
+          return v_JSON_PDU;
+        }
+      }
+      
+      // ==== DISCONNECTION-PART (CLOSE SOCKETCONNECTION) ====
+      template Close t_close := { client_id := omit}
+	  timer t3:=5.0;    
+      //Disconnect
+      TestPort.send(t_close) 
+      t3.start;
+      alt 
+      {
+        []TestPort.receive{}
+        []t3.timeout 
+        {
+          log("Timeout: A disconnection from the service failed");
+        }
+      }
+      return v_JSON_PDU;
+  }
+
+}
