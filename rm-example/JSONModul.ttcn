@@ -1,7 +1,5 @@
 module JSONModul {
 
-	type integer long(-infinity .. infinity);
-
 	external function enc_JSON(in JSONObject msg) return octetstring
 	with
 	{
@@ -208,7 +206,7 @@ module JSONModul {
 	{
 	  Hardware systemHardware optional,
       charstring systemHostName optional,
-      long systemIdentifier,
+      integer systemIdentifier,
       OperatingSystem systemOperatingSystem optional
 	}
 	
@@ -228,66 +226,66 @@ module JSONModul {
 	type record DiskValue
 	{
 	  DiskValuePK diskValueId,
-      long diskValueReadBytes,
-      long diskValueReads,
-      long diskValueTransferTime,
-      long diskValueWriteBytes,
-      long diskValueWrites
+      integer diskValueReadBytes,
+      integer diskValueReads,
+      integer diskValueTransferTime,
+      integer diskValueWriteBytes,
+      integer diskValueWrites
 	}
 	
 	type record FileStoreValue
 	{
   	   FileStoreValuePK fileStoreValueId,
-  	   long fileStoreValueUsableSpace
+  	   integer fileStoreValueUsableSpace
 	}
 	
 	type record MemoryValue
 	{
-	  long memoryValueAvailable,
+	  integer memoryValueAvailable,
       MemoryValuePK memoryValueId,
-      long memoryValueSwapTotal,
-      long memoryValueSwapUsed
+      integer memoryValueSwapTotal,
+      integer memoryValueSwapUsed
 	}
 	
 	type record NetworkValue
 	{
-	  long networkValueBytesRecv,
-      long networkValueBytesSent,
+	  integer networkValueBytesRecv,
+      integer networkValueBytesSent,
       NetworkValuePK networkValueId,
-      long networkValueInErrors,
-      long networkValueOutErrors,
-      long networkValuePacketsRecv,
-      long networkValuePacketsSent
+      integer networkValueInErrors,
+      integer networkValueOutErrors,
+      integer networkValuePacketsRecv,
+      integer networkValuePacketsSent
 	}
 		
 	type record ProcessValue
 	{
-	  long processValueThreadCount,
+	  integer processValueThreadCount,
 	  ProcessValuePK processValueId,
-	  long processValuePriority,
-	  long processValueVirtualSize,
-	  long processValueResidentSetSize,
-	  long processValueKernelTime,
-	  long processValueUserTime,
-	  long processValueUpTime,
-	  long processValueStartTime,
-	  long processValueBytesRead,
-      long processValueBytesWritten,
-      long processValueHandles      
+	  integer processValuePriority,
+	  integer processValueVirtualSize,
+	  integer processValueResidentSetSize,
+	  integer processValueKernelTime,
+	  integer processValueUserTime,
+	  integer processValueUpTime,
+	  integer processValueStartTime,
+	  integer processValueBytesRead,
+      integer processValueBytesWritten,
+      integer processValueHandles      
 	}
 	
 	type record ProcessorValue
 	{
-	  long processorValueContextSwitches,
+	  integer processorValueContextSwitches,
       ProcessorValuePK processorValueId,
-      long processorValueInterrupts,
+      integer processorValueInterrupts,
       record of float processorValueProcessorCpuLoadBetweenTicks,
-      record of record of long processorValueProcessorCpuLoadTicks,
+      record of record of integer processorValueProcessorCpuLoadTicks,
       float processorValueSystemCpuLoad,
       float processorValueSystemCpuLoadBetweenTicks,
-      record of long processorValueSystemCpuLoadTicks,
-      record of long processorValueSystemLoadAverages,
-      long processorValueSystemUpTime
+      record of integer processorValueSystemCpuLoadTicks,
+      record of integer processorValueSystemLoadAverages,
+      integer processorValueSystemUpTime
 	}
 	
 	/*
@@ -296,11 +294,11 @@ module JSONModul {
 
 	type record DiskValueWrapperInt
 	{
-	  long diskValueReadBytes,
-      long diskValueReads,
-      long diskValueTransferTime,
-      long diskValueWriteBytes,
-      long diskValueWrites
+	  integer diskValueReadBytes,
+      integer diskValueReads,
+      integer diskValueTransferTime,
+      integer diskValueWriteBytes,
+      integer diskValueWrites
 	}
 	
 	type record DiskValueWrapperFloat
@@ -314,7 +312,7 @@ module JSONModul {
 
 	type record FileStoreValueWrapperInt
 	{
-	  long fileStoreValueUsableSpace
+	  integer fileStoreValueUsableSpace
 	}
 	
 	type record FileStoreValueWrapperFloat
@@ -324,9 +322,9 @@ module JSONModul {
 
 	type record MemoryValueWrapperInt
 	{
-	  long memoryValueAvailable,
-      long memoryValueSwapTotal,
-      long memoryValueSwapUsed
+	  integer memoryValueAvailable,
+      integer memoryValueSwapTotal,
+      integer memoryValueSwapUsed
 	}
 	type record MemoryValueWrapperFloat
 	{
@@ -337,12 +335,12 @@ module JSONModul {
 
 	type record NetworkValueWrapperInt
 	{
-	  long networkValueBytesRecv,
-      long networkValueBytesSent,
-      long networkValueInErrors,
-      long networkValueOutErrors,
-      long networkValuePacketsRecv,
-      long networkValuePacketsSent
+	  integer networkValueBytesRecv,
+      integer networkValueBytesSent,
+      integer networkValueInErrors,
+      integer networkValueOutErrors,
+      integer networkValuePacketsRecv,
+      integer networkValuePacketsSent
 	}
 	
 	type record NetworkValueWrapperFloat
@@ -357,11 +355,11 @@ module JSONModul {
 	
 	type record ProcessorValueWrapperInt
 	{
-	  long processorValueContextSwitches,
-      long processorValueInterrupts,
-      long processorValueSystemCpuLoad,
-      long processorValueSystemCpuLoadBetweenTicks,
-      long processorValueSystemUpTime
+	  integer processorValueContextSwitches,
+      integer processorValueInterrupts,
+      integer processorValueSystemCpuLoad,
+      integer processorValueSystemCpuLoadBetweenTicks,
+      integer processorValueSystemUpTime
 	}
 	
 	type record ProcessorValueWrapperFloat
@@ -375,17 +373,17 @@ module JSONModul {
 	
 	type record ProcessValueWrapperInt
 	{
-	  long processValueBytesRead,
-      long processValueBytesWritten,
-      long processValueHandles,
-      long processValueKernelTime,
-      long processValuePriority,
-      long processValueResidentSetSize,
-      long processValueStartTime,
-      long processValueThreadCount,
-      long processValueUpTime,
-      long processValueUserTime,
-      long processValueVirtualSize
+	  integer processValueBytesRead,
+      integer processValueBytesWritten,
+      integer processValueHandles,
+      integer processValueKernelTime,
+      integer processValuePriority,
+      integer processValueResidentSetSize,
+      integer processValueStartTime,
+      integer processValueThreadCount,
+      integer processValueUpTime,
+      integer processValueUserTime,
+      integer processValueVirtualSize
 	}
 	
 	type record ProcessValueWrapperFloat
@@ -408,32 +406,32 @@ module JSONModul {
 	*/
 	
 	type record MemoryValuePK {
-	  long memoryValueMeasurementId,
+	  integer memoryValueMeasurementId,
 	  charstring memoryValueTimestamp
 	}
 	
 	type record ProcessValuePK {
-	  long processValueMeasurementId,
+	  integer processValueMeasurementId,
 	  charstring processValueTimestamp
 	}
 	
 	type record ProcessorValuePK {
-	  long processorValueMeasurementId,
+	  integer processorValueMeasurementId,
 	  charstring processorValueTimestamp
 	}
 	
 	type record NetworkValuePK {
-	  long networkValueMeasurementId,
+	  integer networkValueMeasurementId,
 	  charstring networkValueTimestamp
 	}
 	
 	type record FileStoreValuePK{
-	  long fileStoreValueMeasurementId,
+	  integer fileStoreValueMeasurementId,
 	  charstring fileStoreValueTimestamp 
 	}
 	
 	type record DiskValuePK{
-	  long diskValueMeasurementId,
+	  integer diskValueMeasurementId,
 	  charstring diskValueTimestamp
 	}
 }
