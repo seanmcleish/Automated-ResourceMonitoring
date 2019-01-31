@@ -1073,20 +1073,21 @@ int get_line(TTCN_Buffer* buffer, CHARSTRING& to, const bool concatenate_header_
         else
         {
             if(cc_to[i] == '\n') {//
-				if (report_lf) {
-					switch (HTTPmsg__Types::crlf__mode) {
-					case HTTPmsg__Types::strict__crlf__mode::ERROR_:
-						return BUFFER_FAIL;
-						break;
-					case HTTPmsg__Types::strict__crlf__mode::WARNING__ONCE:
-						report_lf = false;
-						// no break
-					case HTTPmsg__Types::strict__crlf__mode::WARNING:
-						TTCN_warning("Missing '\\r'.");
-						break;
-					default:
-						break;
-					}
+              if(report_lf){
+                switch(HTTPmsg__Types::crlf__mode){
+                  case HTTPmsg__Types::strict__crlf__mode::ERROR_:
+                    return BUFFER_FAIL;
+                    break;
+                  case HTTPmsg__Types::strict__crlf__mode::WARNING__ONCE:
+                    report_lf=false;
+                    // no break
+                  case HTTPmsg__Types::strict__crlf__mode::WARNING:
+                    TTCN_warning("Missing '\\r'.");
+                    break;
+                  default:
+                    break;
+                }
+              }
               if(i > 0 && (i + 1) < buffer->get_read_len() && concatenate_header_lines && (cc_to[i+1] == ' ' || cc_to[i+1] == '\t'))
                     i += 1;
                   else
