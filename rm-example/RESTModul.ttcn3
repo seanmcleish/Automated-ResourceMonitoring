@@ -106,7 +106,7 @@ module RESTModul{
       
       // ==== CONNECTION-PART (ESTABLISH SOCKETCONNECTION) ====
       var Connect_result v_Connect_result;
-      log("Connectin")
+      log("Connecting")
 	  template Connect t_connect := { hostname := p_serviceInstance.hostname, portnumber := p_serviceInstance.portnumber, use_ssl := false };
 	  timer t0:=10.0;    
       TestPort.send(t_connect) ;
@@ -116,7 +116,7 @@ module RESTModul{
         []TestPort.receive(Connect_result:?) -> value v_Connect_result 
         { 
         }
-        []t0.timeout
+        []any port.receive
         {
           log("Timeout: A connection to the service could not established. Aborting...");
           return v_JSON_PDU;

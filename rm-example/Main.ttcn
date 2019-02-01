@@ -106,8 +106,9 @@ function calculateRegression (in Values values) runs on TestComponent return reg
 }
 
 testcase tc_createDataByHostname(in ServiceInstance p_serviceInstance, in charstring p_sensorHostname, in integer p_sensorPortnumber, out JSONObject.Measurement result)
-runs on TestComponent
+runs on TestComponent system TestComponent
 {
+  map(self:TestPort, system:TestPort);
   var template HTTPMessage post_request := t_POST_Request("/createDataByHostName?hostName="&p_sensorHostname&"&remotePort="&int2str(p_sensorPortnumber));
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
   if(ischosen(response.Measurement))
