@@ -97,7 +97,7 @@ module JSONModul {
 	{
 	  charstring baseboardManufacturer optional,
       charstring baseboardModel optional,
-      charstring baseboardSerialNumber optional,
+      charstring baseboardSerialNumber,
       charstring baseboardVersion optional
 	}
 	
@@ -106,14 +106,14 @@ module JSONModul {
 	  record of FileStore diskFileStores optional,
       charstring diskModel optional,
       charstring diskName optional,
-      charstring diskSerialNumber optional,
+      charstring diskSerialNumber,
       integer diskSize optional
 	}
 	
 	type record Firmware
 	{
 	  charstring firmwareDescription optional,
-      integer firmwareIdentifier optional,
+      integer firmwareIdentifier,
       charstring firmwareManufacturer optional,
       charstring firmwareName optional,
       charstring firmwareReleaseDate optional,
@@ -127,7 +127,7 @@ module JSONModul {
       charstring fileStoreMountPoint optional,
       charstring fileStoreName optional,
       integer fileStoreTotalSpace optional,
-      charstring fileStoreUuid optional,
+      charstring fileStoreUuid,
       charstring fileStoreVolume optional
 	}
 	
@@ -136,7 +136,7 @@ module JSONModul {
 	  Baseboard hardwareBaseboard optional,
       record of Disk hardwareDisks optional,
       Firmware hardwareFirmware optional,
-      integer hardwareId optional,
+      integer hardwareId,
       Memory hardwareMemory optional,
       record of Network hardwareNetworks optional,
       Processor hardwareProcessor optional,
@@ -146,7 +146,7 @@ module JSONModul {
 	type record Measurement
 	{
       charstring measurementEndDate optional,
-      integer measurementId optional,
+      integer measurementId,
       charstring measurementIp optional,
       charstring measurementRate optional,
       charstring measurementRemotePort optional,
@@ -156,7 +156,7 @@ module JSONModul {
 	
 	type record Memory
 	{
-	  integer memoryTotalSpace optional
+	  integer memoryTotalSpace
 	}
 	
 	type record Network
@@ -164,7 +164,7 @@ module JSONModul {
 	  charstring networkDisplayName optional,
       charstring networkIpv4 optional,
       charstring networkIpv6 optional,
-      charstring networkMac optional,
+      charstring networkMac,
       integer networkMtu optional,
       charstring networkName optional,
       integer networkSpeed optional
@@ -175,14 +175,14 @@ module JSONModul {
 	  charstring operatingSystemBuild optional,
       charstring operatingSystemCodeName optional,
       charstring operatingSystemFamily optional,
-      integer operatingSystemId optional,
+      integer operatingSystemId,
       charstring operatingSystemManufacturer optional,
       charstring operatingSystemVersion optional
 	}
 	
 	type record Process
 	{
-	  integer processId optional,
+	  integer processId,
       charstring processName optional,
       integer processPid optional
 	}
@@ -191,7 +191,7 @@ module JSONModul {
 	{
 	  boolean processorCpu64bit optional,
       charstring  processorFamily optional,
-      charstring  processorId optional,
+      charstring  processorId,
       integer  processorLogicalProcessorCount optional,
       charstring  processorModel optional,
       charstring  processorName optional,
@@ -206,7 +206,7 @@ module JSONModul {
 	{
 	  Hardware systemHardware optional,
       charstring systemHostName optional,
-      integer systemIdentifier optional,
+      integer systemIdentifier,
       OperatingSystem systemOperatingSystem optional
 	}
 	
@@ -214,7 +214,7 @@ module JSONModul {
 	{
 	  charstring systemModelManufacturer optional,
       charstring systemModelModel optional,
-      charstring systemModelSerialNumber optional
+      charstring systemModelSerialNumber
 	}
 	
 	
@@ -225,7 +225,7 @@ module JSONModul {
 
 	type record DiskValue
 	{
-	  DiskValuePK diskValueId optional,
+	  DiskValuePK diskValueId,
       integer diskValueReadBytes optional,
       integer diskValueReads optional,
       integer diskValueTransferTime optional,
@@ -235,14 +235,14 @@ module JSONModul {
 	
 	type record FileStoreValue
 	{
-  	   FileStoreValuePK fileStoreValueId optional,
+  	   FileStoreValuePK fileStoreValueId,
   	   integer fileStoreValueUsableSpace optional
 	}
 	
 	type record MemoryValue
 	{
 	  integer memoryValueAvailable optional,
-      MemoryValuePK memoryValueId optional,
+      MemoryValuePK memoryValueId,
       integer memoryValueSwapTotal optional,
       integer memoryValueSwapUsed optional
 	}
@@ -251,7 +251,7 @@ module JSONModul {
 	{
 	  integer networkValueBytesRecv optional,
       integer networkValueBytesSent optional,
-      NetworkValuePK networkValueId optional,
+      NetworkValuePK networkValueId,
       integer networkValueInErrors optional,
       integer networkValueOutErrors optional,
       integer networkValuePacketsRecv optional,
@@ -261,7 +261,7 @@ module JSONModul {
 	type record ProcessValue
 	{
 	  integer processValueThreadCount optional,
-	  ProcessValuePK processValueId optional,
+	  ProcessValuePK processValueId,
 	  integer processValuePriority optional,
 	  integer processValueVirtualSize optional,
 	  integer processValueResidentSetSize optional,
@@ -277,7 +277,7 @@ module JSONModul {
 	type record ProcessorValue
 	{
 	  integer processorValueContextSwitches optional,
-      ProcessorValuePK processorValueId optional,
+      ProcessorValuePK processorValueId,
       integer processorValueInterrupts optional,
       record of float processorValueProcessorCpuLoadBetweenTicks optional,
       record of record of integer processorValueProcessorCpuLoadTicks optional,
@@ -406,33 +406,33 @@ module JSONModul {
 	*/
 	
 	type record MemoryValuePK {
-	  integer memoryValueMeasurementId optional,
-	  charstring memoryValueTimestamp optional
+	  integer memoryValueMeasurementId,
+	  charstring memoryValueTimestamp
 	}
 	
 	type record ProcessValuePK {
-	  integer processValueMeasurementId optional,
-	  charstring processValueTimestamp optional
+	  integer processValueMeasurementId,
+	  charstring processValueTimestamp
 	}
 	
 	type record ProcessorValuePK {
-	  integer processorValueMeasurementId optional,
-	  charstring processorValueTimestamp optional
+	  integer processorValueMeasurementId,
+	  charstring processorValueTimestamp
 	}
 	
 	type record NetworkValuePK {
-	  integer networkValueMeasurementId optional,
-	  charstring networkValueTimestamp optional
+	  integer networkValueMeasurementId,
+	  charstring networkValueTimestamp
 	}
 	
 	type record FileStoreValuePK{
-	  integer fileStoreValueMeasurementId optional,
-	  charstring fileStoreValueTimestamp  optional
+	  integer fileStoreValueMeasurementId,
+	  charstring fileStoreValueTimestamp 
 	}
 	
 	type record DiskValuePK{
-	  integer diskValueMeasurementId optional,
-	  charstring diskValueTimestamp optional
+	  integer diskValueMeasurementId,
+	  charstring diskValueTimestamp
 	}
 }
 with 

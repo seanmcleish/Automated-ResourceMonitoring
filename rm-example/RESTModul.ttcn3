@@ -13,25 +13,33 @@ module RESTModul{
     
     type record SensorInstance
     {
-      charstring hostname,
-      integer portnumber,
-      JSONObject.Measurement measurement,
-      JSONObject.SystemObject measurementSystem,
-      JSONObject.Processes measurementProcesses
+      charstring hostname optional,
+      integer portnumber optional,
+      JSONObject.Measurement measurement optional,
+      JSONObject.SystemObject measurementSystem optional,
+      JSONObject.Processes measurementProcesses optional
     }
     
     function AddSensor(in charstring p_hostname, in integer p_portnumber, inout SensorInstances p_sensorInstances)
     {
-      p_sensorInstances[lengthof(p_sensorInstances)] := {hostname := p_hostname, portnumber := p_portnumber};
-    }
-    function AddProcessToSensor(in SensorInstance p_sensor, in charstring p_processname )
-    {
-      /*p_sensor.measurementProcesses[lengthof(p_sensor.measurementProcesses)] := 
+      if(not(ispresent(p_sensorInstances)))
       {
-      processId := omit, 
+        p_sensorInstances := {};
+      }
+      p_sensorInstances[lengthof(p_sensorInstances)] := {hostname := p_hostname, portnumber := p_portnumber, measurement := omit, measurementSystem := omit, measurementProcesses := {}};
+    }
+    function AddProcessToSensor(inout SensorInstance p_sensor, in charstring p_processname )
+    {
+	  if(not(ispresent(p_sensor.measurementProcesses)))
+      {
+        p_sensor.measurementProcesses := {};
+      }
+      p_sensor.measurementProcesses[lengthof(p_sensor.measurementProcesses)] := 
+      {
+      processId := lengthof(p_sensor.measurementProcesses)+1, 
       processName := p_processname, 
       processPid := omit
-      };*/
+      };
     }
 	
 	type component TestComponent 
@@ -143,6 +151,7 @@ module RESTModul{
           }
           if (ischosen(v_HTTPMessage_response.response))
           {
+            log("Decoding HTTP-BODY TO JSON");
             v_JSON_PDU := dec_JSON(char2oct(v_HTTPMessage_response.response.body));
           }
         }
@@ -150,21 +159,6 @@ module RESTModul{
         {
           log("Timeout: Sending a message to the service failed. Aborting...");
           return v_JSON_PDU;
-        }
-      }
-      
-      // ==== DISCONNECTION-PART (CLOSE SOCKETCONNECTION) ====
-      template Close t_close := { client_id := omit}
-	  timer t3:=5.0;    
-      //Disconnect
-      TestPort.send(t_close) 
-      t3.start;
-      alt 
-      {
-        []TestPort.receive{}
-        []t3.timeout 
-        {
-          log("Timeout: A disconnection from the service failed");
         }
       }
       return v_JSON_PDU;

@@ -123,7 +123,7 @@ runs on TestComponent system TestComponent
 }
 
 
-testcase tc_getMeasurementSystem(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.SystemObject p_result)
+testcase tc_getMeasurementSystemByMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.SystemObject p_result)
 runs on TestComponent
 {
   map(self:TestPort, system:TestPort);
@@ -241,25 +241,23 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
  	}*/
 	control
     {
-      var JSONObject.Processes processes := {};
-      log(lengthof(processes));
-      
+      // ==== CONFIG ====
+      var SensorInstances v_sensorInstances;
       var ServiceInstance v_serviceInstance := 
       {
         hostname := "localhost",
         portnumber := 8090
       };
-      var SensorInstances v_sensorInstances := {};
       AddSensor("localhost", 10005, v_sensorInstances);
-      log("Length of sensorinstances "& int2str(lengthof(v_sensorInstances)));
-      //AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer")
-	
-	  //===== CREATE MEASUREMENT FOR EACH SENSOR =====
+      AddProcessToSensor(v_sensorInstances[0], "java")
+
+	  // ===== CREATE MEASUREMENT FOR EACH SENSOR AND GET SYSTEM DATA =====
       for(var integer i :=0; i<lengthof(v_sensorInstances); i:=i+1)
       {
-        var JSONObject.Measurement v_measurement;
-        var JSONObject.SystemObject v_measurementSystem;
+        var JSONObject.Measurement v_measurement := {};
+        var JSONObject.SystemObject v_measurementSystem := {};
         
+        // Create Data and start measurement on service instance
         var verdicttype v_createData := execute
         								(
         									tc_createDataByHostname
@@ -270,6 +268,7 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
         										v_measurement
         									)
         								);
+       	// If failed, abort test execution with error
         if(v_createData==none or v_createData==error)
         {
           if(v_createData==none)
@@ -282,13 +281,15 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
           }
           stop;
         }
+        
+        // Query system data of the sensor through service instance
+        execute(tc_getMeasurementSystemByMeasurementId(v_serviceInstance, v_measurement.measurementId, v_measurementSystem));
         v_sensorInstances[i].measurement := v_measurement;
         v_sensorInstances[i].measurementSystem := v_measurementSystem;
 
-        // ==== CREATE PROCESSES ====
-        /*var JSONObject.Processes v_allProcesses := {};
-        v_sensorInstances[i].measurementProcesses := v_allProcesses;
-        for(var integer j := 0; j<=lengthof(v_sensorInstances[i].measurementProcesses); j := j+1)
+        // ==== CREATE PROCESSES, so they will be tracked by the service instance ====
+        var JSONObject.Processes v_allProcesses := {};
+        for(var integer j := 0; j<lengthof(v_sensorInstances[i].measurementProcesses); j := j+1)
         {
           var JSONObject.Process v_currentProcess := v_sensorInstances[i].measurementProcesses[j]; 	
           var JSONObject.Processes v_currentProcesses := {};										
@@ -301,31 +302,25 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
           {
             v_allProcesses[lengthof(v_allProcesses)] := v_currentProcesses[k];
           }
-        }*/
+        }
       }
       
+      //=====EXECUTE TESTCASES REPEATEDLY=====
+      label startTestcases;
+      @try
+      {
+        log("REPEAT");
+        goto startTestcases;
+      }
+      @catch(ex)
+      {
+        log("MANUAL STOPPED")
+      }
       
-      //var integer iterations := 0;
-      //Processes
-      //var JSONObject processValues;
-      //var regressionParameter processValues_Regression;
-      //var Values.valuesAsInteger processValues_RAM;
-      
-      //
-      //var JSONObject.processes processes;
-
-	  
-      
-      //log("Created measurement: " & int2str(v_measurement.measurementId));
-      
-      //=====GET MEASUREMENTSYSTEM=====
-      //execute(tc_getMeasurementSystem(measurementSystem, measurement.measurementId));
-      
-      //=====CREATE PROCESSES====
-      //execute(tc_createProcessesWithMeasurementId(processes, measurement.measurementId, "HMSAP.LaytecViewer"));
-      //=====EXECUTE TESTCASES=====
-      //label startTestcases;
-      
+      for(var integer i:= 0; i<lengthof(v_sensorInstances); i:=i+1)
+      {
+        
+      }
       //=====PROCESS RAM REGRESSION PARAMETER=====
       //TestComponent.start(getProcessDataByPid(measurement.measurementId, processes[0].processId, processValues));
       /*if()
