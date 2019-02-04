@@ -116,6 +116,7 @@ module RESTModul{
       var Connect_result v_Connect_result;
       log("Connecting")
 	  template Connect t_connect := { hostname := p_serviceInstance.hostname, portnumber := p_serviceInstance.portnumber, use_ssl := false };
+	  template Close t_close := { client_id := omit};
 	  timer t0:=10.0;    
       TestPort.send(t_connect) ;
       t0.start;
@@ -161,6 +162,11 @@ module RESTModul{
           return v_JSON_PDU;
         }
       }
+
+      // ==== CLOSING-PART ====
+      TestPort.send( t_close );
+      
+      
       return v_JSON_PDU;
   }
 

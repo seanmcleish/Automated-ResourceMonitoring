@@ -130,7 +130,6 @@ runs on TestComponent
   var template HTTPMessage get_request := t_GET_Request( "/measurement/"&int2str(p_measurementId)& "/measurementSystem");
   var JSONObject response := SendRESTRequest(p_serviceInstance, get_request);
   if(ischosen(response.SystemObject))
-    	
   {
     setverdict(pass);
     p_result:=response.SystemObject;
@@ -164,6 +163,10 @@ runs on TestComponent
 {
   var template HTTPMessage get_request := t_GET_Request( "/memory/"&int2str(p_memoryTotalSpace)&"/memoryValues/"&int2str(p_measurementId));
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(result.memoryValues)))
+  {
+    stop;
+  }
   setverdict(pass);
   for(var integer i := 0; i < lengthof(result.memoryValues); i := i+1)
   {
@@ -174,20 +177,18 @@ runs on TestComponent
   }
 }
 
-testcase tc_processMemoryUsageGreaterThan(in ServiceInstance p_serviceInstance, in integer measurementId, in integer memoryTotalSpace, in integer processId, in float relativeUpperBound)
+testcase tc_processMemoryUsageGreaterThan(in JSONObject p_values, in integer p_memoryTotalSpace, in float p_relativeUpperBound)
 runs on TestComponent 
 {
-  var template HTTPMessage get_request := t_GET_Request( "/process/" &int2str(processId)&"/processValues/" &int2str(measurementId));
-  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
-  setverdict(pass);
-  if(ischosen(result.Nullable))
+  if(not(ischosen(p_values.processValues)))
   {
-    setverdict(none);
-    stop;  
+    stop;  bash
   }
-  for(var integer i := 0; i<lengthof(result.processorValues); i := i+1)
+  setverdict(pass);
+  for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
   {
-    if((int2float(result.processValues[i].processValueResidentSetSize)/int2float(memoryTotalSpace)) > relativeUpperBound)
+
+    if((int2float(p_values.processValues[i].processValueResidentSetSize)/int2float(p_memoryTotalSpace)) > p_relativeUpperBound)
     {
       setverdict(fail);
       stop;
@@ -195,53 +196,21 @@ runs on TestComponent
   }
 }
 
-
-function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_processId, out JSONObject p_result) runs on TestComponent
- return boolean 
+testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_processId, out JSONObject p_result) runs on TestComponent
 {
   var template HTTPMessage get_request := t_GET_Request( "/process/" &int2str(p_processId)&"/processValues/" &int2str(p_measurementId));
   p_result := SendRESTRequest(p_serviceInstance,get_request);
-  log(ischosen(p_result.processValues));
-  if(ischosen(p_result.processValues))
+  if(not(ischosen(p_result.processValues)))
   {
-    return true;
+    stop;
   }
-  else{
-    return false;
-  }
-}
+  setverdict(pass);
 
- /*testcase tc_connectToSUT(in charstring p_hostname, in integer p_portnumber, out ServiceInstance p_serviceInstance)
- 	runs on TestComponent
- 	system TestComponent
- 	{
- 	  map(self:TestPort, system:TestPort);
- 	  if(ConnectToHost(p_serviceInstance, p_hostname, p_portnumber))
- 	  {
- 	    setverdict(pass);
- 	  }
- 	  else
- 	  {
- 	    setverdict(fail);
- 	  }
- 	}
-  testcase tc_disconnectFromSUT(out ServiceInstance p_serviceInstance)
- 	runs on TestComponent
- 	system TestComponent
- 	{
- 	
- 	  if(DisconnectFromHost(p_serviceInstance))
- 	  {
- 	    setverdict(pass);
- 	  }
- 	  else
- 	  {
- 	    setverdict(fail);
- 	  }
- 	}*/
+}
 	control
     {
       // ==== CONFIG ====
+      timer t0:=5.0;
       var SensorInstances v_sensorInstances;
       var ServiceInstance v_serviceInstance := 
       {
@@ -249,7 +218,8 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
         portnumber := 8090
       };
       AddSensor("localhost", 10005, v_sensorInstances);
-      AddProcessToSensor(v_sensorInstances[0], "java")
+      AddProcessToSensor(v_sensorInstances[0], "java");
+      AddProcessToSensor(v_sensorInstances[0], "stress");
 
 	  // ===== CREATE MEASUREMENT FOR EACH SENSOR AND GET SYSTEM DATA =====
       for(var integer i :=0; i<lengthof(v_sensorInstances); i:=i+1)
@@ -294,33 +264,68 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
           var JSONObject.Process v_currentProcess := v_sensorInstances[i].measurementProcesses[j]; 	
           var JSONObject.Processes v_currentProcesses := {};										
           execute(tc_createProcessesWithMeasurementId(
-          v_serviceInstance,
-          v_sensorInstances[i].measurement.measurementId, 
-          v_currentProcess, 
-          v_currentProcesses));
+          	v_serviceInstance,
+          	v_sensorInstances[i].measurement.measurementId, 
+          	v_currentProcess, 
+          	v_currentProcesses));
           for(var integer k := 0; k<lengthof(v_currentProcesses); k := k+1)
           {
             v_allProcesses[lengthof(v_allProcesses)] := v_currentProcesses[k];
           }
         }
+        v_sensorInstances[i].measurementProcesses := v_allProcesses;
       }
-      
+      t0.start(10.0);
+      t0.timeout;
       //=====EXECUTE TESTCASES REPEATEDLY=====
       label startTestcases;
-      @try
-      {
-        log("REPEAT");
-        goto startTestcases;
-      }
-      @catch(ex)
-      {
-        log("MANUAL STOPPED")
-      }
       
-      for(var integer i:= 0; i<lengthof(v_sensorInstances); i:=i+1)
+      for(var integer i:=0; i<lengthof(v_sensorInstances); i:= i+1)
       {
+        //=====MEMORY USAGE====
+        execute
+        (
+        	tc_memoryUsageLowerThan(
+        		v_serviceInstance,
+        		v_sensorInstances[i].measurement.measurementId, 
+        		v_sensorInstances[i].measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace, 
+        		0.20
+      		)
+        );
+        
+        //====PROCESS TESTCASES ====
+        var JSONObject.Processes v_processes :=  v_sensorInstances[i].measurementProcesses;
+        for(var integer j := 0; j<lengthof(v_processes); j:= j+1)
+        {
+          // GET DATA FOR EACH PROCESS
+          var JSONObject v_values;
+          execute
+          (
+          	tc_getProcessDataByPid
+          	(
+          		v_serviceInstance,
+          		v_sensorInstances[i].measurement.measurementId,
+          		v_processes[j].processId,
+          		v_values          		
+          	)
+          )
+          // CHECK MEMORY USAGE GREATER THAN 20%
+          execute
+          (
+          	tc_processMemoryUsageGreaterThan(
+          		v_values,
+          		v_sensorInstances[i].measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace,
+          		0.20
+          		)
+          )
+          // CHECK TREND DETECTION FOR MEMORY USAGE
+        }
+        
         
       }
+      t0.start;
+      t0.timeout;
+      goto startTestcases;
       //=====PROCESS RAM REGRESSION PARAMETER=====
       //TestComponent.start(getProcessDataByPid(measurement.measurementId, processes[0].processId, processValues));
       /*if()
@@ -334,14 +339,7 @@ function getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_
         log("Slope Parameter: " & float2str(processValues_Regression.slopeParameter));
       }*/
       
-      //=====MEMORY USAGE====tc_=
-      /*execute(
-      	tc_memoryUsageLowerThan(
-      		measurement.measurementId, 
-      		measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace, 
-      		0.20
-    	)
-      );*/
+      
 	  
       
       //Increased iterationscounter and repeat testcases until manually stopped

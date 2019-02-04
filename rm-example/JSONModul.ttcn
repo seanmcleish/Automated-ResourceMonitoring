@@ -18,8 +18,6 @@ module JSONModul {
 	type union JSONObject
 	{
 	  	// === SINGLE OBJECTS ===
-	  	
-	  	Nullable Nullable,
 	  	Baseboard Baseboard,
 	  	Disk Disk,
 	  	FileStore FileStore,
