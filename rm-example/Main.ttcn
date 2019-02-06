@@ -1,21 +1,32 @@
 module Main {
 
+type record of KeyValueInteger IntegerDictionary;
+type record of KeyValueFloat FloatDictionary;
 
-type record regressionParameter
+type record RegressionParameter
 {
   float slopeParameter,		// Steigung
   float interceptParameter 	// Niveau
 }
 
-
-type record of float FloatValues;
-type record of integer IntegerValues;
-
-type union Values
+type union Number
 {
-  FloatValues valuesAsFloat,
-  IntegerValues valuesAsInteger
+  integer asInteger,
+  float asFloat
 }
+
+type record KeyValueInteger
+{
+  integer Key,
+  integer Value
+}
+
+type record KeyValueFloat
+{
+  integer Key,
+  float Value
+}
+
 
 import from HTTPmsg_Types all;
 
@@ -28,62 +39,48 @@ function ContentLength (in charstring par_body) return charstring
   return a;
 }
 
-function calculateRegression (in Values values) runs on TestComponent return regressionParameter
+function DatestringToRoughlySeconds (in charstring p_date) return integer
+{
+  var integer year := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 0));
+  var integer month := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 1));
+  var integer days := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 2));
+  var integer hours := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 3));
+  var integer minutes := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 4));
+  var integer seconds := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 5));
+  return year*31536000+month*2628000+days*86400+hours*3600+minutes*60+seconds;
+}
+
+function CalculateRegressionInteger (in IntegerDictionary p_values) runs on TestComponent return RegressionParameter
 {
   var float slope:=0.0;				// Steigung
   var float intercept:=0.0;			// Niveau
   var float averageCounter := 0.0;
   var float averageValue := 0.0;
-  if(ischosen(values.valuesAsFloat))
+  if(lengthof(p_values)<1)
   {
-    if(lengthof(values.valuesAsFloat)<1)
-    {
       slope := not_a_number;
       intercept := not_a_number;
-    }
-    else
-    {
-      for(var integer i := 0; i<lengthof(values.valuesAsFloat); i := i+1)
-      {
-        averageCounter := averageCounter + int2float(i);
-        averageValue := averageValue + values.valuesAsFloat[i];
-      }
-      averageCounter := averageCounter / int2float(lengthof(values.valuesAsFloat));
-      averageValue := averageValue / int2float(lengthof(values.valuesAsFloat));
-      var float slope1 := 0.0;
-      var float slope2 := 0.0;
-      for(var integer i := 0; i<lengthof(values.valuesAsFloat); i := i+1)
-      {
-        slope1 := slope1 + (int2float(i)-averageCounter)*(values.valuesAsFloat[i]-averageValue);
-        slope2 := slope2 + (int2float(i)-averageCounter)*(int2float(i)-averageCounter);
-      }
-      slope := slope1/slope2;
-      intercept := averageValue-slope*averageCounter;
-      }
-
   }
-  else if(ischosen(values.valuesAsInteger))
+  else
   {
-    if(lengthof(values.valuesAsInteger)<1)
-    {
-      slope := not_a_number;
-      intercept := not_a_number;
-    }
-    else
-    {
-      for(var integer i := 0; i<lengthof(values.valuesAsInteger); i := i+1)
+      // Calculate average
+      for(var integer i := 0; i<lengthof(p_values); i := i+1)
       {
-        averageCounter := averageCounter + int2float(i);
-        averageValue := averageValue + int2float(values.valuesAsInteger[i]);
+        averageCounter := averageCounter + int2float(p_values[i].Key);
+        averageValue := averageValue + int2float(p_values[i].Value);
       }
-      averageCounter := averageCounter / int2float(lengthof(values.valuesAsInteger));
-      averageValue := averageValue / int2float(lengthof(values.valuesAsInteger));
+      averageCounter := averageCounter / int2float(lengthof(p_values));
+      averageValue := averageValue / int2float(lengthof(p_values));
+      
+      // Calculate slope
       var float slope1 := 0.0;
       var float slope2 := 0.0;
-      for(var integer i := 0; i<lengthof(values.valuesAsInteger); i := i+1)
+      for(var integer i := 0; i<lengthof(p_values); i := i+1)
       {
-        slope1 := slope1 + (int2float(i)-averageCounter)*(int2float(values.valuesAsInteger[i])-averageValue);
-        slope2 := slope2 + (int2float(i)-averageCounter)*(int2float(i)-averageCounter);
+        // Numerator
+        slope1 := slope1 + (int2float(p_values[i].Key)-averageCounter)*(int2float(p_values[i].Value)-averageValue);
+        // Denominator
+        slope2 := slope2 + (int2float(p_values[i].Key)-averageCounter)*(int2float(p_values[i].Key)-averageCounter);
       }
       slope := slope1;
       if(slope2==0.0)
@@ -95,13 +92,55 @@ function calculateRegression (in Values values) runs on TestComponent return reg
         slope := slope1/slope2;
       }
       intercept := averageValue-slope*averageCounter;
-    }
+  	}
+  	log("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
+  	return {slope, intercept};
   }
-  else
+  
+  function CalculateRegressionFloat (in FloatDictionary p_values) runs on TestComponent return RegressionParameter
   {
-    slope := not_a_number;
-    intercept := not_a_number;
-  }
+    var float slope:=0.0;				// Steigung
+    var float intercept:=0.0;			// Niveau
+    var float averageCounter := 0.0;
+    var float averageValue := 0.0;
+    if(lengthof(p_values)<1)
+    {
+        slope := not_a_number;
+        intercept := not_a_number;
+    }
+    else
+    {
+        // Calculate average
+        for(var integer i := 0; i<lengthof(p_values); i := i+1)
+        {
+          averageCounter := averageCounter + int2float(p_values[i].Key);
+          averageValue := averageValue + p_values[i].Value;
+        }
+        averageCounter := averageCounter / int2float(lengthof(p_values));
+        averageValue := averageValue / int2float(lengthof(p_values));
+        
+        // Calculate slope
+        var float slope1 := 0.0;
+        var float slope2 := 0.0;
+        for(var integer i := 0; i<lengthof(p_values); i := i+1)
+        {
+          // Numerator
+          slope1 := slope1 + (int2float(p_values[i].Key)-averageCounter)*(p_values[i].Value-averageValue);
+          // Denominator
+          slope2 := slope2 + (int2float(p_values[i].Key)-averageCounter)*(int2float(p_values[i].Key)-averageCounter);
+        }
+        slope := slope1;
+        if(slope2==0.0)
+        {
+          slope := 0.0;
+        }
+        else
+        {
+          slope := slope1/slope2;
+        }
+        intercept := averageValue-slope*averageCounter;
+        log("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
+  	}
   return {slope, intercept};
 }
 
@@ -182,7 +221,7 @@ runs on TestComponent
 {
   if(not(ischosen(p_values.processValues)))
   {
-    stop;  bash
+    stop;
   }
   setverdict(pass);
   for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
@@ -193,6 +232,36 @@ runs on TestComponent
       setverdict(fail);
       stop;
     }
+  }
+}
+
+testcase tc_processMemoryUsageSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound)
+runs on TestComponent 
+{
+  if(not(ischosen(p_values.processValues)))
+  {
+    stop;
+  }
+  if(lengthof(p_values.processValues) < 5)
+  {
+    stop;
+  }
+  setverdict(pass);
+  var IntegerDictionary v_values := {};
+  for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
+  {
+    var KeyValueInteger v_value := 
+    { 
+    	Key := DatestringToRoughlySeconds(p_values.processValues[i].processValueId.processValueTimestamp)-DatestringToRoughlySeconds(p_values.processValues[0].processValueId.processValueTimestamp),
+    	Value := p_values.processValues[i].processValueResidentSetSize
+    }
+    log(v_value.Key);
+    v_values[i] := v_value;
+  }
+  var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
+  if(v_regressionResult.slopeParameter > p_relativeSlopeUpperBound)
+  {
+    setverdict(fail);
   }
 }
 
@@ -309,43 +378,31 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
           		v_values          		
           	)
           )
-          // CHECK MEMORY USAGE GREATER THAN 20%
+          // CHECK PROCESS MEMORY USAGE GREATER THAN 20%
           execute
           (
-          	tc_processMemoryUsageGreaterThan(
+          	tc_processMemoryUsageGreaterThan
+          	(
           		v_values,
           		v_sensorInstances[i].measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace,
           		0.20
-          		)
+          	)
           )
-          // CHECK TREND DETECTION FOR MEMORY USAGE
+          // CHECK TREND DETECTION FOR PROCESS MEMORY USAGE, FAIL WHEN LEAK >346 Bytes/s (~200 MB / week)
+          execute
+          (
+          	tc_processMemoryUsageSlopeGreaterThan
+          	(
+          		v_values,
+          		346.0
+          	)
+          )
         }
-        
-        
       }
+      
       t0.start;
       t0.timeout;
       goto startTestcases;
-      //=====PROCESS RAM REGRESSION PARAMETER=====
-      //TestComponent.start(getProcessDataByPid(measurement.measurementId, processes[0].processId, processValues));
-      /*if()
-      {
-        for(var integer i := 0; i<lengthof(processValues.processValueList); i := i+1)
-        {
-          processValues_RAM[i] := processValues.processValueList[i].processValueResidentSetSize;
-        }
-        processValues_Regression := calculateRegression( {valuesAsInteger := processValues_RAM} );
-        log("Intercept Parameter: " & float2str(processValues_Regression.interceptParameter));
-        log("Slope Parameter: " & float2str(processValues_Regression.slopeParameter));
-      }*/
-      
-      
-	  
-      
-      //Increased iterationscounter and repeat testcases until manually stopped
-      //iterations:=iterations+1;
-
-      //goto startTestcases;
     }
 }
 
