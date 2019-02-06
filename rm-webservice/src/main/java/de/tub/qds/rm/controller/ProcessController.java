@@ -1,16 +1,11 @@
 package de.tub.qds.rm.controller;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -21,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import de.tub.qds.rm.ScheduledTask;
@@ -32,7 +26,6 @@ import de.tub.qds.rm.models.consts.repos.ProcessRepo;
 import de.tub.qds.rm.models.consts.repos.ProcessValueRepo;
 import de.tub.qds.rm.models.values.ProcessValue;
 import de.tub.qds.rm.models.values.pks.ProcessValuePK;
-import de.tub.qds.rm.models.values.wrapper.ProcessJsonWrapper;
 import de.tub.qds.rm.models.values.wrapper.ProcessValueWrapper;
 
 //FINISHED IMPLEMENTATION & TESTED

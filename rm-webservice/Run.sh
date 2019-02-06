@@ -1,1 +1,1 @@
-java -jar target/RessourceMonitor.jar --server.port=8090
+java -XX:+UseSerialGC -jar target/RessourceMonitor.jar --server.port=8090

@@ -1,1 +1,1 @@
-java -jar target\RessourceMonitor-Sensor.jar 10005
+java -XX:+UseSerialGC -jar target/RessourceMonitor-Sensor.jar 10005
