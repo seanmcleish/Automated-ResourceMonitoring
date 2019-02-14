@@ -347,26 +347,38 @@ public class ScheduledTask {
 			.asJson();
 
 		//ADD PROCESSORDATA
-
-		Double processorValueSystemCpuLoadBetweenTicks = Double.parseDouble(hardwareContext.read("$.processor.systemCpuLoadBetweenTicks").toString());
-		/*Integer[] processorValueSystemCpuLoadTicks = hardwareContext.("$.processor.systemCpuLoadTicks", String);*/
-		Double processorValueSystemCpuLoad= Double.parseDouble(hardwareContext.read("$.processor.systemCpuLoad").toString());
-		/*Integer[] processorValueSystemLoadAverages = hardwareContext.read("$.processor.systemCpuLoadTicks", Integer[].class);
-		Double[] processorValueProcessorCpuLoadBetweenTicks = hardwareContext.read("$.processor.processorCpuLoadBetweenTicks", Double[].class);
-		Long[][] processorValueProcessorCpuLoadTicks = hardwareContext.read("$.processor.processorCpuLoadTicks", Long[][].class);*/
-		Long processorValueSystemUpTime= Long.parseLong(hardwareContext.read("$.processor.systemUptime").toString());
+		/* REDUNDANCY
+		 *	Double processorValueSystemCpuLoadBetweenTicks = Double.parseDouble(hardwareContext.read("$.processor.systemCpuLoadBetweenTicks").toString());
+		 *	Double processorValueSystemCpuLoad= Double.parseDouble(hardwareContext.read("$.processor.systemCpuLoad").toString());
+		 *	Integer[] processorValueSystemLoadAverages = hardwareContext.read("$.processor.systemCpuLoadTicks", Integer[].class);
+		 *	Double[] processorValueProcessorCpuLoadBetweenTicks = hardwareContext.read("$.processor.processorCpuLoadBetweenTicks", Double[].class);
+		 *	Long[][] processorValueProcessorCpuLoadTicks = hardwareContext.read("$.processor.processorCpuLoadTicks", Long[][].class);
+		 *	Long processorValueSystemUpTime= Long.parseLong(hardwareContext.read("$.processor.systemUptime").toString());
+		 */
+		Long[] processorValueSystemCpuLoadTicks = hardwareContext.read("$.processor.systemCpuLoadTicks", Long[].class);
 		Long processorValueContextSwitches = Long.parseLong(hardwareContext.read("$.processor.contextSwitches").toString());
 		Long processorValueInterrupts = Long.parseLong(hardwareContext.read("$.processor.interrupts").toString());
 		Unirest.post(String.format("http://localhost:%s/processor/%s/processorValues", remotePort, processor.getProcessorId()))
 			.field("measurementId", measurement.getMeasurementId())
 			.field("timestamp", timestamp)
-			.field("processorValueSystemCpuLoadBetweenTicks", processorValueSystemCpuLoadBetweenTicks)
-			/*.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks)*/
-			.field("processorValueSystemCpuLoad", processorValueSystemCpuLoad)
-			/*.field("processorValueSystemLoadAverages", processorValueSystemLoadAverages)
-			.field("processorValueProcessorCpuLoadBetweenTicks", processorValueProcessorCpuLoadBetweenTicks)
-			.field("processorValueProcessorCpuLoadTicks", processorValueProcessorCpuLoadTicks)*/
-			.field("processorValueSystemUpTime", processorValueSystemUpTime)
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[0]) // User
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[1]) // Nice
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[2]) // System
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[3]) // Idle
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[4]) // IOwait
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[5]) // IRQ
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[6]) // SoftIRQ
+			.field("processorValueSystemCpuLoadTicks", processorValueSystemCpuLoadTicks[7]) // Steal
+			// REDUNDANCY
+			/*	.field("processorValueSystemCpuLoad", processorValueSystemCpuLoad)
+			 * 	.field("processorValueSystemCpuLoadBetweenTicks", processorValueSystemCpuLoadBetweenTicks)
+			 *	.field("processorValueSystemLoadAverages", processorValueSystemLoadAverages[0])
+			 *	.field("processorValueSystemLoadAverages", processorValueSystemLoadAverages[1])
+			 *	.field("processorValueSystemLoadAverages", processorValueSystemLoadAverages[2])
+			 *	.field("processorValueProcessorCpuLoadBetweenTicks", processorValueProcessorCpuLoadBetweenTicks)
+			 *	.field("processorValueProcessorCpuLoadTicks", processorValueProcessorCpuLoadTicks)
+			 *	.field("processorValueSystemUpTime", processorValueSystemUpTime)
+			*/
 			.field("processorValueContextSwitches", processorValueContextSwitches)
 			.field("processorValueInterrupts", processorValueInterrupts)
 			.asJson();
