@@ -161,6 +161,22 @@ runs on TestComponent system TestComponent
   }
 }
 
+testcase tc_stopMeasurementByMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId)
+runs on TestComponent system TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  var template HTTPMessage post_request := t_PUT_Request("/measurement/" & int2str(p_measurementId) & "?measurementRunning=false");
+  var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+  if(ischosen(response.Measurement))
+  {
+    setverdict(pass);
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
 
 testcase tc_getMeasurementSystemByMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.SystemObject p_result)
 runs on TestComponent
@@ -197,7 +213,7 @@ runs on TestComponent
   }
 }
 
-testcase tc_memoryUsageLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeLowerBound) 
+testcase tc_memoryAvailableLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeLowerBound) 
 runs on TestComponent 
 {
   var template HTTPMessage get_request := t_GET_Request( "/memory/"&int2str(p_memoryTotalSpace)&"/memoryValues/"&int2str(p_measurementId));
@@ -210,6 +226,32 @@ runs on TestComponent
   for(var integer i := 0; i < lengthof(result.memoryValues); i := i+1)
   {
     if((int2float(result.memoryValues[i].memoryValueAvailable)/int2float(p_memoryTotalSpace)) < p_relativeLowerBound)
+    {
+      setverdict(fail);
+    }
+  }
+}
+
+testcase tc_processorUsageGreaterThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in charstring p_processorId, in float p_relativeLowerBound) 
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/processor/"&p_processorId&"/processorValues/"&int2str(p_measurementId));
+  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(result.processorValues)))
+  {
+    stop;
+  }
+  if(lengthof(result.processorValues) < 2)
+  {
+    stop;
+  }
+  setverdict(pass);
+  
+  var JSONObject.processorValue v_firstValue := result.processorValues[0];
+  var JSONObject.processorValue v_lastValue := result.processorValues[lengthof(result.processorValues)-1];
+  for(var integer i := 0; i < lengthof(result.processorValues); i := i+1)
+  {
+    //if((int2float(result.processorValues[i].memoryValueAvailable)/int2float(p_memoryTotalSpace)) < p_relativeLowerBound)
     {
       setverdict(fail);
     }
@@ -280,15 +322,17 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
     {
       // ==== CONFIG ====
       timer t0:=5.0;
+      const integer c_executionLimit := 1440;
+      var integer v_executionCounter := 0;
       var SensorInstances v_sensorInstances;
       var ServiceInstance v_serviceInstance := 
       {
         hostname := "localhost",
         portnumber := 8090
       };
-      AddSensor("localhost", 10005, v_sensorInstances);
-      AddProcessToSensor(v_sensorInstances[0], "java");
-      AddProcessToSensor(v_sensorInstances[0], "stress");
+      AddSensor("mpc1493", 10005, v_sensorInstances);
+      AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
+      AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
 
 	  // ===== CREATE MEASUREMENT FOR EACH SENSOR AND GET SYSTEM DATA =====
       for(var integer i :=0; i<lengthof(v_sensorInstances); i:=i+1)
@@ -297,16 +341,12 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
         var JSONObject.SystemObject v_measurementSystem := {};
         
         // Create Data and start measurement on service instance
-        var verdicttype v_createData := execute
-        								(
-        									tc_createDataByHostname
-        									(
-        										v_serviceInstance, 
-        										v_sensorInstances[i].hostname, 
-        										v_sensorInstances[i].portnumber,
-        										v_measurement
-        									)
-        								);
+        var verdicttype v_createData := execute(tc_createDataByHostname(
+        											v_serviceInstance, 
+        											v_sensorInstances[i].hostname, 
+        											v_sensorInstances[i].portnumber,
+        											v_measurement
+        										));
        	// If failed, abort test execution with error
         if(v_createData==none or v_createData==error)
         {
@@ -344,8 +384,6 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
         }
         v_sensorInstances[i].measurementProcesses := v_allProcesses;
       }
-      t0.start(10.0);
-      t0.timeout;
       //=====EXECUTE TESTCASES REPEATEDLY=====
       label startTestcases;
       
@@ -354,7 +392,7 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
         //=====MEMORY USAGE====
         execute
         (
-        	tc_memoryUsageLowerThan(
+        	tc_memoryAvailableLowerThan(
         		v_serviceInstance,
         		v_sensorInstances[i].measurement.measurementId, 
         		v_sensorInstances[i].measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace, 
@@ -388,21 +426,31 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
           		0.20
           	)
           )
-          // CHECK TREND DETECTION FOR PROCESS MEMORY USAGE, FAIL WHEN LEAK >346 Bytes/s (~200 MB / week)
-          execute
-          (
-          	tc_processMemoryUsageSlopeGreaterThan
+          // CHECK TREND DETECTION AT THE END FOR PROCESS MEMORY USAGE, FAIL WHEN LEAK >173 Bytes/s (~100 MB / week)
+          
+          if(v_executionCounter > 5)
+          {
+            execute
           	(
-          		v_values,
-          		346.0
+            	tc_processMemoryUsageSlopeGreaterThan
+            	(
+            		v_values,
+            		346.0
+            	)
           	)
-          )
+          }
         }
       }
-      
-      t0.start;
-      t0.timeout;
-      goto startTestcases;
+      v_executionCounter := v_executionCounter + 1;
+      if(v_executionCounter < c_executionLimit){
+        t0.start(60.0);
+      	t0.timeout;
+        goto startTestcases;
+      }
+      for(var integer i := 0; i<lengthof(v_sensorInstances); i := i+1)
+      {
+        execute(tc_stopMeasurementByMeasurementId(v_serviceInstance, v_sensorInstances[i].measurement.measurementId));
+      }
     }
 }
 
