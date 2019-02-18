@@ -203,7 +203,7 @@ public class ProcessorController {
 			@RequestParam("measurementId") Long measurementId,
 			@RequestParam(value="timestamp", required=false) Long timestamp,
 			@RequestParam(value="processorValueSystemCpuLoadBetweenTicks", required=false) Double processorValueSystemCpuLoadBetweenTicks,
-			@RequestParam(value="processorValueSystemCpuLoadTicks", required=false) Integer[] processorValueSystemCpuLoadTicks,
+			@RequestParam(value="processorValueSystemCpuLoadTicks", required=false) Long[] processorValueSystemCpuLoadTicks,
 			@RequestParam(value="processorValueSystemCpuLoad", required=false) Double processorValueSystemCpuLoad,
 			@RequestParam(value="processorValueSystemLoadAverages", required=false) Integer[] processorValueSystemLoadAverages,
 			@RequestParam(value="processorValueProcessorCpuLoadBetweenTicks", required=false) Double[] processorValueProcessorCpuLoadBetweenTicks,

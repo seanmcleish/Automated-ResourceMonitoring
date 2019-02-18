@@ -73,6 +73,17 @@ public class MainController {
 		}
 	  }
 	
+	@RequestMapping(method = RequestMethod.PUT, path ="/stopMeasurements")
+	public void stopAllMeasurements(HttpServletRequest request, HttpServletResponse response) 
+	{
+		List<Measurement> measurements = measurementRepo.findAll();
+		for(Measurement measurement : measurements)
+		{
+			measurement.setMeasurementRunning(false);
+			measurementRepo.save(measurement);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, path = "/createDataByHostName", produces = "application/json")
 	public Measurement createTestDataWithLocalhost(@RequestParam("hostName") String hostName, @RequestParam("remotePort") String remotePort) throws UnirestException{
 		String ip = Methods.ipResolve(hostName);

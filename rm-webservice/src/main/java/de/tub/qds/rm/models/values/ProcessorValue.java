@@ -17,7 +17,7 @@ public class ProcessorValue implements Serializable {
 	@EmbeddedId
 	ProcessorValuePK processorValueId;
 	Double processorValueSystemCpuLoadBetweenTicks;
-	Integer[] processorValueSystemCpuLoadTicks;
+	Long[] processorValueSystemCpuLoadTicks;
 	Double processorValueSystemCpuLoad;
 	Integer[] processorValueSystemLoadAverages;
 	Double[] processorValueProcessorCpuLoadBetweenTicks;
@@ -29,7 +29,7 @@ public class ProcessorValue implements Serializable {
 	public ProcessorValue() {
 	}
 
-	public ProcessorValue(ProcessorValuePK id, Double systemCpuLoadBetweenTicks, Integer[] systemCpuLoadTicks,
+	public ProcessorValue(ProcessorValuePK id, Double systemCpuLoadBetweenTicks, Long[] systemCpuLoadTicks,
 			Double systemCpuLoad, Integer[] systemLoadAverages, Double[] processorCpuLoadBetweenTicks,
 			Long[][] processorCpuLoadTicks, Long systemUpTime, Long contextSwitches, Long interrupts) {
 		super();
@@ -62,11 +62,11 @@ public class ProcessorValue implements Serializable {
 		this.processorValueSystemCpuLoadBetweenTicks = processorValueSystemCpuLoadBetweenTicks;
 	}
 
-	public Integer[] getProcessorValueSystemCpuLoadTicks() {
+	public Long[] getProcessorValueSystemCpuLoadTicks() {
 		return processorValueSystemCpuLoadTicks;
 	}
 
-	public void setProcessorValueSystemCpuLoadTicks(Integer[] processorValueSystemCpuLoadTicks) {
+	public void setProcessorValueSystemCpuLoadTicks(Long[] processorValueSystemCpuLoadTicks) {
 		this.processorValueSystemCpuLoadTicks = processorValueSystemCpuLoadTicks;
 	}
 
