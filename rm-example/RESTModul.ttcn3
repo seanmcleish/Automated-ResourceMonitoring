@@ -20,6 +20,8 @@ module RESTModul{
       JSONObject.Processes measurementProcesses optional
     }
     
+    
+    
     function AddSensor(in charstring p_hostname, in integer p_portnumber, inout SensorInstances p_sensorInstances)
     {
       if(not(ispresent(p_sensorInstances)))
@@ -114,7 +116,6 @@ module RESTModul{
       
       // ==== CONNECTION-PART (ESTABLISH SOCKETCONNECTION) ====
       var Connect_result v_Connect_result;
-      log("Connecting")
 	  template Connect t_connect := { hostname := p_serviceInstance.hostname, portnumber := p_serviceInstance.portnumber, use_ssl := false };
 	  template Close t_close := { client_id := omit};
 	  timer t0:=10.0;    
@@ -152,7 +153,6 @@ module RESTModul{
           }
           if (ischosen(v_HTTPMessage_response.response))
           {
-            log("Decoding HTTP-BODY TO JSON");
             v_JSON_PDU := dec_JSON(char2oct(v_HTTPMessage_response.response.body));
           }
         }

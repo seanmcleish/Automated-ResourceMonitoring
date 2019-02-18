@@ -61,7 +61,7 @@ HTTPmsg__PT::~HTTPmsg__PT()
 void HTTPmsg__PT::set_parameter(const char *parameter_name,
 	const char *parameter_value)
 {
-    log_debug("entering HTTPmsg__PT::set_parameter(%s, %s)", parameter_name, parameter_value);
+	//log_debug("entering HTTPmsg__PT::set_parameter(%s, %s)", parameter_name, parameter_value);
     if(strcasecmp(parameter_name, use_notification_ASPs_name()) == 0) {
         if (strcasecmp(parameter_value,"yes")==0) use_notification_ASPs = true;
         else if (strcasecmp(parameter_value,"no")==0) use_notification_ASPs = false;
@@ -74,42 +74,42 @@ void HTTPmsg__PT::set_parameter(const char *parameter_name,
     else if((strcasecmp(parameter_name, use_connection_ASPs_name()) == 0) || !parameter_set(parameter_name ,parameter_value)) {
         log_warning("HTTPmsg__PT::set_parameter(): Unsupported Test Port parameter: %s", parameter_name);
     }
-    log_debug("leaving HTTPmsg__PT::set_parameter(%s, %s)", parameter_name, parameter_value);
+    //log_debug("leaving HTTPmsg__PT::set_parameter(%s, %s)", parameter_name, parameter_value);
 }
 
 void HTTPmsg__PT::Handle_Fd_Event(int fd,
     boolean is_readable, boolean is_writable, boolean is_error)
 {
-    log_debug("-------------- entering HTTPmsg__PT::Handle_Fd_Event() - event received on a connection");
+	//log_debug("-------------- entering HTTPmsg__PT::Handle_Fd_Event() - event received on a connection");
     Handle_Socket_Event(fd, is_readable, is_writable, is_error);
-    log_debug("leaving HTTPmsg__PT::Handle_Fd_Event()");
+    //log_debug("leaving HTTPmsg__PT::Handle_Fd_Event()");
 }
 
 void HTTPmsg__PT::Handle_Timeout(double time_since_last_call)
 {
-    log_debug("entering HTTPmsg__PT::Handle_Timeout()");
+	//log_debug("entering HTTPmsg__PT::Handle_Timeout()");
     Handle_Timeout_Event(time_since_last_call);
-    log_debug("leaving HTTPmsg__PT::Handle_Timeout()");
+    //log_debug("leaving HTTPmsg__PT::Handle_Timeout()");
 }
 
 void HTTPmsg__PT::user_map(const char *system_port)
 {
-    log_debug("entering HTTPmsg__PT::user_map(%s)",system_port);
+	//log_debug("entering HTTPmsg__PT::user_map(%s)",system_port);
     if(TTCN_Logger::log_this_event(TTCN_DEBUG)) {
         if(!get_socket_debugging())
             log_warning("%s: to switch on HTTP test port debugging, set the '*.%s.http_debugging := \"yes\" in the port's parameters.", get_name(), get_name());
     }
     map_user();
-    log_debug("leaving HTTPmsg__PT::user_map()");
+    //log_debug("leaving HTTPmsg__PT::user_map()");
 }
 
 void HTTPmsg__PT::user_unmap(const char *system_port)
 {
-  log_debug("entering HTTPmsg__PT::user_unmap(%s)",system_port);
+  //log_debug("entering HTTPmsg__PT::user_unmap(%s)",system_port);
 
   unmap_user();
 
-  log_debug("leaving HTTPmsg__PT::user_unmap()");
+  //log_debug("leaving HTTPmsg__PT::user_unmap()");
 }
 
 void HTTPmsg__PT::user_start()
@@ -122,19 +122,19 @@ void HTTPmsg__PT::user_stop()
 
 void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Close& send_par)
 {
-    log_debug("entering HTTPmsg__PT::outgoing_send(Close)");
+	//log_debug("entering HTTPmsg__PT::outgoing_send(Close)");
 
     if(send_par.client__id().ispresent())
         remove_client((int)send_par.client__id()());
     else
         remove_all_clients();
 
-    log_debug("leaving HTTPmsg__PT::outgoing_send(Close)");
+    //log_debug("leaving HTTPmsg__PT::outgoing_send(Close)");
 }
 
 void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Connect& send_par)
 {
-    log_debug("entering HTTPmsg__PT::outgoing_send(Connect)");
+	//log_debug("entering HTTPmsg__PT::outgoing_send(Connect)");
 
     adding_ssl_connection = send_par.use__ssl();
     adding_client_connection = true;
@@ -151,12 +151,12 @@ void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Connect& send_par)
     adding_ssl_connection = false;
     adding_client_connection = false;
 
-    log_debug("leaving HTTPmsg__PT::outgoing_send(Connect),client_id: %d", client_id);
+    //log_debug("leaving HTTPmsg__PT::outgoing_send(Connect),client_id: %d", client_id);
 }
 
 void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Listen& send_par)
 {
-    log_debug("entering HTTPmsg__PT::outgoing_send(Listen)");
+	//log_debug("entering HTTPmsg__PT::outgoing_send(Listen)");
 
     server_use_ssl = send_par.use__ssl();
 
@@ -175,40 +175,40 @@ void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Listen& send_par)
 		}
     else
     {
-        log_debug("using IN_ADDR_ANY as local host name");
+    	//log_debug("using IN_ADDR_ANY as local host name");
         open_listen_port(NULL,int2str((INTEGER)send_par.portnumber()));
 
     }
 
-    log_debug("leaving HTTPmsg__PT::outgoing_send(Listen)");
+    //log_debug("leaving HTTPmsg__PT::outgoing_send(Listen)");
 
 }
 
 void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Half__close& send_par)
 {
-    log_debug("entering HTTPmsg__PT::outgoing_send(Half_close)");
+	//log_debug("entering HTTPmsg__PT::outgoing_send(Half_close)");
 
     if(send_par.client__id().ispresent())
         send_shutdown((int)send_par.client__id()());
     else
         send_shutdown();
 
-    log_debug("leaving HTTPmsg__PT::outgoing_send(Half_close)");
+    //log_debug("leaving HTTPmsg__PT::outgoing_send(Half_close)");
 
 }
 
 void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::Shutdown& /*send_par*/)
 {
-    log_debug("entering HTTPmsg__PT::outgoing_send(Shutdown)");
+	//log_debug("entering HTTPmsg__PT::outgoing_send(Shutdown)");
 
     close_listen_port();
 
-    log_debug("leaving HTTPmsg__PT::outgoing_send(Shutdown)");
+    //log_debug("leaving HTTPmsg__PT::outgoing_send(Shutdown)");
 }
 
 void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::HTTPMessage& send_par)
 {
-    log_debug("entering HTTPmsg__PT::outgoing_send(HTTPMessage)");
+	//log_debug("entering HTTPmsg__PT::outgoing_send(HTTPMessage)");
 
     TTCN_Buffer snd_buf;
     int client_id = -1;
@@ -258,7 +258,7 @@ void HTTPmsg__PT::outgoing_send(const HTTPmsg__Types::HTTPMessage& send_par)
         send_outgoing(snd_buf.get_data(), snd_buf.get_len());
     
     last_msg = NULL;
-    log_debug("leaving HTTPmsg__PT::outgoing_send(HTTPMessage)");
+    //log_debug("leaving HTTPmsg__PT::outgoing_send(HTTPMessage)");
 }
 
 void HTTPmsg__PT::report_unsent(int client_id, int /*msg_length*/, int /*sent_length*/, const unsigned char* /*msg*/, const char* /*error_text*/)
@@ -275,7 +275,7 @@ void HTTPmsg__PT::report_unsent(int client_id, int /*msg_length*/, int /*sent_le
 
 void HTTPmsg__PT::client_connection_opened(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::client_connection_opened(%d)", client_id);
+	//log_debug("entering HTTPmsg__PT::client_connection_opened(%d)", client_id);
 
     if(use_notification_ASPs)
     {
@@ -286,12 +286,12 @@ void HTTPmsg__PT::client_connection_opened(int client_id)
     else if(client_id < 0)
         log_error("Cannot connect to server");
 
-    log_debug("leaving HTTPmsg__PT::client_connection_opened()");
+    //log_debug("leaving HTTPmsg__PT::client_connection_opened()");
 }
 
 void HTTPmsg__PT::listen_port_opened(int port_number)
 {
-  log_debug("entering HTTPmsg__PT::listen_port_opened(%d)", port_number);
+	//log_debug("entering HTTPmsg__PT::listen_port_opened(%d)", port_number);
 
   if(use_notification_ASPs)
   {
@@ -302,34 +302,34 @@ void HTTPmsg__PT::listen_port_opened(int port_number)
   else if(port_number < 0)
     log_error("Cannot listen at port");
 
-  log_debug("leaving HTTPmsg__PT::listen_port_opened()");
+  //log_debug("leaving HTTPmsg__PT::listen_port_opened()");
 }
 
 void HTTPmsg__PT::message_incoming(const unsigned char* /*msg*/, int /*messageLength*/, int client_id)
 {
-    log_debug("entering HTTPmsg__PT::message_incoming()");
+	//log_debug("entering HTTPmsg__PT::message_incoming()");
 
     TTCN_Buffer* buf_p = get_buffer(client_id);
 
     while(buf_p->get_read_len() > 0)
     {
-        log_debug("HTTPmsg__PT::message_incoming(): decoding next message, len: %d", (int)buf_p->get_read_len());
+    	//log_debug("HTTPmsg__PT::message_incoming(): decoding next message, len: %d", (int)buf_p->get_read_len());
         if(!HTTP_decode(buf_p, client_id))
             break;
     }
 
-    log_debug("leaving HTTPmsg__PT::message_incoming()");
+    //log_debug("leaving HTTPmsg__PT::message_incoming()");
 }
 
 void HTTPmsg__PT::peer_half_closed(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::peer_half_closed(client_id: %d)", client_id);
+	//log_debug("entering HTTPmsg__PT::peer_half_closed(client_id: %d)", client_id);
 
     TTCN_Buffer* buf_p = get_buffer(client_id);
     buf_p->rewind();
     while(buf_p->get_read_len() > 0)
     {
-        log_debug("HTTPmsg__PT::remove_client(): decoding next message, len: %d", (int)buf_p->get_read_len());
+    	//log_debug("HTTPmsg__PT::remove_client(): decoding next message, len: %d", (int)buf_p->get_read_len());
         if(!HTTP_decode(buf_p, client_id,true))
             break;
     }
@@ -338,12 +338,12 @@ void HTTPmsg__PT::peer_half_closed(int client_id)
     asp.client__id() = client_id;
     incoming_message(asp);
 
-    log_debug("leaving HTTPmsg__PT::peer_half_closed(client_id: %d)", client_id);
+    //log_debug("leaving HTTPmsg__PT::peer_half_closed(client_id: %d)", client_id);
 }
 
 void HTTPmsg__PT::peer_disconnected(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::peer_disconnected(client_id: %d)", client_id);
+	//log_debug("entering HTTPmsg__PT::peer_disconnected(client_id: %d)", client_id);
 
     if(use_notification_ASPs)
     {
@@ -353,14 +353,14 @@ void HTTPmsg__PT::peer_disconnected(int client_id)
     }
     else Abstract_Socket::peer_disconnected(client_id);
 
-    log_debug("leaving HTTPmsg__PT::peer_disconnected(client_id: %d)", client_id);
+    //log_debug("leaving HTTPmsg__PT::peer_disconnected(client_id: %d)", client_id);
 }
 
 //void HTTPmsg__PT::peer_connected(int client_id, sockaddr_in& addr)
 
 void HTTPmsg__PT::peer_connected(int client_id, const char * host, const int port)
 {
-    log_debug("entering HTTPmsg__PT::peer_connected(%d)", client_id);
+	//log_debug("entering HTTPmsg__PT::peer_connected(%d)", client_id);
 
     if(use_notification_ASPs)
     {
@@ -373,28 +373,28 @@ void HTTPmsg__PT::peer_connected(int client_id, const char * host, const int por
     }
     else Abstract_Socket::peer_connected(client_id, host, port);
 
-    log_debug("leaving HTTPmsg__PT::peer_connected()");
+    //log_debug("leaving HTTPmsg__PT::peer_connected()");
 }
 
 bool HTTPmsg__PT::add_user_data(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::add_user_data(client_id: %d, use_ssl: %s)",
-        client_id, (adding_client_connection && adding_ssl_connection) || (server_use_ssl && !adding_ssl_connection) ? "yes" : "no");
+	//log_debug("entering HTTPmsg__PT::add_user_data(client_id: %d, use_ssl: %s)",
+    //    client_id, (adding_client_connection && adding_ssl_connection) || (server_use_ssl && !adding_ssl_connection) ? "yes" : "no");
 
     set_server_mode(!adding_client_connection);
 
     if((adding_client_connection && !adding_ssl_connection) || (!adding_client_connection && !server_use_ssl))
     {
-        log_debug("leaving HTTPmsg__PT::add_user_data() with returning Abstract_Socket::add_user_data()");
+    	//log_debug("leaving HTTPmsg__PT::add_user_data() with returning Abstract_Socket::add_user_data()");
         return Abstract_Socket::add_user_data(client_id);
     }
     else
     {
 #ifdef AS_USE_SSL
-        log_debug("leaving HTTPmsg__PT::add_user_data() with returning SSL_Socket::add_user_data()");
+    	//log_debug("leaving HTTPmsg__PT::add_user_data() with returning SSL_Socket::add_user_data()");
         return SSL_Socket::add_user_data(client_id);
 #else
-        log_error("%s: HTTP test port is not compiled to support SSL connections. Please check the User's Guide for instructions on compiling the HTTP test port with SSL support.", get_name());
+        //log_error("%s: HTTP test port is not compiled to support SSL connections. Please check the User's Guide for instructions on compiling the HTTP test port with SSL support.", get_name());
 #endif
     }
 
@@ -404,47 +404,47 @@ bool HTTPmsg__PT::add_user_data(int client_id)
 
 bool HTTPmsg__PT::remove_user_data(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::remove_user_data(client_id: %d", client_id);
+	//log_debug("entering HTTPmsg__PT::remove_user_data(client_id: %d", client_id);
 
 #ifdef AS_USE_SSL
     if(get_user_data(client_id))
     {
         // INFO: it is assumed that only SSL_Socket assigns user data to each peer
-        log_debug("leaving HTTPmsg__PT::remove_user_data() with returning SSL_Socket::remove_user_data()");
+    	//log_debug("leaving HTTPmsg__PT::remove_user_data() with returning SSL_Socket::remove_user_data()");
         return SSL_Socket::remove_user_data(client_id);
     }
 #endif
 
-    log_debug("leaving HTTPmsg__PT::remove_user_data() with returning Abstract_Socket::remove_user_data()");
+    //log_debug("leaving HTTPmsg__PT::remove_user_data() with returning Abstract_Socket::remove_user_data()");
     return Abstract_Socket::remove_user_data(client_id);
 }
 
 int HTTPmsg__PT::receive_message_on_fd(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::receive_message_on_fd(client_id: %d)", client_id);
+	//log_debug("entering HTTPmsg__PT::receive_message_on_fd(client_id: %d)", client_id);
 
 #ifdef AS_USE_SSL
     if(get_user_data(client_id))
     {
         // INFO: it is assumed that only SSL_Socket assigns user data to each peer
-        log_debug("leaving HTTPmsg__PT::receive_message_on_fd() with returning SSL_Socket::receive_message_on_fd()");
+    	//log_debug("leaving HTTPmsg__PT::receive_message_on_fd() with returning SSL_Socket::receive_message_on_fd()");
         return SSL_Socket::receive_message_on_fd(client_id);
     }
 #endif
 
-    log_debug("leaving HTTPmsg__PT::receive_message_on_fd() with returning Abstract_Socket::receive_message_on_fd()");
+    //log_debug("leaving HTTPmsg__PT::receive_message_on_fd() with returning Abstract_Socket::receive_message_on_fd()");
     return Abstract_Socket::receive_message_on_fd(client_id);
 }
 
 void HTTPmsg__PT::remove_client(int client_id)
 {
-    log_debug("entering HTTPmsg__PT::remove_client(client_id: %d)", client_id);
+	//log_debug("entering HTTPmsg__PT::remove_client(client_id: %d)", client_id);
 
     TTCN_Buffer* buf_p = get_buffer(client_id);
 
     while(buf_p->get_read_len() > 0)
     {
-        log_debug("HTTPmsg__PT::remove_client(): decoding next message, len: %d", (int)buf_p->get_read_len());
+    	//log_debug("HTTPmsg__PT::remove_client(): decoding next message, len: %d", (int)buf_p->get_read_len());
         if(!HTTP_decode(buf_p, client_id,true))
             break;
     }
@@ -453,46 +453,46 @@ void HTTPmsg__PT::remove_client(int client_id)
     if(get_user_data(client_id))
     {
         // INFO: it is assumed that only SSL_Socket assigns user data to each peer
-        log_debug("leaving HTTPmsg__PT::remove_client() with returning SSL_Socket::remove_client()");
+    	//log_debug("leaving HTTPmsg__PT::remove_client() with returning SSL_Socket::remove_client()");
         return SSL_Socket::remove_client(client_id);
     }
 #endif
 
-    log_debug("leaving HTTPmsg__PT::remove_client() with returning Abstract_Socket::remove_client()");
+    //log_debug("leaving HTTPmsg__PT::remove_client() with returning Abstract_Socket::remove_client()");
     return Abstract_Socket::remove_client(client_id);
 }
 
 int HTTPmsg__PT::send_message_on_fd(int client_id, const unsigned char * message_buffer, int length_of_message)
 {
-    log_debug("entering HTTPmsg__PT::send_message_on_fd(client_id: %d)", client_id);
+	//log_debug("entering HTTPmsg__PT::send_message_on_fd(client_id: %d)", client_id);
 
 #ifdef AS_USE_SSL
     if(get_user_data(client_id))
     {
         // INFO: it is assumed that only SSL_Socket assigns user data to each peer
-        log_debug("leaving HTTPmsg__PT::send_message_on_fd() with returning SSL_Socket::send_message_on_fd()");
+    	//log_debug("leaving HTTPmsg__PT::send_message_on_fd() with returning SSL_Socket::send_message_on_fd()");
         return SSL_Socket::send_message_on_fd(client_id, message_buffer, length_of_message);
     }
 #endif
 
-    log_debug("leaving HTTPmsg__PT::send_message_on_fd() with returning Abstract_Socket::send_message_on_fd()");
+    //log_debug("leaving HTTPmsg__PT::send_message_on_fd() with returning Abstract_Socket::send_message_on_fd()");
     return Abstract_Socket::send_message_on_fd(client_id, message_buffer, length_of_message);
 }
 
 int HTTPmsg__PT::send_message_on_nonblocking_fd(int client_id, const unsigned char * message_buffer, int length_of_message)
 {
-    log_debug("entering HTTPmsg__PT::(client_id: %d)", client_id);
+	//log_debug("entering HTTPmsg__PT::(client_id: %d)", client_id);
 
 #ifdef AS_USE_SSL
     if(get_user_data(client_id))
     {
         // INFO: it is assumed that only SSL_Socket assigns user data to each peer
-        log_debug("leaving HTTPmsg__PT::send_message_on_nonblocking_fd() with returning SSL_Socket::send_message_on_nonblocking_fd()");
+    	//log_debug("leaving HTTPmsg__PT::send_message_on_nonblocking_fd() with returning SSL_Socket::send_message_on_nonblocking_fd()");
         return SSL_Socket::send_message_on_nonblocking_fd(client_id, message_buffer, length_of_message);
     }
 #endif
 
-    log_debug("leaving HTTPmsg__PT::send_message_on_nonblocking_fd() with returning Abstract_Socket::send_message_on_nonblocking_fd()");
+    //log_debug("leaving HTTPmsg__PT::send_message_on_nonblocking_fd() with returning Abstract_Socket::send_message_on_nonblocking_fd()");
     return Abstract_Socket::send_message_on_nonblocking_fd(client_id, message_buffer, length_of_message);
 }
 
@@ -936,17 +936,17 @@ void HTTP_decode_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_Params& d
     if (decoding_params.chunked_body)
     {
         HTTP_decode_chunked_body(buffer, body, decoding_params, socket_debugging, test_port_type, test_port_name);
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- After chunked body decoding:");
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- non_persistent_connection: %s",  decoding_params.non_persistent_connection ? "yes" : "no");
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- chunked_body: %s",  decoding_params.chunked_body ? "yes" : "no");
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- content_length: %d",  decoding_params.content_length);
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- error: %s",  decoding_params.error ? "yes" : "no");
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- isMessage: %s",  decoding_params.isMessage ? "yes" : "no");
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- After chunked body decoding:");
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- non_persistent_connection: %s",  decoding_params.non_persistent_connection ? "yes" : "no");
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- chunked_body: %s",  decoding_params.chunked_body ? "yes" : "no");
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- content_length: %d",  decoding_params.content_length);
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- error: %s",  decoding_params.error ? "yes" : "no");
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "--------- isMessage: %s",  decoding_params.isMessage ? "yes" : "no");
 
     }
     else if(decoding_params.content_length >= 0)
     {
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "lengthof body: %d, content_length given: %d", buffer->get_read_len(), decoding_params.content_length);
+    	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "lengthof body: %d, content_length given: %d", buffer->get_read_len(), decoding_params.content_length);
         if(buffer->get_read_len() >= (unsigned)decoding_params.content_length)
         {
             body = OCTETSTRING(decoding_params.content_length, buffer->get_read_data());
@@ -955,7 +955,7 @@ void HTTP_decode_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_Params& d
         else
         {
             decoding_params.isMessage = FALSE;
-            HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "The decoder's body length %d is less than the Content_length in the message header %d; The HTTP port is waiting for additional data.", buffer->get_read_len(), decoding_params.content_length);
+            //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "The decoder's body length %d is less than the Content_length in the message header %d; The HTTP port is waiting for additional data.", buffer->get_read_len(), decoding_params.content_length);
             buffer->set_pos(buffer->get_pos() + buffer->get_read_len());
         }
     }
@@ -968,7 +968,7 @@ void HTTP_decode_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_Params& d
         }
     } else {
             decoding_params.isMessage = FALSE;
-            HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "The HTTP port is waiting for additional data.");
+            //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "The HTTP port is waiting for additional data.");
             buffer->set_pos(buffer->get_pos() + buffer->get_read_len());
     }
 }
@@ -985,10 +985,10 @@ void HTTP_decode_chunked_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_P
         switch(get_line(buffer, line, false))
         {
             case TRUE:
-                HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "line: <%s>", (const char*)line);
+            	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "line: <%s>", (const char*)line);
                 if(sscanf((const char *)line, "%x", &chunk_size) != 1)
                 {
-                    HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "No chunksize found");
+                	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "No chunksize found");
                     body = body + OCTETSTRING(line.lengthof(), (const unsigned char*)(const char*)line);
                     chunk_size = 0;
                     decoding_params.error = TRUE;
@@ -997,11 +997,11 @@ void HTTP_decode_chunked_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_P
                 {
                     if(chunk_size == 0)
                     {
-                        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name, "chunk_size 0 -> closing chunk");
-                        if(get_line(buffer, line, false) == BUFFER_CRLF)
-                            HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "Trailing \\r\\n ok!");
-                        else
-                            TTCN_Logger::log(TTCN_WARNING,"Trailing \\r\\n after the closing chunk is not present, instead it is <%s>!", (const char*)line);
+                    	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name, "chunk_size 0 -> closing chunk");
+                        //if(get_line(buffer, line, false) == BUFFER_CRLF)
+                        	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "Trailing \\r\\n ok!");
+                        //else
+                          //  TTCN_Logger::log(TTCN_WARNING,"Trailing \\r\\n after the closing chunk is not present, instead it is <%s>!", (const char*)line);
                     }
 /*                    else if(chunk_size < 0) // the chunk_size is unsigned, never true
                     {
@@ -1011,10 +1011,10 @@ void HTTP_decode_chunked_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_P
                     }*/
                     else // chunk_size > 0
                     {
-                        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "processing next chunk, size: %d", chunk_size);
+                    	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "processing next chunk, size: %d", chunk_size);
                         if(buffer->get_read_len() < chunk_size)
                         {
-                            HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "chunk size is greater than the buffer length, more data is needed");
+                        	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "chunk size is greater than the buffer length, more data is needed");
                             decoding_params.isMessage = FALSE;
                             chunk_size = 0;
                         }
@@ -1022,34 +1022,34 @@ void HTTP_decode_chunked_body(TTCN_Buffer* buffer, OCTETSTRING& body, Decoding_P
                 }
                 break;
             case FALSE:
-                HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "buffer does not contain a whole line, more data is needed");
+            	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "buffer does not contain a whole line, more data is needed");
                 decoding_params.isMessage = FALSE;
                 chunk_size = 0;
                 break;
             case BUFFER_CRLF:
-                HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "beginning CRLF removed");
+            	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "beginning CRLF removed");
                 continue;
             case BUFFER_FAIL:
-                HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "BUFFER_FAIL");
+            	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "BUFFER_FAIL");
                 decoding_params.error = FALSE;
                 chunk_size = 0;
                 break;
             default:
                 decoding_params.isMessage = FALSE;
                 chunk_size = 0;
-                HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "more data is needed");
+                //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "more data is needed");
         }
 
         body = body + OCTETSTRING(chunk_size, buffer->get_read_data());
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "pull %d bytes from %d", chunk_size, buffer->get_read_len());
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "pull %d bytes from %d", chunk_size, buffer->get_read_len());
         buffer->set_pos(buffer->get_pos() + chunk_size);
         // hack
         if(buffer->get_read_len() && buffer->get_read_data()[0] == '\n')  // don't read from the buffer if there is nothing in it.
         {
-            HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,"hack: adjusted buffer position after the '\\n'");
+        	//HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,"hack: adjusted buffer position after the '\\n'");
             buffer->set_pos(buffer->get_pos() + 1);
         }
-        HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "remaining data: <%s>, len: %d", (const char *)CHARSTRING(buffer->get_read_len(), (const char*)buffer->get_read_data()), buffer->get_read_len());
+        //HTTPmsg__Types::log_debug(socket_debugging, test_port_type, test_port_name,  "remaining data: <%s>, len: %d", (const char *)CHARSTRING(buffer->get_read_len(), (const char*)buffer->get_read_data()), buffer->get_read_len());
     }
 }
 
@@ -1252,10 +1252,10 @@ INTEGER dec__HTTPMessage(OCTETSTRING const& stream, HTTPMessage& msg, const BOOL
   {
       if(f_HTTP_decodeCommon(buf_p, msg, true, socket_debugging, NULL, NULL))
       {
-        log_debug(socket_debugging,"","","dec__HTTPMessage, after decoding:\nbuf_len: %d\nget_len: %d\nget_read_len:%d",
-            buf_len,
-            buf_p->get_len(),
-            buf_p->get_read_len());
+    	  //log_debug(socket_debugging,"","","dec__HTTPMessage, after decoding:\nbuf_len: %d\nget_len: %d\nget_read_len:%d",
+          //  buf_len,
+          //  buf_p->get_len(),
+          //  buf_p->get_read_len());
         buf_len = buf_p->get_read_len(); //remaining data length
       }
       else
