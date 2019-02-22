@@ -202,10 +202,10 @@ module JSONModul {
 	
 	type record System
 	{
-	  Hardware systemHardware optional,
-      charstring systemHostName optional,
+	  Hardware systemHardware,
+      charstring systemHostName,
       integer systemIdentifier,
-      OperatingSystem systemOperatingSystem optional
+      OperatingSystem systemOperatingSystem
 	}
 	
 	type record SystemModel

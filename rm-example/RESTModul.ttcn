@@ -65,7 +65,7 @@ module RESTModul{
 			method := "GET", 
 			uri := p_path, 
 			version_major := 1, 
-			version_minor := 1, 
+			version_minor := 1,
 			header := {}, 
 			body := p_body
 			}
@@ -118,7 +118,7 @@ module RESTModul{
       var Connect_result v_Connect_result;
 	  template Connect t_connect := { hostname := p_serviceInstance.hostname, portnumber := p_serviceInstance.portnumber, use_ssl := false };
 	  template Close t_close := { client_id := omit};
-	  timer t0:=10.0;    
+	  timer t0:=20.0;    
       TestPort.send(t_connect) ;
       t0.start;
       alt 
@@ -140,7 +140,7 @@ module RESTModul{
   		header_name := "Host", 
   		header_value := p_serviceInstance.hostname & ":" & int2str(p_serviceInstance.portnumber)
 	  }
-      timer t1 := 20.0;
+      timer t1 := 30.0;
       t1.start;
       TestPort.send(t_request)
       alt 
@@ -149,6 +149,7 @@ module RESTModul{
         {
           if (ischosen(v_HTTPMessage_response.response_binary))
           {
+            log(oct2unichar(v_HTTPMessage_response.response_binary.body, "UTF-8"));
             v_JSON_PDU := dec_JSON(v_HTTPMessage_response.response_binary.body);
           }
           if (ischosen(v_HTTPMessage_response.response))
@@ -159,13 +160,13 @@ module RESTModul{
         []t1.timeout
         {
           log("Timeout: Sending a message to the service failed. Aborting...");
+          log(v_JSON_PDU);
           return v_JSON_PDU;
         }
       }
 
       // ==== CLOSING-PART ====
       TestPort.send( t_close );
-      
       
       return v_JSON_PDU;
   }

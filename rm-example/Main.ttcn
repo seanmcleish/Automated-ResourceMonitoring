@@ -53,6 +53,24 @@ function DatestringToRoughlySeconds (in charstring p_date) return integer
   var integer seconds := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 5));
   return year*31536000+month*2628000+days*86400+hours*3600+minutes*60+seconds;
 }
+function CalculateMttf(in RegressionParameter p_regressionParameter, in float p_bound) return integer
+{
+
+  if(p_regressionParameter.slopeParameter==0.0 and p_regressionParameter.interceptParameter==0.0)
+  {
+    return -1; // Indicates that the values were always 0
+  }
+  if(p_regressionParameter.slopeParameter==0.0)
+  {
+    return -2; // Indicates that the values were always 0
+  }
+  var integer v_result := float2int((p_bound-p_regressionParameter.interceptParameter)/p_regressionParameter.slopeParameter);
+  if(v_result < 0)
+  {
+    return -3; // Indicates that there is no convergence to the bound or that it is already reached
+  }
+  return v_result;
+}
 
 function CalculateRegressionInteger (in IntegerDictionary p_values) runs on TestComponent return RegressionParameter
 {
@@ -97,7 +115,7 @@ function CalculateRegressionInteger (in IntegerDictionary p_values) runs on Test
       }
       intercept := averageValue-slope*averageCounter;
   	}
-  	log("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
+  	log_debug("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
   	return {slope, intercept};
   }
   
@@ -143,7 +161,7 @@ function CalculateRegressionInteger (in IntegerDictionary p_values) runs on Test
           slope := slope1/slope2;
         }
         intercept := averageValue-slope*averageCounter;
-        log("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
+        log_debug("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
   	}
   return {slope, intercept};
 }
@@ -248,6 +266,50 @@ runs on TestComponent
   }
 }
 
+testcase tc_memoryAvailableSlopeLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeSlopeLowerBound, in integer p_expected_mttf)
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/memory/"&int2str(p_memoryTotalSpace)&"/memoryValues/"&int2str(p_measurementId));
+  var JSONObject v_result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(v_result.memoryValues)))
+  {
+    stop;
+  }
+  if(lengthof(v_result.memoryValues) < 5)
+  {
+    stop;
+  }
+  setverdict(pass);
+  var IntegerDictionary v_values := {};
+  for(var integer i := 0; i<lengthof(v_result.memoryValues); i := i+1)
+  {
+    var KeyValueInteger v_value := 
+    { 
+    	Key := DatestringToRoughlySeconds(v_result.memoryValues[i].memoryValueId.memoryValueTimestamp)-DatestringToRoughlySeconds(v_result.memoryValues[0].memoryValueId.memoryValueTimestamp),
+    	Value := v_result.memoryValues[i].memoryValueAvailable
+    }
+    v_values[i] := v_value;
+  }
+  var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
+  var integer v_current_mttf :=  CalculateMttf(v_regressionResult, p_relativeSlopeLowerBound);
+  log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
+  if(v_current_mttf == -1 or v_current_mttf == -2)
+  {
+    setverdict(none);
+    stop;
+  }
+  if(v_current_mttf == -3)
+  {
+    setverdict(inconc);
+    stop;
+  }
+  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  {
+    setverdict(fail);
+    stop;
+  }
+}
+
 // PROCESSOR
 
 testcase tc_processorUsageSinceStartGreaterThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in charstring p_processorId, in float p_relativeUpperBound) 
@@ -257,10 +319,12 @@ runs on TestComponent
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
   if(not(ischosen(result.processorValues)))
   {
+    log_debug("STOPPING BECAUSE OF UNEXPECTED RESULT (MAYBE NO VALUES)?");
     stop;
   }
   if(lengthof(result.processorValues) < 2)
   {
+    log_debug("STOPPING BECAUSE ONLY ONE RESULT IS IN THE CURRENT ITERATION");
     stop;
   }
   setverdict(pass);
@@ -346,7 +410,7 @@ runs on TestComponent
   }
 }
 
-testcase tc_processMemoryUsageSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound)
+testcase tc_processMemoryUsageSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
 runs on TestComponent 
 {
   if(not(ischosen(p_values.processValues)))
@@ -366,13 +430,66 @@ runs on TestComponent
     	Key := DatestringToRoughlySeconds(p_values.processValues[i].processValueId.processValueTimestamp)-DatestringToRoughlySeconds(p_values.processValues[0].processValueId.processValueTimestamp),
     	Value := p_values.processValues[i].processValueResidentSetSize
     }
-    //log(v_value.Key);
     v_values[i] := v_value;
   }
   var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
-  if(v_regressionResult.slopeParameter > p_relativeSlopeUpperBound)
+  var integer v_current_mttf :=  CalculateMttf(v_regressionResult, v_regressionResult.interceptParameter+p_relativeSlopeUpperBound);
+  log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
+  if(v_current_mttf == -1 or v_current_mttf == -2)
+  {
+    setverdict(none);
+    stop;
+  }
+  if(v_current_mttf == -3)
+  {
+    setverdict(inconc);
+    stop;
+  }
+  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
   {
     setverdict(fail);
+    stop;
+  }
+}
+testcase tc_processHandlesSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
+runs on TestComponent 
+{
+  if(not(ischosen(p_values.processValues)))
+  {
+    stop;
+  }
+  if(lengthof(p_values.processValues) < 5)
+  {
+    stop;
+  }
+  setverdict(pass);
+  var IntegerDictionary v_values := {};
+  for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
+  {
+    var KeyValueInteger v_value := 
+    { 
+    	Key := DatestringToRoughlySeconds(p_values.processValues[i].processValueId.processValueTimestamp)-DatestringToRoughlySeconds(p_values.processValues[0].processValueId.processValueTimestamp),
+    	Value := p_values.processValues[i].processValueHandles
+    }
+    v_values[i] := v_value;
+  }
+  var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
+  var integer v_current_mttf :=  CalculateMttf(v_regressionResult, v_regressionResult.interceptParameter+p_relativeSlopeUpperBound);
+  log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
+  if(v_current_mttf == -1 or v_current_mttf == -2)
+  {
+    setverdict(none);
+    stop;
+  }
+  if(v_current_mttf == -3)
+  {
+    setverdict(inconc);
+    stop;
+  }
+  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  {
+    setverdict(fail);
+    stop;
   }
 }
 
@@ -390,8 +507,9 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
 	control
     {
       // ==== CONFIG ====
-      timer t0:=5.0;
-      const integer c_executionLimit := 5280; // 3 Tage und 16 Stunden
+      timer t0:=20.0;									// Test execution every x seconds 	====>	TestDuration := t0 x c_executionLimit
+      const integer c_executionLimit := 10; 			// How often to execute 			====>	t0 - Intervall	c_executionLimit - How often
+      const integer c_mttf := 172800;					// MTTF --> Mean time to failure	====>	Minimum duration without failure in seconds
       var integer v_executionCounter := 0;
       var SensorInstances v_sensorInstances;
       var ServiceInstance v_serviceInstance := 
@@ -400,12 +518,13 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
         portnumber := 8090
       };
       AddSensor("mpc1493", 10005, v_sensorInstances);
-      AddSensor("localhost", 10005, v_sensorInstances);
+      AddSensor("127.0.0.1", 10005, v_sensorInstances);
       AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
       AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
       AddProcessToSensor(v_sensorInstances[0], "LayTec.DatahubSystemTray");
       AddProcessToSensor(v_sensorInstances[0], "EpiNet-Display");
       AddProcessToSensor(v_sensorInstances[0], "sqlservr");
+      AddProcessToSensor(v_sensorInstances[0], "java");
       AddProcessToSensor(v_sensorInstances[1], "java");
 
 	  // ===== CREATE MEASUREMENT FOR EACH SENSOR AND GET SYSTEM DATA =====
@@ -473,6 +592,16 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
         		0.20
       		)
         );
+        execute
+        (
+        	tc_memoryAvailableSlopeLowerThan(
+        		v_serviceInstance,
+        		v_sensorInstances[i].measurement.measurementId, 
+        		v_sensorInstances[i].measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace,
+        		0.20,
+        		c_mttf
+      		)
+        );
         
         //====CPU USAGE=====
         execute
@@ -486,15 +615,18 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
         );
         
         //====DISK USAGE====
-        execute
+        for(var integer j := 0; j< lengthof(v_sensorInstances[i].measurementSystem.systemHardware.hardwareDisks); j := j+1)
+        {
+          execute
         (
         	tc_diskUsageSinceStartGreaterThan(
         		v_serviceInstance,
         		v_sensorInstances[i].measurement.measurementId, 
-        		v_sensorInstances[i].measurementSystem.systemHardware.hardwareDisks[0].diskSerialNumber, 
+        		v_sensorInstances[i].measurementSystem.systemHardware.hardwareDisks[j].diskSerialNumber, 
         		0.80
       		)
         );
+        }
 
         //====PROCESS TESTCASES ====
         var JSONObject.Processes v_processes :=  v_sensorInstances[i].measurementProcesses;
@@ -531,13 +663,26 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
           {
             log_debug(
           	"Testing if process memory usage trend in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
-          	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped 346 bytes/s");
+          	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped the mttf time");
             execute
           	(
             	tc_processMemoryUsageSlopeGreaterThan
             	(
             		v_values,
-            		346.0
+            		300000000.0,	// MAX ADDITIONAL 300 MB in MTTF_TIME
+            		c_mttf
+            	)
+          	)
+          	log_debug(
+          	"Testing if process handle count trend in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
+          	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped the mttf time");
+            execute
+          	(
+            	tc_processHandlesSlopeGreaterThan
+            	(
+            		v_values,
+            		500.0,	// MAX ADDITIONAL 500 HANDLES in MTTF_TIME
+            		c_mttf
             	)
           	)
           }
@@ -545,7 +690,7 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
       }
       v_executionCounter := v_executionCounter + 1;
       if(v_executionCounter < c_executionLimit){
-        t0.start(60.0);
+        t0.start;
       	t0.timeout;
         goto startTestcases;
       }
