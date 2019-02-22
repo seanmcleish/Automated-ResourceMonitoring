@@ -1,0 +1,167 @@
+module Helper {
+
+import from HTTPmsg_Types all;
+import from RESTModul all;
+import from JSONModul all;
+
+type record of KeyValueInteger IntegerDictionary;
+type record of KeyValueFloat FloatDictionary;
+
+type record RegressionParameter
+{
+  float slopeParameter,		// Steigung
+  float interceptParameter 	// Niveau
+}
+
+type union Number
+{
+  integer asInteger,
+  float asFloat
+}
+
+type record KeyValueInteger
+{
+  integer Key,
+  integer Value
+}
+
+type record KeyValueFloat
+{
+  integer Key,
+  float Value
+}
+
+function ContentLength (in charstring par_body) return charstring
+{
+  var charstring a:=int2str(lengthof (par_body))
+  return a;
+}
+
+function log_debug(in charstring p_message)
+{
+  log("DEBUG - " & p_message);
+}
+
+function DatestringToRoughlySeconds (in charstring p_date) return integer
+{
+  var integer year := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 0));
+  var integer month := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 1));
+  var integer days := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 2));
+  var integer hours := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 3));
+  var integer minutes := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 4));
+  var integer seconds := str2int(regexp(p_date, "(\d*)-(\d*)-(\d*)T(\d*):(\d*):(\d*).(\d*)", 5));
+  return year*31536000+month*2628000+days*86400+hours*3600+minutes*60+seconds;
+}
+function CalculateMttf(in RegressionParameter p_regressionParameter, in float p_bound) return integer
+{
+
+  if(p_regressionParameter.slopeParameter==0.0 and p_regressionParameter.interceptParameter==0.0)
+  {
+    return -1; // Indicates that the values were always 0
+  }
+  if(p_regressionParameter.slopeParameter==0.0)
+  {
+    return -2; // Indicates that the values were always 0
+  }
+  var integer v_result := float2int((p_bound-p_regressionParameter.interceptParameter)/p_regressionParameter.slopeParameter);
+  if(v_result < 0)
+  {
+    return -3; // Indicates that there is no convergence to the bound or that it is already reached
+  }
+  return v_result;
+}
+
+function CalculateRegressionInteger (in IntegerDictionary p_values) runs on TestComponent return RegressionParameter
+{
+  var float slope:=0.0;				// Steigung
+  var float intercept:=0.0;			// Niveau
+  var float averageCounter := 0.0;
+  var float averageValue := 0.0;
+  if(lengthof(p_values)<1)
+  {
+      slope := not_a_number;
+      intercept := not_a_number;
+  }
+  else
+  {
+      // Calculate average
+      for(var integer i := 0; i<lengthof(p_values); i := i+1)
+      {
+        averageCounter := averageCounter + int2float(p_values[i].Key);
+        averageValue := averageValue + int2float(p_values[i].Value);
+      }
+      averageCounter := averageCounter / int2float(lengthof(p_values));
+      averageValue := averageValue / int2float(lengthof(p_values));
+      
+      // Calculate slope
+      var float slope1 := 0.0;
+      var float slope2 := 0.0;
+      for(var integer i := 0; i<lengthof(p_values); i := i+1)
+      {
+        // Numerator
+        slope1 := slope1 + (int2float(p_values[i].Key)-averageCounter)*(int2float(p_values[i].Value)-averageValue);
+        // Denominator
+        slope2 := slope2 + (int2float(p_values[i].Key)-averageCounter)*(int2float(p_values[i].Key)-averageCounter);
+      }
+      slope := slope1;
+      if(slope2==0.0)
+      {
+        slope := 0.0;
+      }
+      else
+      {
+        slope := slope1/slope2;
+      }
+      intercept := averageValue-slope*averageCounter;
+  	}
+  	log_debug("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
+  	return {slope, intercept};
+  }
+  
+  function CalculateRegressionFloat (in FloatDictionary p_values) runs on TestComponent return RegressionParameter
+  {
+    var float slope:=0.0;				// Steigung
+    var float intercept:=0.0;			// Niveau
+    var float averageCounter := 0.0;
+    var float averageValue := 0.0;
+    if(lengthof(p_values)<1)
+    {
+        slope := not_a_number;
+        intercept := not_a_number;
+    }
+    else
+    {
+        // Calculate average
+        for(var integer i := 0; i<lengthof(p_values); i := i+1)
+        {
+          averageCounter := averageCounter + int2float(p_values[i].Key);
+          averageValue := averageValue + p_values[i].Value;
+        }
+        averageCounter := averageCounter / int2float(lengthof(p_values));
+        averageValue := averageValue / int2float(lengthof(p_values));
+        
+        // Calculate slope
+        var float slope1 := 0.0;
+        var float slope2 := 0.0;
+        for(var integer i := 0; i<lengthof(p_values); i := i+1)
+        {
+          // Numerator
+          slope1 := slope1 + (int2float(p_values[i].Key)-averageCounter)*(p_values[i].Value-averageValue);
+          // Denominator
+          slope2 := slope2 + (int2float(p_values[i].Key)-averageCounter)*(int2float(p_values[i].Key)-averageCounter);
+        }
+        slope := slope1;
+        if(slope2==0.0)
+        {
+          slope := 0.0;
+        }
+        else
+        {
+          slope := slope1/slope2;
+        }
+        intercept := averageValue-slope*averageCounter;
+        log_debug("Slope: "& float2str(slope) & " Intercept: "&float2str(intercept) );
+  	}
+  return {slope, intercept};
+}
+}

@@ -1,0 +1,145 @@
+module Testcases_Process {
+
+import from HTTPmsg_Types all;
+import from RESTModul all;
+import from JSONModul all;
+import from Helper all;
+
+testcase tc_createProcessesWithMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, in JSONObject.Process p_process, out JSONObject.Processes p_result)
+runs on TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  var template HTTPMessage post_request := t_POST_Request( "/process?measurementId="&int2str(p_measurementId)&"&processName="&p_process.processName);
+  var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+  if(ischosen(response.Processes))
+  {
+    setverdict(pass);
+    p_result:=response.Processes;
+    for(var integer i := 0; i<lengthof(p_result); i := i+1)
+    {
+      log_debug("Created process \"" & p_result[i].processName & "\" with PID " & int2str(p_result[i].processPid));
+    }
+    log()
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
+testcase tc_processMemoryUsageGreaterThan(in JSONObject p_values, in integer p_memoryTotalSpace, in float p_relativeUpperBound)
+runs on TestComponent 
+{
+  if(not(ischosen(p_values.processValues)))
+  {
+    stop;
+  }
+  setverdict(pass);
+  
+  for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
+  {
+
+    if((int2float(p_values.processValues[i].processValueResidentSetSize)/int2float(p_memoryTotalSpace)) > p_relativeUpperBound)
+    {
+      setverdict(fail);
+      stop;
+    }
+  }
+}
+
+testcase tc_processMemoryUsageSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
+runs on TestComponent 
+{
+  if(not(ischosen(p_values.processValues)))
+  {
+    stop;
+  }
+  if(lengthof(p_values.processValues) < 5)
+  {
+    stop;
+  }
+  setverdict(pass);
+  var IntegerDictionary v_values := {};
+  for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
+  {
+    var KeyValueInteger v_value := 
+    { 
+    	Key := DatestringToRoughlySeconds(p_values.processValues[i].processValueId.processValueTimestamp)-DatestringToRoughlySeconds(p_values.processValues[0].processValueId.processValueTimestamp),
+    	Value := p_values.processValues[i].processValueResidentSetSize
+    }
+    v_values[i] := v_value;
+  }
+  var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
+  var integer v_current_mttf :=  CalculateMttf(v_regressionResult, v_regressionResult.interceptParameter+p_relativeSlopeUpperBound);
+  log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
+  if(v_current_mttf == -1 or v_current_mttf == -2)
+  {
+    setverdict(none);
+    stop;
+  }
+  if(v_current_mttf == -3)
+  {
+    setverdict(inconc);
+    stop;
+  }
+  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  {
+    setverdict(fail);
+    stop;
+  }
+}
+testcase tc_processHandlesSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
+runs on TestComponent 
+{
+  if(not(ischosen(p_values.processValues)))
+  {
+    stop;
+  }
+  if(lengthof(p_values.processValues) < 5)
+  {
+    stop;
+  }
+  setverdict(pass);
+  var IntegerDictionary v_values := {};
+  for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
+  {
+    var KeyValueInteger v_value := 
+    { 
+    	Key := DatestringToRoughlySeconds(p_values.processValues[i].processValueId.processValueTimestamp)-DatestringToRoughlySeconds(p_values.processValues[0].processValueId.processValueTimestamp),
+    	Value := p_values.processValues[i].processValueHandles
+    }
+    v_values[i] := v_value;
+  }
+  var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
+  var integer v_current_mttf :=  CalculateMttf(v_regressionResult, v_regressionResult.interceptParameter+p_relativeSlopeUpperBound);
+  log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
+  if(v_current_mttf == -1 or v_current_mttf == -2)
+  {
+    setverdict(none);
+    stop;
+  }
+  if(v_current_mttf == -3)
+  {
+    setverdict(inconc);
+    stop;
+  }
+  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  {
+    setverdict(fail);
+    stop;
+  }
+}
+
+testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_processId, out JSONObject p_result) runs on TestComponent
+{
+  var template HTTPMessage get_request := t_GET_Request( "/process/" &int2str(p_processId)&"/processValues/" &int2str(p_measurementId));
+  p_result := SendRESTRequest(p_serviceInstance,get_request);
+  if(not(ischosen(p_result.processValues)))
+  {
+    stop;
+  }
+  setverdict(pass);
+
+}
+
+}

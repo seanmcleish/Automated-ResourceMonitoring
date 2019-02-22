@@ -1,0 +1,53 @@
+module Testcases_Processor {
+
+import from HTTPmsg_Types all;
+import from RESTModul all;
+import from JSONModul all;
+import from Helper all;
+
+testcase tc_processorUsageSinceStartGreaterThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in charstring p_processorId, in float p_relativeUpperBound) 
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/processor/"&p_processorId&"/processorValues/"&int2str(p_measurementId));
+  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(result.processorValues)))
+  {
+    log_debug("STOPPING BECAUSE OF UNEXPECTED RESULT (MAYBE NO VALUES)?");
+    stop;
+  }
+  if(lengthof(result.processorValues) < 2)
+  {
+    log_debug("STOPPING BECAUSE ONLY ONE RESULT IS IN THE CURRENT ITERATION");
+    stop;
+  }
+  setverdict(pass);
+  log_debug("Testing if cpu usage since start in measurement with id " & int2str(p_measurementId) & " is greater than " & float2str(p_relativeUpperBound));
+  var JSONObject.processorValue v_firstValue := result.processorValues[0];
+  var JSONObject.processorValue v_lastValue := result.processorValues[lengthof(result.processorValues)-1];
+  var integer v_totalTicks_first := 	v_firstValue .processorValueSystemCpuLoadTicks[0]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[1]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[2]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[3]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[4]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[5]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[6]
+  									+ 	v_firstValue .processorValueSystemCpuLoadTicks[7];
+  									
+  var integer v_totalTicks_last := 		v_lastValue .processorValueSystemCpuLoadTicks[0]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[1]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[2]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[3]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[4]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[5]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[6]
+  									+ 	v_lastValue .processorValueSystemCpuLoadTicks[7];
+  var integer v_idleTicks_first := v_firstValue .processorValueSystemCpuLoadTicks[3] + v_firstValue .processorValueSystemCpuLoadTicks[4];
+  var integer v_idleTicks_last := v_lastValue.processorValueSystemCpuLoadTicks[3] + v_lastValue.processorValueSystemCpuLoadTicks[4];
+  var float v_cpuUsage := int2float(((v_totalTicks_last-v_totalTicks_first)-(v_idleTicks_last-v_idleTicks_first)))/int2float((v_totalTicks_last-v_totalTicks_first));
+  if(v_cpuUsage > p_relativeUpperBound)
+  {
+    setverdict(fail);
+  }
+}
+
+}

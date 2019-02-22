@@ -1,0 +1,73 @@
+module Testcases_Memory {
+
+import from HTTPmsg_Types all;
+import from RESTModul all;
+import from JSONModul all;
+import from Helper all;
+
+testcase tc_memoryAvailableLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeLowerBound) 
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/memory/"&int2str(p_memoryTotalSpace)&"/memoryValues/"&int2str(p_measurementId));
+  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(result.memoryValues)))
+  {
+    stop;
+  }
+  setverdict(pass);
+  log_debug("Testing if available memory in measurement with id " & int2str(p_measurementId) & " fall below " & float2str(p_relativeLowerBound));
+  for(var integer i := 0; i < lengthof(result.memoryValues); i := i+1)
+  {
+    if((int2float(result.memoryValues[i].memoryValueAvailable)/int2float(p_memoryTotalSpace)) < p_relativeLowerBound)
+    {
+      setverdict(fail);
+    }
+  }
+}
+
+testcase tc_memoryAvailableSlopeLowerThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in integer p_memoryTotalSpace, in float p_relativeSlopeLowerBound, in integer p_expected_mttf)
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/memory/"&int2str(p_memoryTotalSpace)&"/memoryValues/"&int2str(p_measurementId));
+  var JSONObject v_result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(v_result.memoryValues)))
+  {
+    stop;
+  }
+  if(lengthof(v_result.memoryValues) < 5)
+  {
+    stop;
+  }
+  setverdict(pass);
+  var IntegerDictionary v_values := {};
+  for(var integer i := 0; i<lengthof(v_result.memoryValues); i := i+1)
+  {
+    var KeyValueInteger v_value := 
+    { 
+    	Key := DatestringToRoughlySeconds(v_result.memoryValues[i].memoryValueId.memoryValueTimestamp)-DatestringToRoughlySeconds(v_result.memoryValues[0].memoryValueId.memoryValueTimestamp),
+    	Value := v_result.memoryValues[i].memoryValueAvailable
+    }
+    v_values[i] := v_value;
+  }
+  var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
+  var integer v_current_mttf :=  CalculateMttf(v_regressionResult, p_relativeSlopeLowerBound);
+  log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
+  if(v_current_mttf == -1 or v_current_mttf == -2)
+  {
+    setverdict(none);
+    stop;
+  }
+  if(v_current_mttf == -3)
+  {
+    setverdict(inconc);
+    stop;
+  }
+  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  {
+    setverdict(fail);
+    stop;
+  }
+}
+
+
+}

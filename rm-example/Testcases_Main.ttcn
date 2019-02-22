@@ -1,0 +1,63 @@
+module Testcases_Main {
+
+import from HTTPmsg_Types all;
+import from RESTModul all;
+import from JSONModul all;
+import from Helper all;
+
+testcase tc_createDataByHostname(in ServiceInstance p_serviceInstance, in charstring p_sensorHostname, in integer p_sensorPortnumber, out JSONObject.Measurement result)
+runs on TestComponent system TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  log_debug("Creating data for sensor=\"" & p_sensorHostname & "\" on service=\"" & p_serviceInstance.hostname);
+  var template HTTPMessage post_request := t_POST_Request("/createDataByHostName?hostName="&p_sensorHostname&"&remotePort="&int2str(p_sensorPortnumber));
+  var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+  if(ischosen(response.Measurement))
+  {
+    setverdict(pass);
+    result:=response.Measurement;
+    log_debug("Created measurement with id " & int2str(result.measurementId));
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
+testcase tc_stopMeasurementByMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId)
+runs on TestComponent system TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  var template HTTPMessage post_request := t_PUT_Request("/measurement/" & int2str(p_measurementId) & "?measurementRunning=false");
+  var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+  if(ischosen(response.Measurement))
+  {
+    setverdict(pass);
+    log_debug("Stopped measurement with id " & int2str(response.Measurement.measurementId));
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
+
+testcase tc_getMeasurementSystemByMeasurementId(in ServiceInstance p_serviceInstance, in integer p_measurementId, out JSONObject.SystemObject p_result)
+runs on TestComponent
+{
+  map(self:TestPort, system:TestPort);
+  var template HTTPMessage get_request := t_GET_Request( "/measurement/"&int2str(p_measurementId)& "/measurementSystem");
+  var JSONObject response := SendRESTRequest(p_serviceInstance, get_request);
+  if(ischosen(response.SystemObject))
+  {
+    setverdict(pass);
+    p_result:=response.SystemObject;
+    log_debug("Retrieved system with id " & int2str(p_result.systemIdentifier));
+  }
+  else
+  {
+    setverdict(none);
+  }
+}
+
+}

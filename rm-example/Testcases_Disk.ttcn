@@ -1,0 +1,36 @@
+module Testcases_Disk {
+
+import from HTTPmsg_Types all;
+import from RESTModul all;
+import from JSONModul all;
+import from Helper all;
+
+testcase tc_diskUsageSinceStartGreaterThan(in ServiceInstance p_serviceInstance, in integer p_measurementId, in charstring p_diskId, in float p_relativeUpperBound) 
+runs on TestComponent 
+{
+  var template HTTPMessage get_request := t_GET_Request( "/disk/"& p_diskId & "/diskValues/" &int2str(p_measurementId));
+  var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+  if(not(ischosen(result.diskValues)))
+  {
+    stop;
+  }
+  if(lengthof(result.diskValues) < 2)
+  {
+    stop;
+  }
+  setverdict(pass);
+  log_debug("Testing if disk usage since start in measurement with id " & int2str(p_measurementId) & " is greater than " & float2str(p_relativeUpperBound));
+  var JSONObject.diskValue v_firstValue := result.diskValues[0];
+  var JSONObject.diskValue v_lastValue := result.diskValues[lengthof(result.diskValues)-1];
+  var integer v_timestamp_first := 	DatestringToRoughlySeconds(v_firstValue.diskValueId.diskValueTimestamp)*1000; 	// convert to ms
+  var integer v_timestamp_last := DatestringToRoughlySeconds(v_lastValue.diskValueId.diskValueTimestamp)*1000;		// convert to ms
+  var integer v_transferTime_first := v_firstValue.diskValueTransferTime;
+  var integer v_transferTime_last := v_lastValue.diskValueTransferTime;
+  var float v_diskUsage := int2float(v_transferTime_last-v_transferTime_first)/int2float(v_timestamp_last-v_timestamp_first);
+  if(v_diskUsage > p_relativeUpperBound)
+  {
+    setverdict(fail);
+  }
+}
+
+}
