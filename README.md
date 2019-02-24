@@ -1,7 +1,7 @@
 # RessourceMonitor
 Bachelor Thesis - Author: Sean McLeish
 
-**# Automated Ressource-Monitoring**
+**# Automated Resource-Monitoring**
 
 ## Description
 This tool enables automated resource monitoring.
