@@ -12,13 +12,15 @@ runs on TestComponent
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
   if(not(ischosen(result.diskValues)))
   {
+    setverdict(none, "No values received for disk with id " & p_diskId & " for measurement with id "&int2str(p_measurementId));
     stop;
   }
   if(lengthof(result.diskValues) < 2)
   {
+    setverdict(none, "Not enough values (minimum 2) received for disk with id " & p_diskId & " for measurement with id "&int2str(p_measurementId));
     stop;
   }
-  setverdict(pass);
+  
   log_debug("Testing if disk usage since start in measurement with id " & int2str(p_measurementId) & " is greater than " & float2str(p_relativeUpperBound));
   var JSONObject.diskValue v_firstValue := result.diskValues[0];
   var JSONObject.diskValue v_lastValue := result.diskValues[lengthof(result.diskValues)-1];
@@ -29,7 +31,10 @@ runs on TestComponent
   var float v_diskUsage := int2float(v_transferTime_last-v_transferTime_first)/int2float(v_timestamp_last-v_timestamp_first);
   if(v_diskUsage > p_relativeUpperBound)
   {
-    setverdict(fail);
+    setverdict(fail, "Diskusage too high for disk with id " & p_diskId & " for measurement with id " & int2str(p_measurementId) & " - UpperBound: " & float2str(p_relativeUpperBound*100.0) & "% Calculated: " & float2str(v_diskUsage*100.0) & "%");
+  }
+  else{
+    setverdict(pass, "Diskusage is ok for disk with id " & p_diskId &" for measurement with id " & int2str(p_measurementId) & " - UpperBound: " & float2str(p_relativeUpperBound*100.0) & "% Calculated: " & float2str(v_diskUsage*100.0) & "%");
   }
 }
 

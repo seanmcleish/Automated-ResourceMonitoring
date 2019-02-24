@@ -14,13 +14,13 @@ runs on TestComponent system TestComponent
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
   if(ischosen(response.Measurement))
   {
-    setverdict(pass);
+    setverdict(pass, "Created data for sensor=\"" & p_sensorHostname & "\" on service=\"" & p_serviceInstance.hostname & " and started measurement with id " & int2str(response.Measurement.measurementId));
     result:=response.Measurement;
     log_debug("Created measurement with id " & int2str(result.measurementId));
   }
   else
   {
-    setverdict(none);
+    setverdict(fail, "No data created for sensor=\"" & p_sensorHostname & "\" on service=\"");
   }
 }
 
@@ -32,12 +32,12 @@ runs on TestComponent system TestComponent
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
   if(ischosen(response.Measurement))
   {
-    setverdict(pass);
+    setverdict(pass, "Stopped measurement with id " & int2str(response.Measurement.measurementId));
     log_debug("Stopped measurement with id " & int2str(response.Measurement.measurementId));
   }
   else
   {
-    setverdict(none);
+    setverdict(fail, "No measurement stopped");
   }
 }
 
@@ -50,13 +50,13 @@ runs on TestComponent
   var JSONObject response := SendRESTRequest(p_serviceInstance, get_request);
   if(ischosen(response.SystemObject))
   {
-    setverdict(pass);
+    
     p_result:=response.SystemObject;
-    log_debug("Retrieved system with id " & int2str(p_result.systemIdentifier));
+    setverdict(pass,"Retrieved system with id " & int2str(p_result.systemIdentifier));
   }
   else
   {
-    setverdict(none);
+    setverdict(fail, "No system received");
   }
 }
 

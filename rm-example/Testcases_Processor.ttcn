@@ -12,15 +12,14 @@ runs on TestComponent
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
   if(not(ischosen(result.processorValues)))
   {
-    log_debug("STOPPING BECAUSE OF UNEXPECTED RESULT (MAYBE NO VALUES)?");
+    setverdict(none, "No processor values received for processor with id " & p_processorId);
     stop;
   }
   if(lengthof(result.processorValues) < 2)
   {
-    log_debug("STOPPING BECAUSE ONLY ONE RESULT IS IN THE CURRENT ITERATION");
+    setverdict(none, "Not enough processor values received for processor with id " & p_processorId);
     stop;
   }
-  setverdict(pass);
   log_debug("Testing if cpu usage since start in measurement with id " & int2str(p_measurementId) & " is greater than " & float2str(p_relativeUpperBound));
   var JSONObject.processorValue v_firstValue := result.processorValues[0];
   var JSONObject.processorValue v_lastValue := result.processorValues[lengthof(result.processorValues)-1];
@@ -46,7 +45,11 @@ runs on TestComponent
   var float v_cpuUsage := int2float(((v_totalTicks_last-v_totalTicks_first)-(v_idleTicks_last-v_idleTicks_first)))/int2float((v_totalTicks_last-v_totalTicks_first));
   if(v_cpuUsage > p_relativeUpperBound)
   {
-    setverdict(fail);
+    setverdict(fail, "Relative processor usage was overstepped for processer with id " & p_processorId&" - UpperBound: "& float2str(p_relativeUpperBound));
+  }
+  else
+  {
+    setverdict(pass, "Relative processor usage was not overstepped for processer with id " & p_processorId&" - UpperBound: "& float2str(p_relativeUpperBound));
   }
 }
 

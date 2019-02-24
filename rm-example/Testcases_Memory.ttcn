@@ -12,15 +12,16 @@ runs on TestComponent
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
   if(not(ischosen(result.memoryValues)))
   {
+    setverdict(none, "No results received for measurement with id " & int2str(p_measurementId));
     stop;
   }
-  setverdict(pass);
+  setverdict(pass, "Enough memory available for measurement with id " &int2str(p_measurementId) & " - LowerBound: " & float2str(p_relativeLowerBound));
   log_debug("Testing if available memory in measurement with id " & int2str(p_measurementId) & " fall below " & float2str(p_relativeLowerBound));
   for(var integer i := 0; i < lengthof(result.memoryValues); i := i+1)
   {
     if((int2float(result.memoryValues[i].memoryValueAvailable)/int2float(p_memoryTotalSpace)) < p_relativeLowerBound)
     {
-      setverdict(fail);
+      setverdict(fail, "Not enough memory available for measurement with id " &int2str(p_measurementId) & " - LowerBound: " & float2str(p_relativeLowerBound*100.0) & " Calculcated: " & float2str(100.0*int2float(result.memoryValues[i].memoryValueAvailable)/int2float(p_memoryTotalSpace)));
     }
   }
 }
@@ -32,13 +33,14 @@ runs on TestComponent
   var JSONObject v_result := SendRESTRequest(p_serviceInstance, get_request);
   if(not(ischosen(v_result.memoryValues)))
   {
+    setverdict(none, "No results received for measurement with id " & int2str(p_measurementId));
     stop;
   }
   if(lengthof(v_result.memoryValues) < 5)
   {
+    setverdict(none, "Not enough results received (minimum 5) for measurement with id " & int2str(p_measurementId));
     stop;
   }
-  setverdict(pass);
   var IntegerDictionary v_values := {};
   for(var integer i := 0; i<lengthof(v_result.memoryValues); i := i+1)
   {
@@ -54,18 +56,21 @@ runs on TestComponent
   log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
   if(v_current_mttf == -1 or v_current_mttf == -2)
   {
-    setverdict(none);
+    setverdict(none, "No results or no trend detected for available memory for measurement with id " &int2str(p_measurementId) & " - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
     stop;
   }
   if(v_current_mttf == -3)
   {
-    setverdict(inconc);
+    setverdict(inconc, "Negative MTTF calculated for measurement with id " & int2str(p_measurementId) & " - Test could be passed(negative trend) or failed(Bound already understepped)");
     stop;
   }
   if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
   {
-    setverdict(fail);
-    stop;
+    setverdict(fail, "Calculated MTTF is not enough for measurement with id " & int2str(p_measurementId) & " - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
+  }
+  else
+  {
+    setverdict(pass, "Calculated MTTF is enough for measurement with id " & int2str(p_measurementId) & " - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
   }
 }
 

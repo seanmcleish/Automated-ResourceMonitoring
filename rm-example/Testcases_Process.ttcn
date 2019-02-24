@@ -13,7 +13,7 @@ runs on TestComponent
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
   if(ischosen(response.Processes))
   {
-    setverdict(pass);
+    setverdict(pass, "Added processes with name " & p_process.processName &" succesfully for measurement with id " & int2str(p_measurementId));
     p_result:=response.Processes;
     for(var integer i := 0; i<lengthof(p_result); i := i+1)
     {
@@ -23,42 +23,44 @@ runs on TestComponent
   }
   else
   {
-    setverdict(none);
+    setverdict(none, "No processes added for name " & p_process.processName);
   }
 }
 
-testcase tc_processMemoryUsageGreaterThan(in JSONObject p_values, in integer p_memoryTotalSpace, in float p_relativeUpperBound)
+testcase tc_processMemoryUsageGreaterThan(in JSONObject.Process p_process, in JSONObject p_values, in integer p_memoryTotalSpace, in float p_relativeUpperBound)
 runs on TestComponent 
 {
   if(not(ischosen(p_values.processValues)))
   {
+    setverdict(none, "No results given for checking process memory usage for process with name "&p_process.processName & " with PID " & int2str(p_process.processPid));
     stop;
   }
-  setverdict(pass);
+  setverdict(pass, "Relative process memory usage was not overstepped for process " & p_process.processName &" - UpperBound: "& float2str(p_relativeUpperBound));
   
   for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
   {
 
     if((int2float(p_values.processValues[i].processValueResidentSetSize)/int2float(p_memoryTotalSpace)) > p_relativeUpperBound)
     {
-      setverdict(fail);
+      setverdict(fail, "Relative process memory usage was overstepped for process " & p_process.processName &" - UpperBound: "& float2str(p_relativeUpperBound) & " Calculated: " & float2str(int2float(p_values.processValues[i].processValueResidentSetSize)/int2float(p_memoryTotalSpace)));
       stop;
     }
   }
 }
 
-testcase tc_processMemoryUsageSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
+testcase tc_processMemoryUsageSlopeGreaterThan(in JSONObject.Process p_process, in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
 runs on TestComponent 
 {
   if(not(ischosen(p_values.processValues)))
   {
+    setverdict(none, "No results given for checking process memory usage for process with name "&p_process.processName & " with PID " & int2str(p_process.processPid));
     stop;
   }
   if(lengthof(p_values.processValues) < 5)
   {
+    setverdict(none, "Not enough results given for checking process memory usage for process with name "&p_process.processName & " with PID " & int2str(p_process.processPid));
     stop;
   }
-  setverdict(pass);
   var IntegerDictionary v_values := {};
   for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
   {
@@ -74,32 +76,33 @@ runs on TestComponent
   log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
   if(v_current_mttf == -1 or v_current_mttf == -2)
   {
-    setverdict(none);
-    stop;
+    setverdict(none, "No results or no trend detected for process memory usage for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
   }
-  if(v_current_mttf == -3)
+  else if(v_current_mttf == -3)
   {
-    setverdict(inconc);
-    stop;
+    setverdict(inconc, "Negative MTTF calculated for process memory usage for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Bound could be already overstepped(fail) or negative trend detected(pass) " );
   }
-  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  else if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
   {
-    setverdict(fail);
-    stop;
+    setverdict(fail, "MTTF not hight enough for process memory usage for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
+  }
+  else{
+    setverdict(pass, "MTTF hight enough for process memory usage for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
   }
 }
-testcase tc_processHandlesSlopeGreaterThan(in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
+testcase tc_processHandlesSlopeGreaterThan(in JSONObject.Process p_process, in JSONObject p_values, in float p_relativeSlopeUpperBound, in integer p_expected_mttf)
 runs on TestComponent 
 {
   if(not(ischosen(p_values.processValues)))
   {
+    setverdict(none, "No results given for checking process handles count for process with name "&p_process.processName & " with PID " & int2str(p_process.processPid));
     stop;
   }
   if(lengthof(p_values.processValues) < 5)
   {
+    setverdict(none, "Not enough results given for checking process handles count for process with name "&p_process.processName & " with PID " & int2str(p_process.processPid));
     stop;
   }
-  setverdict(pass);
   var IntegerDictionary v_values := {};
   for(var integer i := 0; i<lengthof(p_values.processValues); i := i+1)
   {
@@ -113,20 +116,20 @@ runs on TestComponent
   var RegressionParameter v_regressionResult := CalculateRegressionInteger(v_values);
   var integer v_current_mttf :=  CalculateMttf(v_regressionResult, v_regressionResult.interceptParameter+p_relativeSlopeUpperBound);
   log_debug("CALCULATED MTTF IN SECONDS = " & int2str(v_current_mttf));
-  if(v_current_mttf == -1 or v_current_mttf == -2)
+    if(v_current_mttf == -1 or v_current_mttf == -2)
   {
-    setverdict(none);
-    stop;
+    setverdict(none, "No results or no trend detected for process handle count for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
   }
-  if(v_current_mttf == -3)
+  else if(v_current_mttf == -3)
   {
-    setverdict(inconc);
-    stop;
+    setverdict(inconc, "Negative MTTF calculated for process handle count for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Bound could be already overstepped(fail) or negative trend detected(pass) " );
   }
-  if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
+  else if(v_current_mttf < p_expected_mttf)				// IF CURRENT_MTTF < MIN_EXPECTED_MTTF => FAIL
   {
-    setverdict(fail);
-    stop;
+    setverdict(fail, "MTTF not hight enough for process handle count for process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
+  }
+  else{
+    setverdict(pass, "MTTF hight enough for process handle countfor process " & p_process.processName & " with PID "& int2str(p_process.processPid) &" - Allowed MTTF: " & int2str(p_expected_mttf) & "s Caulculated: " & int2str(v_current_mttf) & "s" );
   }
 }
 
@@ -136,9 +139,10 @@ testcase tc_getProcessDataByPid(in ServiceInstance p_serviceInstance, in integer
   p_result := SendRESTRequest(p_serviceInstance,get_request);
   if(not(ischosen(p_result.processValues)))
   {
+    setverdict(none, "No results received process with id "& int2str(p_processId));
     stop;
   }
-  setverdict(pass);
+  setverdict(none, "Results received process with id "& int2str(p_processId));
 
 }
 

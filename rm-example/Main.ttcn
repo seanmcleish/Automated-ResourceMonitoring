@@ -23,15 +23,15 @@ import from Testcases_Processor all;
         hostname := "localhost",
         portnumber := 8090
       };
-      AddSensor("mpc1493", 10005, v_sensorInstances);
-      AddSensor("127.0.0.1", 10005, v_sensorInstances);
-      AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
-      AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
-      AddProcessToSensor(v_sensorInstances[0], "LayTec.DatahubSystemTray");
-      AddProcessToSensor(v_sensorInstances[0], "EpiNet-Display");
-      AddProcessToSensor(v_sensorInstances[0], "sqlservr");
+      AddSensor("localhost", 10005, v_sensorInstances);
+      //AddSensor("127.0.0.1", 10005, v_sensorInstances);
+      //AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
+      //AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
+      //AddProcessToSensor(v_sensorInstances[0], "LayTec.DatahubSystemTray");
+      //AddProcessToSensor(v_sensorInstances[0], "EpiNet-Display");
+      //AddProcessToSensor(v_sensorInstances[0], "sqlservr");
       AddProcessToSensor(v_sensorInstances[0], "java");
-      AddProcessToSensor(v_sensorInstances[1], "java");
+      //AddProcessToSensor(v_sensorInstances[1], "java");
 
 
 	  // ===== CREATE MEASUREMENT FOR EACH SENSOR AND GET SYSTEM DATA =====
@@ -159,6 +159,7 @@ import from Testcases_Processor all;
           (
           	tc_processMemoryUsageGreaterThan
           	(
+          		v_processes[j],
           		v_values,
           		v_sensorInstances[i].measurementSystem.systemHardware.hardwareMemory.memoryTotalSpace,
           		0.20
@@ -175,6 +176,7 @@ import from Testcases_Processor all;
           	(
             	tc_processMemoryUsageSlopeGreaterThan
             	(
+            		v_processes[j],
             		v_values,
             		300000000.0,	// MAX ADDITIONAL 300 MB in MTTF_TIME
             		c_mttf
@@ -187,6 +189,7 @@ import from Testcases_Processor all;
           	(
             	tc_processHandlesSlopeGreaterThan
             	(
+            		v_processes[j],
             		v_values,
             		500.0,	// MAX ADDITIONAL 500 HANDLES in MTTF_TIME
             		c_mttf
