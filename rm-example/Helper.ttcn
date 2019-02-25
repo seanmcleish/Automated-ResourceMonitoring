@@ -1,8 +1,6 @@
 module Helper {
 
-import from HTTPmsg_Types all;
 import from RESTModul all;
-import from JSONModul all;
 
 type record of KeyValueInteger IntegerDictionary;
 type record of KeyValueFloat FloatDictionary;

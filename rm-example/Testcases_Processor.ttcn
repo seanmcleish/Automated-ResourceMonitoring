@@ -10,6 +10,7 @@ runs on TestComponent
 {
   var template HTTPMessage get_request := t_GET_Request( "/processor/"&p_processorId&"/processorValues/"&int2str(p_measurementId));
   var JSONObject result := SendRESTRequest(p_serviceInstance, get_request);
+
   if(not(ischosen(result.processorValues)))
   {
     setverdict(none, "No processor values received for processor with id " & p_processorId);

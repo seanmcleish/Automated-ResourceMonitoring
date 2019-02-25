@@ -83,7 +83,7 @@ module JSONModul {
 	}
 	with 
 	{
-		variant "JSON: as value"
+		variant "JSON: as value";
 	}
 	
 	type record Nullable 
@@ -184,7 +184,7 @@ module JSONModul {
       charstring processName optional,
       integer processPid optional
 	}
-	
+
 	type record Processor
 	{
 	  boolean processorCpu64bit optional,

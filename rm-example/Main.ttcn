@@ -23,15 +23,15 @@ import from Testcases_Processor all;
         hostname := "localhost",
         portnumber := 8090
       };
-      AddSensor("localhost", 10005, v_sensorInstances);
-      //AddSensor("127.0.0.1", 10005, v_sensorInstances);
-      //AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
-      //AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
-      //AddProcessToSensor(v_sensorInstances[0], "LayTec.DatahubSystemTray");
-      //AddProcessToSensor(v_sensorInstances[0], "EpiNet-Display");
-      //AddProcessToSensor(v_sensorInstances[0], "sqlservr");
+      AddSensor("mpc1493", 10005, v_sensorInstances);
+      AddSensor("127.0.0.1", 10005, v_sensorInstances);
+      AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
+      AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
+      AddProcessToSensor(v_sensorInstances[0], "LayTec.DatahubSystemTray");
+      AddProcessToSensor(v_sensorInstances[0], "EpiNet-Display");
+      AddProcessToSensor(v_sensorInstances[0], "sqlservr");
       AddProcessToSensor(v_sensorInstances[0], "java");
-      //AddProcessToSensor(v_sensorInstances[1], "java");
+      AddProcessToSensor(v_sensorInstances[1], "java");
 
 
 	  // ===== CREATE MEASUREMENT FOR EACH SENSOR AND GET SYSTEM DATA =====
@@ -152,9 +152,9 @@ import from Testcases_Processor all;
           	)
           )
           // CHECK PROCESS MEMORY USAGE GREATER THAN 20%
-          log_debug(
-          	"Testing if process memory usage in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
-          	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped 20%");
+          //log_debug(
+          //	"Testing if process memory usage in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
+          //	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped 20%");
           execute
           (
           	tc_processMemoryUsageGreaterThan
@@ -169,9 +169,9 @@ import from Testcases_Processor all;
           
           if(v_executionCounter > 5)
           {
-            log_debug(
-          	"Testing if process memory usage trend in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
-          	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped the mttf time");
+          //  log_debug(
+          //	"Testing if process memory usage trend in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
+          //	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped the mttf time");
             execute
           	(
             	tc_processMemoryUsageSlopeGreaterThan
@@ -182,9 +182,9 @@ import from Testcases_Processor all;
             		c_mttf
             	)
           	)
-          	log_debug(
-          	"Testing if process handle count trend in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
-          	& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped the mttf time");
+          	//log_debug(
+          	//"Testing if process handle count trend in measurement with id " & int2str(v_sensorInstances[i].measurement.measurementId) 
+          	//& " for the process "& v_processes[j].processName & " with pid " & int2str(v_processes[j].processPid) & " overstepped the mttf time");
             execute
           	(
             	tc_processHandlesSlopeGreaterThan

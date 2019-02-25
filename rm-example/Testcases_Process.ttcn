@@ -10,21 +10,28 @@ runs on TestComponent
 {
   map(self:TestPort, system:TestPort);
   var template HTTPMessage post_request := t_POST_Request( "/process?measurementId="&int2str(p_measurementId)&"&processName="&p_process.processName);
+  
   var JSONObject response := SendRESTRequest(p_serviceInstance, post_request);
+
   if(ischosen(response.Processes))
   {
-    setverdict(pass, "Added processes with name " & p_process.processName &" succesfully for measurement with id " & int2str(p_measurementId));
-    p_result:=response.Processes;
-    for(var integer i := 0; i<lengthof(p_result); i := i+1)
+    if(not(ispresent(response.Processes[0].processPid)))
     {
-      log_debug("Created process \"" & p_result[i].processName & "\" with PID " & int2str(p_result[i].processPid));
+      setverdict(fail, "Process with name " & response.Processes[0].processName & " is not running");
     }
-    log()
+    else
+    {
+      setverdict(pass, "Added processes with name " & p_process.processName &" succesfully for measurement with id " & int2str(p_measurementId));
+      p_result:=response.Processes;
+    }
+    
   }
   else
   {
     setverdict(none, "No processes added for name " & p_process.processName);
   }
+
+  
 }
 
 testcase tc_processMemoryUsageGreaterThan(in JSONObject.Process p_process, in JSONObject p_values, in integer p_memoryTotalSpace, in float p_relativeUpperBound)
