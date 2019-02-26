@@ -13,9 +13,9 @@ import from Testcases_Processor all;
 	control
     {
       // ==== CONFIG ====
-      timer t0:=20.0;									// Test execution every x seconds 	====>	TestDuration := t0 x c_executionLimit
+      timer t0:=60.0;									// Test execution every x seconds 	====>	TestDuration := t0 x c_executionLimit
       const integer c_executionLimit := 10; 			// How often to execute 			====>	t0 - Intervall	c_executionLimit - How often
-      const integer c_mttf := 172800;					// MTTF --> Mean time to failure	====>	Minimum duration without failure in seconds
+      const integer c_mttf := 43200;					// MTTF --> Mean time to failure	====>	Minimum duration without failure in seconds
       var integer v_executionCounter := 0;
       var SensorInstances v_sensorInstances;
       var ServiceInstance v_serviceInstance := 
@@ -26,10 +26,8 @@ import from Testcases_Processor all;
       AddSensor("mpc1493", 10005, v_sensorInstances);
       AddSensor("127.0.0.1", 10005, v_sensorInstances);
       AddProcessToSensor(v_sensorInstances[0], "HMSAP.LaytecViewer");
-      AddProcessToSensor(v_sensorInstances[0], "HMS.LAYTEC.CONNECT.TOOL");
       AddProcessToSensor(v_sensorInstances[0], "LayTec.DatahubSystemTray");
       AddProcessToSensor(v_sensorInstances[0], "EpiNet-Display");
-      AddProcessToSensor(v_sensorInstances[0], "sqlservr");
       AddProcessToSensor(v_sensorInstances[0], "java");
       AddProcessToSensor(v_sensorInstances[1], "java");
 
@@ -178,7 +176,7 @@ import from Testcases_Processor all;
             	(
             		v_processes[j],
             		v_values,
-            		300000000.0,	// MAX ADDITIONAL 300 MB in MTTF_TIME
+            		100000000.0,	// MAX ADDITIONAL 300 MB in MTTF_TIME
             		c_mttf
             	)
           	)
